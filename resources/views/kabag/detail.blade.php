@@ -5,31 +5,46 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Detail Laporan #{{ $report->ticket_code }} - KABAG E-LAPOR</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'teal-brand': '#0a8080',
+                        'teal-dark': '#0c3934',
+                        'teal-active': '#1a5b51',
+                        'teal-light': '#ccfbf1',
+                        'emerald-surface': '#ecfdf5',
+                    }
+                }
+            }
+        }
+    </script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style> body { font-family: 'Plus Jakarta Sans', sans-serif; } </style>
 </head>
-<body class="bg-[#F8FAFC] text-[#0F172A] antialiased min-h-screen flex flex-col justify-between"
+<body class="bg-[#F8FAFC] text-[#0F172A] antialiased min-h-screen flex flex-col justify-between selection:bg-[#0a8080] selection:text-white"
       x-data="{ showDisposeModal: false, showRejectModal: false, targetType: 'kasubag' }">
 
     <!-- Header -->
-    <header class="h-20 bg-white border-b border-slate-200 px-6 sm:px-8 flex items-center justify-between sticky top-0 z-30">
-        <div class="flex items-center gap-3">
-            <a href="{{ route('kabag.dashboard') }}" class="p-2 rounded-xl text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition">
+    <header class="h-20 bg-white border-b border-slate-200 px-6 sm:px-8 flex items-center justify-between sticky top-0 z-30 shadow-xs">
+        <div class="flex items-center gap-4">
+            <a href="{{ route('kabag.dashboard') }}" class="p-2.5 rounded-xl border border-slate-200 text-slate-500 hover:text-[#0a8080] hover:bg-slate-50 transition">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
             </a>
             <div>
-                <h1 class="text-base font-bold text-slate-900 leading-tight">Detail & Disposisi Laporan</h1>
-                <p class="text-xs text-slate-500 font-mono">{{ $report->ticket_code }}</p>
+                <h1 class="text-lg font-black text-[#0c3934] leading-tight">Detail & Disposisi Laporan</h1>
+                <p class="text-xs font-mono font-bold text-[#0a8080]">{{ $report->ticket_code }}</p>
             </div>
         </div>
-        <span class="px-3 py-1 rounded-full text-xs font-bold uppercase
+        <span class="px-3.5 py-1.5 rounded-full text-xs font-bold uppercase
             @if ($report->status === 'diajukan') bg-amber-100 text-amber-800
-            @elseif (in_array($report->status, ['didisposisi', 'diterima', 'proses'])) bg-blue-100 text-blue-800
+            @elseif (in_array($report->status, ['didisposisi', 'diterima', 'proses'])) bg-[#ccfbf1] text-[#0f766e]
             @elseif ($report->status === 'verifikasi_kabag') bg-purple-100 text-purple-800
-            @elseif ($report->status === 'selesai') bg-emerald-100 text-emerald-800
+            @elseif ($report->status === 'selesai') bg-[#ecfdf5] text-[#064e3b] border border-[#a7f3d0]
             @elseif ($report->status === 'ditolak') bg-red-100 text-red-800
             @endif">
             Status: {{ str_replace('_', ' ', $report->status) }}
@@ -37,10 +52,10 @@
     </header>
 
     <!-- Main Container -->
-    <main class="max-w-6xl mx-auto px-4 sm:px-6 py-8 w-full flex-grow">
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 py-8 w-full flex-grow">
         @if (session('success'))
-            <div class="mb-6 p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm font-medium flex items-center gap-3">
-                <svg class="w-5 h-5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+            <div class="mb-6 p-4 rounded-2xl bg-[#ecfdf5] border border-[#a7f3d0] text-[#064e3b] text-sm font-semibold flex items-center gap-3">
+                <svg class="w-5 h-5 text-[#059669] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                 <span>{{ session('success') }}</span>
             </div>
         @endif
@@ -62,7 +77,7 @@
                 <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-md">
                     <div class="border-b border-slate-100 pb-4 mb-4">
                         <div class="flex items-center gap-3 text-xs text-slate-500 mb-2">
-                            <span>Ditujukan ke: <strong class="text-[#1E3A5F]">{{ $report->subDepartment?->name ?? 'Dekanat' }}</strong></span>
+                            <span>Ditujukan ke: <strong class="text-[#0a8080]">{{ $report->subDepartment?->name ?? 'Dekanat' }}</strong></span>
                             <span>&bull;</span>
                             <span>Kampus <strong>{{ ucfirst($report->campus_location) }}</strong></span>
                             <span>&bull;</span>
@@ -82,8 +97,8 @@
                             <div class="flex flex-wrap gap-3">
                                 @foreach ($report->evidences->where('type', 'initial') as $ev)
                                     <a href="{{ asset('storage/' . $ev->file_path) }}" target="_blank"
-                                        class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-xs font-semibold text-slate-700 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 transition">
-                                        <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>
+                                        class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-[#ccfbf1] bg-[#f0fdfa] text-xs font-semibold text-[#0a8080] hover:bg-[#ccfbf1] transition">
+                                        <svg class="w-4 h-4 text-[#0a8080]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>
                                         <span>Buka Lampiran Bukti</span>
                                     </a>
                                 @endforeach
@@ -101,15 +116,15 @@
                         <div class="space-y-4">
                             @foreach ($report->dispositions as $disp)
                                 <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100 flex items-start gap-3">
-                                    <div class="w-8 h-8 rounded-full bg-blue-100 text-[#1E3A5F] flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">
+                                    <div class="w-8 h-8 rounded-full bg-[#ecfdf5] text-[#0a8080] flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">
                                         {{ substr($disp->sender?->role ?? 'U', 0, 1) }}
                                     </div>
-                                    <div class="text-xs">
+                                    <div class="text-xs flex-1">
                                         <div class="flex items-center gap-2 mb-1">
                                             <span class="font-bold text-slate-900">{{ $disp->sender?->name }} ({{ strtoupper($disp->sender?->role) }})</span>
                                             @if ($disp->receiver)
                                                 <span class="text-slate-400">&rarr;</span>
-                                                <span class="font-bold text-blue-700">{{ $disp->receiver->name }} ({{ strtoupper($disp->receiver->role) }})</span>
+                                                <span class="font-bold text-[#0a8080]">{{ $disp->receiver->name }} ({{ strtoupper($disp->receiver->role) }})</span>
                                             @endif
                                             <span class="text-slate-400 ml-1">{{ $disp->created_at->diffForHumans() }}</span>
                                         </div>
@@ -146,7 +161,7 @@
 
                         <!-- Button Disposisi -->
                         <button type="button" @click="showDisposeModal = true"
-                            class="w-full py-3 px-4 rounded-xl font-bold bg-[#1E3A5F] hover:bg-[#152a45] text-white text-sm shadow transition flex items-center justify-center gap-2">
+                            class="w-full py-3.5 px-4 rounded-xl font-bold bg-[#0a8080] hover:bg-[#086666] text-white text-sm shadow transition flex items-center justify-center gap-2">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path></svg>
                             <span>Disposisi Laporan</span>
                         </button>
@@ -155,7 +170,7 @@
                         <form action="{{ route('kabag.self-execute', $report) }}" method="POST">
                             @csrf
                             <button type="submit" onclick="return confirm('Apakah Anda yakin ingin memproses laporan ini secara mandiri?')"
-                                class="w-full py-3 px-4 rounded-xl font-bold bg-blue-50 hover:bg-blue-100 text-[#1E3A5F] text-sm border border-blue-200 transition flex items-center justify-center gap-2">
+                                class="w-full py-3 px-4 rounded-xl font-bold bg-[#ecfdf5] hover:bg-[#ccfbf1] text-[#0a8080] text-sm border border-[#a7f3d0] transition flex items-center justify-center gap-2">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                                 <span>Kerjakan Sendiri</span>
                             </button>
@@ -180,7 +195,7 @@
              @click.away="showDisposeModal = false">
             <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-6">
                 <div>
-                    <h3 class="text-xl font-bold text-slate-900">Form Disposisi Laporan</h3>
+                    <h3 class="text-xl font-bold text-[#0c3934]">Form Disposisi Laporan</h3>
                     <p class="text-xs text-slate-500">Tentukan penerima disposisi sesuai hierarki wewenang</p>
                 </div>
                 <button type="button" @click="showDisposeModal = false" class="text-slate-400 hover:text-slate-700 text-xl font-bold">&times;</button>
@@ -192,7 +207,7 @@
                 <!-- Override sub-department if misrouted -->
                 <div>
                     <label class="block text-xs font-bold uppercase text-slate-400 mb-1">Koreksi Sub Bagian Tujuan (Jika Salah Alamat)</label>
-                    <select name="target_sub_department_id" class="w-full px-4 py-2 rounded-xl border border-slate-300 text-sm bg-white">
+                    <select name="target_sub_department_id" class="w-full px-4 py-2 rounded-xl border border-slate-300 text-sm bg-white focus:ring-2 focus:ring-[#0a8080] focus:border-[#0a8080]">
                         @foreach ($subDepartments as $dept)
                             <option value="{{ $dept->id }}" {{ $report->sub_department_id == $dept->id ? 'selected' : '' }}>
                                 {{ $dept->name }}
@@ -209,16 +224,16 @@
                 <div>
                     <label class="block text-xs font-bold uppercase text-slate-400 mb-1">Target Disposisi</label>
                     <div class="grid grid-cols-2 gap-3">
-                        <label class="flex items-center p-3 rounded-xl border cursor-pointer"
-                               :class="targetType === 'kasubag' ? 'border-[#1E3A5F] bg-blue-50/50' : 'border-slate-200'">
-                            <input type="radio" name="target_type" value="kasubag" x-model="targetType" class="text-[#1E3A5F]">
+                        <label class="flex items-center p-3 rounded-xl border cursor-pointer transition"
+                               :class="targetType === 'kasubag' ? 'border-[#0a8080] bg-[#ecfdf5]' : 'border-slate-200'">
+                            <input type="radio" name="target_type" value="kasubag" x-model="targetType" class="text-[#0a8080] focus:ring-[#0a8080]">
                             <span class="ml-2 text-xs font-bold text-slate-800">Kasubag Terkait</span>
                         </label>
 
                         @if ($isDekanat)
-                            <label class="flex items-center p-3 rounded-xl border cursor-pointer"
-                                   :class="targetType === 'petugas' ? 'border-[#1E3A5F] bg-blue-50/50' : 'border-slate-200'">
-                                <input type="radio" name="target_type" value="petugas" x-model="targetType" class="text-[#1E3A5F]">
+                            <label class="flex items-center p-3 rounded-xl border cursor-pointer transition"
+                                   :class="targetType === 'petugas' ? 'border-[#0a8080] bg-[#ecfdf5]' : 'border-slate-200'">
+                                <input type="radio" name="target_type" value="petugas" x-model="targetType" class="text-[#0a8080] focus:ring-[#0a8080]">
                                 <span class="ml-2 text-xs font-bold text-slate-800">Petugas Dekanat</span>
                             </label>
                         @else
@@ -234,7 +249,7 @@
                     <label class="block text-xs font-bold uppercase text-slate-400 mb-1">Pilih Penerima Disposisi <span class="text-red-500">*</span></label>
                     <!-- Kasubags list -->
                     <select name="receiver_id" x-show="targetType === 'kasubag'" required
-                        class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm bg-white">
+                        class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm bg-white focus:ring-2 focus:ring-[#0a8080] focus:border-[#0a8080]">
                         <option value="">Pilih Kasubag</option>
                         @foreach ($kasubags as $kb)
                             <option value="{{ $kb->id }}">{{ $kb->name }} ({{ $kb->subDepartment?->name ?? 'Kasubag' }})</option>
@@ -244,7 +259,7 @@
                     <!-- Petugas Dekanat list -->
                     @if ($isDekanat)
                         <select name="receiver_id" x-show="targetType === 'petugas'"
-                            class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm bg-white">
+                            class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm bg-white focus:ring-2 focus:ring-[#0a8080] focus:border-[#0a8080]">
                             <option value="">Pilih Petugas Dekanat</option>
                             @foreach ($petugasKabag as $pk)
                                 <option value="{{ $pk->id }}">{{ $pk->name }} (Petugas Dekanat)</option>
@@ -257,11 +272,11 @@
                 <div>
                     <label class="block text-xs font-bold uppercase text-slate-400 mb-1">Catatan / Arahan Disposisi</label>
                     <textarea name="notes" rows="3" required placeholder="Tuliskan arahan pelaksanaan..."
-                        class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm"></textarea>
+                        class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-[#0a8080] focus:border-[#0a8080]"></textarea>
                 </div>
 
                 <div class="pt-4 flex gap-3">
-                    <button type="submit" class="flex-grow py-3 rounded-xl font-bold bg-[#1E3A5F] text-white hover:bg-[#152a45] transition text-sm">
+                    <button type="submit" class="flex-grow py-3 rounded-xl font-bold bg-[#0a8080] text-white hover:bg-[#086666] transition text-sm shadow-md">
                         Kirim Disposisi Sekarang
                     </button>
                     <button type="button" @click="showDisposeModal = false" class="py-3 px-5 rounded-xl font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 transition text-sm">

@@ -68,4 +68,23 @@ class FigmaThemeVisualTest extends TestCase
         $history->assertStatus(200);
         $history->assertSee('#0a8080', false);
     }
+
+    public function test_kabag_suite_renders_teal_theme(): void
+    {
+        $kabag = User::factory()->create(['role' => 'kabag', 'email' => 'kabag@unair.ac.id']);
+        
+        $dashboard = $this->actingAs($kabag)->get('/kabag/dashboard');
+        $dashboard->assertStatus(200);
+        $dashboard->assertSee('#0a8080', false);
+        $dashboard->assertSee('#0c3934', false);
+
+        $wb = $this->actingAs($kabag)->get('/kabag/whistleblowing');
+        $wb->assertStatus(200);
+        $wb->assertSee('#0a8080', false);
+        $wb->assertSee('#0c3934', false);
+
+        $verif = $this->actingAs($kabag)->get('/kabag/verifikasi');
+        $verif->assertStatus(200);
+        $verif->assertSee('#0a8080', false);
+    }
 }
