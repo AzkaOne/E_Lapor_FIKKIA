@@ -1,7 +1,45 @@
 <?php
 
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\RegisterController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
+})->name('home');
+
+// Guest Auth Routes
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
+    Route::post('/login', [LoginController::class, 'login']);
+
+    Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
+    Route::post('/register', [RegisterController::class, 'register']);
+});
+
+Route::post('/logout', [LoginController::class, 'logout'])->name('logout')->middleware('auth');
+
+// Role Protected Dashboard Placeholders (will be expanded in subsequent tasks)
+Route::middleware(['auth', 'role:pelapor'])->prefix('pelapor')->name('pelapor.')->group(function () {
+    Route::get('/dashboard', function () {
+        return view('pelapor.dashboard');
+    })->name('dashboard');
+});
+
+Route::middleware(['auth', 'role:kabag'])->prefix('kabag')->name('kabag.')->group(function () {
+    Route::get('/dashboard', function () {
+        return view('kabag.dashboard');
+    })->name('dashboard');
+});
+
+Route::middleware(['auth', 'role:kasubag'])->prefix('kasubag')->name('kasubag.')->group(function () {
+    Route::get('/dashboard', function () {
+        return view('kasubag.dashboard');
+    })->name('dashboard');
+});
+
+Route::middleware(['auth', 'role:petugas'])->prefix('petugas')->name('petugas.')->group(function () {
+    Route::get('/dashboard', function () {
+        return view('petugas.dashboard');
+    })->name('dashboard');
 });
