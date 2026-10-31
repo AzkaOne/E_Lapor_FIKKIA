@@ -51,4 +51,21 @@ class FigmaThemeVisualTest extends TestCase
         $track->assertStatus(200);
         $track->assertSee('#0a8080', false);
     }
+
+    public function test_pelapor_portal_renders_teal_theme(): void
+    {
+        $pelapor = User::factory()->create(['role' => 'pelapor', 'email' => 'mhs@unair.ac.id']);
+        
+        $dashboard = $this->actingAs($pelapor)->get('/pelapor/dashboard');
+        $dashboard->assertStatus(200);
+        $dashboard->assertSee('#0a8080', false);
+
+        $status = $this->actingAs($pelapor)->get('/pelapor/status');
+        $status->assertStatus(200);
+        $status->assertSee('#0a8080', false);
+
+        $history = $this->actingAs($pelapor)->get('/pelapor/riwayat');
+        $history->assertStatus(200);
+        $history->assertSee('#0a8080', false);
+    }
 }

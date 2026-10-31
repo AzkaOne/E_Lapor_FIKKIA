@@ -17,11 +17,11 @@
     <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
             <div class="flex items-center space-x-4">
-                <div class="w-12 h-12 rounded-xl bg-[#1E3A5F] flex items-center justify-center text-white font-extrabold text-xl shadow-md">
+                <div class="w-12 h-12 rounded-xl bg-[#0c3934] flex items-center justify-center text-white font-extrabold text-xl shadow-md">
                     EL
                 </div>
                 <div class="border-l border-slate-200 pl-4 py-1">
-                    <h1 class="text-base sm:text-lg font-bold text-[#1E3A5F] leading-tight tracking-tight">E-LAPOR FIKKIA</h1>
+                    <h1 class="text-base sm:text-lg font-bold text-[#0c3934] leading-tight tracking-tight">E-LAPOR FIKKIA</h1>
                     <p class="text-xs text-slate-500 font-medium">Universitas Airlangga Kampus Banyuwangi</p>
                 </div>
             </div>
@@ -44,15 +44,15 @@
     <!-- Sub-Navbar Navigation Tabs -->
     <div class="bg-white border-b border-slate-200 shadow-xs">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex space-x-2 sm:space-x-8">
-            <a href="{{ route('pelapor.dashboard') }}" class="py-4 border-b-2 border-transparent hover:border-slate-300 text-sm font-semibold text-slate-500 hover:text-slate-800 flex items-center gap-2">
+            <a href="{{ route('pelapor.dashboard') }}" class="py-4 border-b-2 border-transparent hover:border-slate-300 text-sm font-semibold text-slate-500 hover:text-[#0a8080] flex items-center gap-2">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                 <span>Buat Laporan Baru</span>
             </a>
-            <a href="{{ route('pelapor.status') }}" class="py-4 border-b-2 border-[#1E3A5F] text-sm font-bold text-[#1E3A5F] flex items-center gap-2">
+            <a href="{{ route('pelapor.status') }}" class="py-4 border-b-2 border-[#0a8080] text-sm font-bold text-[#0a8080] flex items-center gap-2">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
                 <span>Status Laporan Aktif</span>
             </a>
-            <a href="{{ route('pelapor.history') }}" class="py-4 border-b-2 border-transparent hover:border-slate-300 text-sm font-semibold text-slate-500 hover:text-slate-800 flex items-center gap-2">
+            <a href="{{ route('pelapor.history') }}" class="py-4 border-b-2 border-transparent hover:border-slate-300 text-sm font-semibold text-slate-500 hover:text-[#0a8080] flex items-center gap-2">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 <span>Riwayat Laporan & Rating</span>
             </a>
@@ -68,12 +68,12 @@
 
         @if ($reports->isEmpty())
             <div class="bg-white rounded-3xl p-12 text-center border border-slate-200/80 shadow-sm max-w-lg mx-auto my-8">
-                <div class="w-16 h-16 rounded-2xl bg-blue-50 text-[#1E3A5F] flex items-center justify-center mx-auto mb-4">
+                <div class="w-16 h-16 rounded-2xl bg-[#ecfdf5] text-[#0a8080] flex items-center justify-center mx-auto mb-4">
                     <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                 </div>
                 <h3 class="text-lg font-bold text-slate-900">Belum Ada Laporan Aktif</h3>
                 <p class="text-xs text-slate-500 mt-1 mb-6">Anda tidak memiliki laporan yang sedang diproses saat ini.</p>
-                <a href="{{ route('pelapor.dashboard') }}" class="inline-flex items-center px-5 py-2.5 rounded-xl font-bold bg-[#1E3A5F] text-white text-sm shadow hover:bg-[#152a45] transition">
+                <a href="{{ route('pelapor.dashboard') }}" class="inline-flex items-center px-5 py-2.5 rounded-xl font-bold bg-[#0a8080] text-white text-sm shadow hover:bg-[#086666] transition">
                     + Buat Laporan Sekarang
                 </a>
             </div>
@@ -84,8 +84,8 @@
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 pb-4 mb-4 gap-2">
                             <div>
                                 <div class="flex items-center gap-3">
-                                    <span class="font-mono text-base font-bold text-[#1E3A5F]">{{ $report->ticket_code }}</span>
-                                    <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-[#1E3A5F]">
+                                    <span class="font-mono text-base font-bold text-[#0a8080]">{{ $report->ticket_code }}</span>
+                                    <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#ecfdf5] text-[#064e3b] border border-[#a7f3d0]">
                                         {{ $report->subDepartment?->name }}
                                     </span>
                                     <span class="text-xs text-slate-400">Kampus {{ ucfirst($report->campus_location) }}</span>
@@ -94,8 +94,8 @@
                             </div>
                             <div>
                                 <span class="inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-bold uppercase
-                                    {{ $report->status === 'diajukan' ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800' }}">
-                                    <span class="w-2 h-2 rounded-full mr-2 {{ $report->status === 'diajukan' ? 'bg-amber-500' : 'bg-blue-600' }} animate-pulse"></span>
+                                    {{ $report->status === 'diajukan' ? 'bg-amber-100 text-amber-800' : 'bg-[#ccfbf1] text-[#0f766e]' }}">
+                                    <span class="w-2 h-2 rounded-full mr-2 {{ $report->status === 'diajukan' ? 'bg-amber-500' : 'bg-[#0a8080]' }} animate-pulse"></span>
                                     Status: {{ $report->status }}
                                 </span>
                             </div>
@@ -112,9 +112,9 @@
                                 <div class="space-y-2 text-xs">
                                     @foreach ($report->dispositions as $disp)
                                         <div class="flex items-start gap-2 text-slate-700">
-                                            <span class="w-1.5 h-1.5 rounded-full bg-[#1E3A5F] mt-1.5 shrink-0"></span>
+                                            <span class="w-1.5 h-1.5 rounded-full bg-[#0a8080] mt-1.5 shrink-0"></span>
                                             <div>
-                                                <span class="font-bold text-[#1E3A5F]">{{ $disp->sender?->name }} ({{ strtoupper($disp->sender?->role) }}):</span>
+                                                <span class="font-bold text-[#0a8080]">{{ $disp->sender?->name }} ({{ strtoupper($disp->sender?->role) }}):</span>
                                                 <span class="text-slate-600">{{ $disp->notes }}</span>
                                                 <span class="text-[10px] text-slate-400 ml-1">({{ $disp->created_at->diffForHumans() }})</span>
                                             </div>

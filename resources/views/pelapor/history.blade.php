@@ -17,11 +17,11 @@
     <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
             <div class="flex items-center space-x-4">
-                <div class="w-12 h-12 rounded-xl bg-[#1E3A5F] flex items-center justify-center text-white font-extrabold text-xl shadow-md">
+                <div class="w-12 h-12 rounded-xl bg-[#0c3934] flex items-center justify-center text-white font-extrabold text-xl shadow-md">
                     EL
                 </div>
                 <div class="border-l border-slate-200 pl-4 py-1">
-                    <h1 class="text-base sm:text-lg font-bold text-[#1E3A5F] leading-tight tracking-tight">E-LAPOR FIKKIA</h1>
+                    <h1 class="text-base sm:text-lg font-bold text-[#0c3934] leading-tight tracking-tight">E-LAPOR FIKKIA</h1>
                     <p class="text-xs text-slate-500 font-medium">Universitas Airlangga Kampus Banyuwangi</p>
                 </div>
             </div>
@@ -44,15 +44,15 @@
     <!-- Sub-Navbar Navigation Tabs -->
     <div class="bg-white border-b border-slate-200 shadow-xs">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex space-x-2 sm:space-x-8">
-            <a href="{{ route('pelapor.dashboard') }}" class="py-4 border-b-2 border-transparent hover:border-slate-300 text-sm font-semibold text-slate-500 hover:text-slate-800 flex items-center gap-2">
+            <a href="{{ route('pelapor.dashboard') }}" class="py-4 border-b-2 border-transparent hover:border-slate-300 text-sm font-semibold text-slate-500 hover:text-[#0a8080] flex items-center gap-2">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                 <span>Buat Laporan Baru</span>
             </a>
-            <a href="{{ route('pelapor.status') }}" class="py-4 border-b-2 border-transparent hover:border-slate-300 text-sm font-semibold text-slate-500 hover:text-slate-800 flex items-center gap-2">
+            <a href="{{ route('pelapor.status') }}" class="py-4 border-b-2 border-transparent hover:border-slate-300 text-sm font-semibold text-slate-500 hover:text-[#0a8080] flex items-center gap-2">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
                 <span>Status Laporan Aktif</span>
             </a>
-            <a href="{{ route('pelapor.history') }}" class="py-4 border-b-2 border-[#1E3A5F] text-sm font-bold text-[#1E3A5F] flex items-center gap-2">
+            <a href="{{ route('pelapor.history') }}" class="py-4 border-b-2 border-[#0a8080] text-sm font-bold text-[#0a8080] flex items-center gap-2">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 <span>Riwayat Laporan & Rating</span>
             </a>
@@ -62,8 +62,8 @@
     <!-- Main Content matching Figma node 64:201 -->
     <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
         @if (session('success'))
-            <div class="mb-6 p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm font-medium flex items-center gap-3">
-                <svg class="w-5 h-5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+            <div class="mb-6 p-4 rounded-2xl bg-[#ecfdf5] border border-[#a7f3d0] text-[#064e3b] text-sm font-medium flex items-center gap-3">
+                <svg class="w-5 h-5 text-[#059669] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                 <span>{{ session('success') }}</span>
             </div>
         @endif
@@ -88,8 +88,8 @@
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 pb-4 mb-4 gap-2">
                             <div>
                                 <div class="flex items-center gap-3">
-                                    <span class="font-mono text-base font-bold text-[#1E3A5F]">{{ $report->ticket_code }}</span>
-                                    <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-700">
+                                    <span class="font-mono text-base font-bold text-[#0a8080]">{{ $report->ticket_code }}</span>
+                                    <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#ecfdf5] text-[#064e3b] border border-[#a7f3d0]">
                                         {{ $report->subDepartment?->name }}
                                     </span>
                                     <span class="text-xs text-slate-400">Kampus {{ ucfirst($report->campus_location) }}</span>
@@ -98,8 +98,8 @@
                             </div>
                             <div>
                                 @if ($report->status === 'selesai')
-                                    <span class="inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
-                                        <span class="w-2 h-2 rounded-full bg-emerald-600 mr-2"></span>
+                                    <span class="inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-bold bg-[#ecfdf5] text-[#064e3b] border border-[#a7f3d0]">
+                                        <span class="w-2 h-2 rounded-full bg-[#059669] mr-2"></span>
                                         Selesai {{ $report->execution_result ? '('.ucfirst($report->execution_result).')' : '' }}
                                     </span>
                                 @elseif ($report->status === 'ditolak')
@@ -115,8 +115,8 @@
 
                         <!-- Resolution Notes -->
                         @if ($report->resolution_notes || $report->postponed_reason || $report->rejection_reason)
-                            <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100 mb-6 text-xs text-slate-700">
-                                <span class="font-bold text-[#1E3A5F] block mb-1">Catatan Hasil Tindak Lanjut:</span>
+                            <div class="p-4 rounded-2xl bg-[#f0fdfa] border border-[#ccfbf1] mb-6 text-xs text-slate-700">
+                                <span class="font-bold text-[#0a8080] block mb-1">Catatan Hasil Tindak Lanjut:</span>
                                 <p>{{ $report->resolution_notes ?? $report->postponed_reason ?? $report->rejection_reason }}</p>
                             </div>
                         @endif
@@ -153,7 +153,7 @@
                                             @endfor
                                             <input type="hidden" name="rating" :value="selectedRating">
                                         </div>
-                                        <button type="submit" class="px-4 py-2 rounded-xl text-xs font-bold bg-[#1E3A5F] text-white hover:bg-[#152a45] transition shadow-sm">
+                                        <button type="submit" class="px-4 py-2 rounded-xl text-xs font-bold bg-[#0a8080] text-white hover:bg-[#086666] transition shadow-sm">
                                             Kirim Nilai
                                         </button>
                                     </form>
