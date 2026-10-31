@@ -24,11 +24,14 @@ Route::middleware('guest')->group(function () {
 
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout')->middleware('auth');
 
-// Role Protected Dashboard Placeholders (will be expanded in subsequent tasks)
+// Pelapor Routes
 Route::middleware(['auth', 'role:pelapor'])->prefix('pelapor')->name('pelapor.')->group(function () {
-    Route::get('/dashboard', function () {
-        return view('pelapor.dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard', [\App\Http\Controllers\Pelapor\ReportController::class, 'index'])->name('dashboard');
+    Route::get('/laporan/buat', [\App\Http\Controllers\Pelapor\ReportController::class, 'create'])->name('create');
+    Route::post('/laporan', [\App\Http\Controllers\Pelapor\ReportController::class, 'store'])->name('store');
+    Route::get('/status', [\App\Http\Controllers\Pelapor\ReportController::class, 'status'])->name('status');
+    Route::get('/riwayat', [\App\Http\Controllers\Pelapor\ReportController::class, 'history'])->name('history');
+    Route::post('/laporan/{report}/rating', [\App\Http\Controllers\Pelapor\ReportController::class, 'rate'])->name('rate');
 });
 
 Route::middleware(['auth', 'role:kabag'])->prefix('kabag')->name('kabag.')->group(function () {
