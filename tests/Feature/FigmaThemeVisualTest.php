@@ -29,4 +29,15 @@ class FigmaThemeVisualTest extends TestCase
         $response->assertSee('#0c3934', false);
         $response->assertSee('#1a5b51', false);
     }
+
+    public function test_auth_pages_render_figma_teal_action_buttons(): void
+    {
+        $login = $this->get('/login');
+        $login->assertStatus(200);
+        $login->assertSee('#0a8080', false);
+
+        $register = $this->get('/register');
+        $register->assertStatus(200);
+        $register->assertSee('#0a8080', false);
+    }
 }
