@@ -87,4 +87,21 @@ class FigmaThemeVisualTest extends TestCase
         $verif->assertStatus(200);
         $verif->assertSee('#0a8080', false);
     }
+
+    public function test_kasubag_and_petugas_render_teal_theme(): void
+    {
+        $dept = \App\Models\SubDepartment::create(['name' => 'Sarpras & Logistik', 'code' => 'SARPRAS']);
+        $kasubag = User::factory()->create(['role' => 'kasubag', 'sub_department_id' => $dept->id, 'email' => 'ksb@unair.ac.id']);
+        $petugas = User::factory()->create(['role' => 'petugas', 'sub_department_id' => $dept->id, 'email' => 'ptg@unair.ac.id']);
+
+        $ksbDash = $this->actingAs($kasubag)->get('/kasubag/dashboard');
+        $ksbDash->assertStatus(200);
+        $ksbDash->assertSee('#0c3934', false);
+        $ksbDash->assertSee('#0a8080', false);
+
+        $ptgDash = $this->actingAs($petugas)->get('/petugas/dashboard');
+        $ptgDash->assertStatus(200);
+        $ptgDash->assertSee('#0c3934', false);
+        $ptgDash->assertSee('#0a8080', false);
+    }
 }
