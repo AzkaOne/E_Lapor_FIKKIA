@@ -1,160 +1,227 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth">
+<html lang="id">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>E-LAPOR - Sistem Pengaduan & Aspirasi Online</title>
-
-    <!-- Google Fonts -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-LAPOR FIKKIA UNAIR - Layanan Aspirasi & Pengaduan Kampus</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
-    <!-- Vite Styles & Scripts -->
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans antialiased selection:bg-rose-500 selection:text-white">
-    <!-- Navbar -->
-    <header class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16">
-                <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-rose-600 to-orange-500 flex items-center justify-center text-white font-bold text-xl shadow-md shadow-rose-500/20">
-                        E
-                    </div>
-                    <div>
-                        <span class="text-xl font-extrabold tracking-tight text-slate-900">E-LAPOR</span>
-                        <span class="hidden sm:inline-block ml-2 text-xs font-semibold px-2 py-0.5 rounded-full bg-rose-50 text-rose-600 border border-rose-200">v13</span>
-                    </div>
-                </div>
+<body class="bg-[#F8FAFC] text-[#0F172A] antialiased min-h-screen flex flex-col justify-between selection:bg-[#1E3A5F] selection:text-white">
 
-                <nav class="hidden md:flex items-center space-x-6 text-sm font-medium text-slate-600">
-                    <a href="#tentang" class="hover:text-rose-600 transition">Tentang</a>
-                    <a href="#alur" class="hover:text-rose-600 transition">Alur Pengaduan</a>
-                    <a href="#fitur" class="hover:text-rose-600 transition">Keunggulan</a>
-                    <a href="#status" class="hover:text-rose-600 transition">Cek Status</a>
-                </nav>
-
-                <div class="flex items-center space-x-3">
-                    @if (Route::has('login'))
-                        @auth
-                            <a href="{{ url('/dashboard') }}" class="px-4 py-2 text-sm font-semibold rounded-lg bg-rose-600 text-white hover:bg-rose-700 shadow-sm transition">
-                                Dashboard
-                            </a>
-                        @else
-                            <a href="{{ route('login') }}" class="px-4 py-2 text-sm font-semibold text-slate-700 hover:text-rose-600 transition">
-                                Masuk
-                            </a>
-                            @if (Route::has('register'))
-                                <a href="{{ route('register') }}" class="px-4 py-2 text-sm font-semibold rounded-lg bg-rose-600 text-white hover:bg-rose-700 shadow-sm transition">
-                                    Daftar
-                                </a>
-                            @endif
-                        @endauth
-                    @else
-                        <button class="px-4 py-2 text-sm font-semibold rounded-lg bg-slate-900 text-white hover:bg-slate-800 transition shadow-sm">
-                            Buat Laporan Baru
-                        </button>
-                    @endif
+    <!-- TopHeader matching Figma node 35:579 -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <div class="w-12 h-12 rounded-xl bg-[#1E3A5F] flex items-center justify-center text-white font-extrabold text-xl shadow-md border border-blue-900">
+                    EL
                 </div>
+                <div class="border-l border-slate-200 pl-4 py-1">
+                    <h1 class="text-base sm:text-lg font-bold text-[#1E3A5F] leading-tight tracking-tight">E-LAPOR FIKKIA</h1>
+                    <p class="text-xs text-slate-500 font-medium">Fakultas Ilmu Kesehatan, Kedokteran, dan Ilmu Alam - UNAIR</p>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-3">
+                @auth
+                    <a href="{{ route(auth()->user()->role . '.dashboard') }}" 
+                        class="inline-flex items-center px-4 py-2 rounded-xl text-sm font-semibold bg-[#1E3A5F] text-white hover:bg-[#152a45] shadow-sm transition">
+                        Dashboard Saya
+                    </a>
+                @else
+                    <a href="{{ route('login') }}" 
+                        class="inline-flex items-center px-4 py-2 rounded-xl text-sm font-semibold text-slate-700 hover:text-[#1E3A5F] hover:bg-slate-100 transition">
+                        Masuk
+                    </a>
+                    <a href="{{ route('register') }}" 
+                        class="inline-flex items-center px-4 py-2 rounded-xl text-sm font-semibold bg-[#1E3A5F] text-white hover:bg-[#152a45] shadow-sm transition">
+                        Daftar Akun
+                    </a>
+                @endauth
             </div>
         </div>
     </header>
 
-    <!-- Hero Section -->
-    <section class="relative pt-12 pb-20 md:pt-20 md:pb-32 overflow-hidden">
-        <div class="absolute inset-0 -z-10 bg-[radial-gradient(45rem_50rem_at_top,theme(colors.rose.100),white)] opacity-60"></div>
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center max-w-3xl mx-auto">
-                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-100/80 text-rose-700 text-xs font-semibold mb-6">
-                    <span class="flex h-2 w-2 rounded-full bg-rose-600 animate-pulse"></span>
-                    Laravel {{ app()->version() }} + Tailwind CSS Ready
+    <!-- Main Content -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full">
+        <!-- Hero Header matching Figma node 35:889 -->
+        <div class="max-w-3xl mb-10">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-blue-50 text-[#1E3A5F] border border-blue-200 mb-3 shadow-xs">
+                <span class="w-2 h-2 rounded-full bg-[#2563EB] animate-pulse"></span>
+                E-Lapor FIKKIA Banyuwangi
+            </div>
+            <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
+                Pilih Jenis Laporan
+            </h2>
+            <p class="text-base text-slate-600 mt-2 leading-relaxed">
+                Sampaikan aspirasi, kendala operasional kampus (Mojo, Sobo, Giri), atau laporan pelanggaran secara terarah. Pastikan data yang Anda masukkan tepat agar proses penanganan berjalan cepat dan terukur.
+            </p>
+        </div>
+
+        <!-- 2 Main Cards Grid matching Figma nodes 36:1068 & 36:1069 -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+            <!-- Card 1: Laporan Pelayanan -->
+            <div class="bg-white rounded-3xl p-8 border border-slate-200/80 shadow-md hover:shadow-xl transition duration-300 flex flex-col justify-between relative overflow-hidden group">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-blue-50 rounded-bl-full -z-0 transition-all group-hover:scale-110"></div>
+                <div class="relative z-10">
+                    <div class="flex items-center justify-between mb-5">
+                        <div class="w-14 h-14 rounded-2xl bg-blue-100 text-[#1E3A5F] flex items-center justify-center shadow-inner">
+                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                        </div>
+                        <span class="px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 text-[#1E3A5F] border border-blue-100">
+                            Terautentikasi (NIM/NIP)
+                        </span>
+                    </div>
+
+                    <h3 class="text-2xl font-bold text-slate-900 group-hover:text-[#1E3A5F] transition">
+                        Laporan Pelayanan
+                    </h3>
+                    <p class="text-sm text-slate-500 mt-2 leading-relaxed">
+                        Digunakan untuk membuat laporan pelayanan, fasilitas fisik, sistem akademik, SDM & keuangan menggunakan akun resmi UNAIR.
+                    </p>
+
+                    <!-- Features checklist -->
+                    <div class="mt-6 space-y-3 bg-slate-50/80 p-5 rounded-2xl border border-slate-100 text-sm">
+                        <div class="flex items-start gap-3">
+                            <div class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0 mt-0.5">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                            </div>
+                            <span class="text-slate-700">Masuk menggunakan NIM/NIP & email resmi <strong>@unair.ac.id</strong></span>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <div class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0 mt-0.5">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                            </div>
+                            <span class="text-slate-700">Identitas tercatat untuk validitas & respon resmi dari dekanat</span>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <div class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0 mt-0.5">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                            </div>
+                            <span class="text-slate-700">Riwayat laporan tersimpan otomatis di dashboard pribadi</span>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <div class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0 mt-0.5">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                            </div>
+                            <span class="text-slate-700">Beri penilaian (rating bintang 1–5) setelah pengerjaan selesai</span>
+                        </div>
+                    </div>
                 </div>
-                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 tracking-tight leading-tight">
-                    Layanan Aspirasi & <br class="hidden sm:inline">
-                    <span class="bg-gradient-to-r from-rose-600 to-orange-500 bg-clip-text text-transparent">Pengaduan Online Terpadu</span>
-                </h1>
-                <p class="mt-6 text-lg sm:text-xl text-slate-600 leading-relaxed">
-                    Sampaikan keluhan, aspirasi, atau pengaduan Anda dengan cepat, transparan, dan terintegrasi langsung dengan instansi terkait.
+
+                <div class="mt-8 pt-6 border-t border-slate-100">
+                    <a href="{{ auth()->check() ? route('pelapor.dashboard') : route('login') }}" 
+                        class="w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl font-bold bg-[#1E3A5F] hover:bg-[#152a45] text-white shadow-md hover:shadow-lg transition">
+                        <span>{{ auth()->check() ? 'Buka Dashboard Laporan' : 'Masuk / Lapor Sekarang' }}</span>
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Card 2: Laporan Anonim / Whistleblowing -->
+            <div class="bg-white rounded-3xl p-8 border border-slate-200/80 shadow-md hover:shadow-xl transition duration-300 flex flex-col justify-between relative overflow-hidden group">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-amber-50 rounded-bl-full -z-0 transition-all group-hover:scale-110"></div>
+                <div class="relative z-10">
+                    <div class="flex items-center justify-between mb-5">
+                        <div class="w-14 h-14 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center shadow-inner">
+                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                            </svg>
+                        </div>
+                        <span class="px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200">
+                            100% Rahasia & Anonim
+                        </span>
+                    </div>
+
+                    <h3 class="text-2xl font-bold text-slate-900 group-hover:text-amber-700 transition">
+                        Laporan Whistleblowing (Anonim)
+                    </h3>
+                    <p class="text-sm text-slate-500 mt-2 leading-relaxed">
+                        Saluran aman untuk melaporkan indikasi pelanggaran etika, pungli, penyalahgunaan wewenang, atau hal sensitif tanpa membagikan identitas Anda.
+                    </p>
+
+                    <!-- Features checklist -->
+                    <div class="mt-6 space-y-3 bg-amber-50/50 p-5 rounded-2xl border border-amber-100 text-sm">
+                        <div class="flex items-start gap-3">
+                            <div class="w-5 h-5 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center shrink-0 mt-0.5">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                            </div>
+                            <span class="text-slate-700"><strong>Tanpa login</strong> dan tanpa riwayat data pribadi tersimpan</span>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <div class="w-5 h-5 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center shrink-0 mt-0.5">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                            </div>
+                            <span class="text-slate-700">Mendapatkan <strong>Kode Tiket Unik</strong> untuk melacak progres secara mandiri</span>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <div class="w-5 h-5 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center shrink-0 mt-0.5">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                            </div>
+                            <span class="text-slate-700">Ditangani <strong>eksklusif langsung oleh KABAG (Dekanat)</strong></span>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <div class="w-5 h-5 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center shrink-0 mt-0.5">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                            </div>
+                            <span class="text-slate-700">Petugas lapangan & pihak lain tidak memiliki akses ke laporan ini</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-8 pt-6 border-t border-slate-100">
+                    <a href="{{ route('whistleblowing.create') }}" 
+                        class="w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl font-bold bg-[#D97706] hover:bg-[#b45309] text-white shadow-md hover:shadow-lg transition">
+                        <span>Buat Laporan Anonim Sekarang</span>
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Public Quick Tracker Bar -->
+        <div class="bg-gradient-to-r from-[#1E3A5F] to-[#2563EB] rounded-3xl p-8 sm:p-10 text-white shadow-xl relative overflow-hidden">
+            <div class="relative z-10 max-w-2xl">
+                <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-white/20 text-white mb-2">
+                    Lacak Status Laporan
+                </span>
+                <h3 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Punya Kode Tiket Laporan?</h3>
+                <p class="text-blue-100 text-sm mt-1 mb-6">
+                    Masukkan kode tiket unik yang Anda peroleh saat membuat pengaduan anonim (contoh: <code>WB-2026-XXXXX</code>) untuk memantau status penyelesaiannya secara real-time.
                 </p>
 
-                <!-- Action Card / Form Trigger -->
-                <div class="mt-10 max-w-xl mx-auto p-3 bg-white rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-100 flex flex-col sm:flex-row gap-3">
-                    <input type="text" placeholder="Masukkan nomor tiket pengaduan..." class="flex-1 px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 text-sm">
-                    <button class="px-6 py-3 rounded-xl bg-gradient-to-r from-rose-600 to-orange-500 text-white font-semibold text-sm hover:from-rose-700 hover:to-orange-600 transition shadow-md shadow-rose-500/25 flex items-center justify-center gap-2">
-                        <span>Lacak Laporan</span>
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                <form action="{{ route('tracking') }}" method="GET" class="flex flex-col sm:flex-row gap-3">
+                    <div class="relative flex-grow">
+                        <input type="text" name="ticket_code" required
+                            placeholder="Ketik Kode Tiket (misal: WB-2026-XXXXX)"
+                            class="w-full px-5 py-3.5 rounded-xl bg-white text-slate-900 placeholder-slate-400 font-mono text-sm font-semibold focus:outline-none focus:ring-4 focus:ring-blue-300 shadow-sm uppercase">
+                    </div>
+                    <button type="submit"
+                        class="px-8 py-3.5 rounded-xl font-bold bg-amber-500 hover:bg-amber-600 text-slate-900 shadow-md hover:shadow-lg transition duration-200 shrink-0 flex items-center justify-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        <span>Cek Laporan</span>
                     </button>
-                </div>
-            </div>
-
-            <!-- Stats Overview -->
-            <div class="mt-16 grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
-                <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm text-center">
-                    <div class="text-3xl font-black text-rose-600">1.250+</div>
-                    <div class="text-xs font-semibold uppercase tracking-wider text-slate-500 mt-1">Laporan Diterima</div>
-                </div>
-                <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm text-center">
-                    <div class="text-3xl font-black text-emerald-600">98%</div>
-                    <div class="text-xs font-semibold uppercase tracking-wider text-slate-500 mt-1">Terselesaikan</div>
-                </div>
-                <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm text-center">
-                    <div class="text-3xl font-black text-amber-500">< 24 Jam</div>
-                    <div class="text-xs font-semibold uppercase tracking-wider text-slate-500 mt-1">Respon Awal</div>
-                </div>
-                <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm text-center">
-                    <div class="text-3xl font-black text-indigo-600">100%</div>
-                    <div class="text-xs font-semibold uppercase tracking-wider text-slate-500 mt-1">Kerahasiaan Aman</div>
-                </div>
+                </form>
             </div>
         </div>
-    </section>
+    </main>
 
-    <!-- Workflow Steps -->
-    <section id="alur" class="py-16 bg-white border-y border-slate-200">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center max-w-2xl mx-auto mb-12">
-                <h2 class="text-3xl font-bold text-slate-900">Alur Penyampaian Pengaduan</h2>
-                <p class="mt-3 text-slate-600">4 langkah mudah untuk melaporkan permasalahan di sekitar Anda.</p>
+    <!-- Footer matching Figma node 35:891 -->
+    <footer class="bg-white border-t border-slate-200 py-6 px-4">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-2">
+            <p>&copy; 2026 FIKKIA Universitas Airlangga. All rights reserved.</p>
+            <p class="font-medium text-slate-700">E-Lapor. Suara Anda, Perubahan Nyata.</p>
+            <div class="flex items-center gap-4">
+                <span>Kampus Mojo</span> &bull; <span>Kampus Sobo</span> &bull; <span>Kampus Giri</span>
             </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-                <div class="relative p-6 rounded-2xl bg-slate-50 border border-slate-100">
-                    <div class="w-10 h-10 rounded-xl bg-rose-600 text-white font-bold flex items-center justify-center mb-4">1</div>
-                    <h3 class="font-bold text-slate-900 mb-2">Tulis Laporan</h3>
-                    <p class="text-sm text-slate-600">Laporkan keluhan atau aspirasi Anda secara jelas lengkap dengan bukti foto atau dokumen.</p>
-                </div>
-                <div class="relative p-6 rounded-2xl bg-slate-50 border border-slate-100">
-                    <div class="w-10 h-10 rounded-xl bg-rose-600 text-white font-bold flex items-center justify-center mb-4">2</div>
-                    <h3 class="font-bold text-slate-900 mb-2">Proses Verifikasi</h3>
-                    <p class="text-sm text-slate-600">Petugas melakukan verifikasi dan meneruskan pengaduan ke pihak yang berwenang.</p>
-                </div>
-                <div class="relative p-6 rounded-2xl bg-slate-50 border border-slate-100">
-                    <div class="w-10 h-10 rounded-xl bg-rose-600 text-white font-bold flex items-center justify-center mb-4">3</div>
-                    <h3 class="font-bold text-slate-900 mb-2">Tindak Lanjut</h3>
-                    <p class="text-sm text-slate-600">Instansi menindaklanjuti laporan dan memberikan progres real-time kepada pelapor.</p>
-                </div>
-                <div class="relative p-6 rounded-2xl bg-slate-50 border border-slate-100">
-                    <div class="w-10 h-10 rounded-xl bg-rose-600 text-white font-bold flex items-center justify-center mb-4">4</div>
-                    <h3 class="font-bold text-slate-900 mb-2">Selesai</h3>
-                    <p class="text-sm text-slate-600">Pengaduan dinyatakan tuntas dan masyarakat dapat memberikan umpan balik penilaian.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="bg-slate-900 text-slate-400 py-12">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center sm:flex sm:justify-between sm:items-center">
-            <div class="flex items-center justify-center sm:justify-start space-x-3 mb-4 sm:mb-0">
-                <div class="w-8 h-8 rounded-lg bg-rose-600 flex items-center justify-center text-white font-bold text-sm">
-                    E
-                </div>
-                <span class="text-lg font-bold text-white">E-LAPOR</span>
-            </div>
-            <p class="text-xs">
-                &copy; {{ date('Y') }} E-LAPOR. Built with Laravel 13 & Tailwind CSS.
-            </p>
         </div>
     </footer>
 </body>

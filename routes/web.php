@@ -2,11 +2,16 @@
 
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\PublicController;
+use App\Http\Controllers\WhistleblowingController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-})->name('home');
+Route::get('/', [PublicController::class, 'index'])->name('home');
+Route::get('/tracking', [PublicController::class, 'track'])->name('tracking');
+
+// Public Whistleblowing Routes
+Route::get('/whistleblowing/buat', [WhistleblowingController::class, 'create'])->name('whistleblowing.create');
+Route::post('/whistleblowing', [WhistleblowingController::class, 'store'])->name('whistleblowing.store');
 
 // Guest Auth Routes
 Route::middleware('guest')->group(function () {
