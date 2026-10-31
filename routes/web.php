@@ -64,8 +64,11 @@ Route::middleware(['auth', 'role:kasubag'])->prefix('kasubag')->name('kasubag.')
     Route::get('/riwayat', [\App\Http\Controllers\Kasubag\DashboardController::class, 'history'])->name('history');
 });
 
+// Petugas Routes
 Route::middleware(['auth', 'role:petugas'])->prefix('petugas')->name('petugas.')->group(function () {
-    Route::get('/dashboard', function () {
-        return view('petugas.dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard', [\App\Http\Controllers\Petugas\DashboardController::class, 'index'])->name('dashboard');
+    Route::post('/laporan/{report}/mulai', [\App\Http\Controllers\Petugas\ExecutionController::class, 'start'])->name('start');
+    Route::post('/laporan/{report}/selesai', [\App\Http\Controllers\Petugas\ExecutionController::class, 'complete'])->name('complete');
+    Route::get('/laporan-saya', [\App\Http\Controllers\Petugas\DashboardController::class, 'myReports'])->name('my-reports');
+    Route::get('/riwayat', [\App\Http\Controllers\Petugas\DashboardController::class, 'history'])->name('history');
 });
