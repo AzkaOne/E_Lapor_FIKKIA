@@ -54,6 +54,10 @@ Route::middleware(['auth', 'role:kabag'])->prefix('kabag')->name('kabag.')->grou
     Route::get('/whistleblowing', [\App\Http\Controllers\Kabag\WhistleblowingController::class, 'index'])->name('whistleblowing');
     Route::post('/whistleblowing/{report}/proses', [\App\Http\Controllers\Kabag\WhistleblowingController::class, 'process'])->name('whistleblowing.process');
     Route::post('/whistleblowing/{report}/selesai', [\App\Http\Controllers\Kabag\WhistleblowingController::class, 'complete'])->name('whistleblowing.complete');
+
+    // User Management (Kasubag & Petugas)
+    Route::get('/users', [\App\Http\Controllers\Kabag\UserManagementController::class, 'index'])->name('users.index');
+    Route::post('/users', [\App\Http\Controllers\Kabag\UserManagementController::class, 'store'])->name('users.store');
 });
 
 // Kasubag Routes
@@ -67,6 +71,10 @@ Route::middleware(['auth', 'role:kasubag'])->prefix('kasubag')->name('kasubag.')
     Route::get('/laporan-saya', [\App\Http\Controllers\Kasubag\DashboardController::class, 'myReports'])->name('my-reports');
     Route::get('/status', [\App\Http\Controllers\Kasubag\DashboardController::class, 'status'])->name('status');
     Route::get('/riwayat', [\App\Http\Controllers\Kasubag\DashboardController::class, 'history'])->name('history');
+
+    // Petugas Management
+    Route::get('/petugas', [\App\Http\Controllers\Kasubag\UserManagementController::class, 'index'])->name('petugas.index');
+    Route::post('/petugas', [\App\Http\Controllers\Kasubag\UserManagementController::class, 'store'])->name('petugas.store');
 });
 
 // Petugas Routes
