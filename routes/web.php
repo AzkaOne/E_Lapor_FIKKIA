@@ -34,10 +34,21 @@ Route::middleware(['auth', 'role:pelapor'])->prefix('pelapor')->name('pelapor.')
     Route::post('/laporan/{report}/rating', [\App\Http\Controllers\Pelapor\ReportController::class, 'rate'])->name('rate');
 });
 
+// Kabag Routes
 Route::middleware(['auth', 'role:kabag'])->prefix('kabag')->name('kabag.')->group(function () {
-    Route::get('/dashboard', function () {
-        return view('kabag.dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard', [\App\Http\Controllers\Kabag\DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/laporan/{report}', [\App\Http\Controllers\Kabag\DashboardController::class, 'show'])->name('show');
+    Route::post('/laporan/{report}/disposisi', [\App\Http\Controllers\Kabag\DispositionController::class, 'dispose'])->name('dispose');
+    Route::post('/laporan/{report}/kerjakan-sendiri', [\App\Http\Controllers\Kabag\DispositionController::class, 'selfExecute'])->name('self-execute');
+    Route::post('/laporan/{report}/selesai-mandiri', [\App\Http\Controllers\Kabag\DispositionController::class, 'completeSelfExecution'])->name('complete-self');
+    Route::post('/laporan/{report}/tolak', [\App\Http\Controllers\Kabag\DispositionController::class, 'reject'])->name('reject');
+    Route::get('/laporan-saya', [\App\Http\Controllers\Kabag\DashboardController::class, 'myReports'])->name('my-reports');
+    Route::get('/riwayat', [\App\Http\Controllers\Kabag\DashboardController::class, 'history'])->name('history');
+
+    // Whistleblowing Exclusive Tab
+    Route::get('/whistleblowing', [\App\Http\Controllers\Kabag\WhistleblowingController::class, 'index'])->name('whistleblowing');
+    Route::post('/whistleblowing/{report}/proses', [\App\Http\Controllers\Kabag\WhistleblowingController::class, 'process'])->name('whistleblowing.process');
+    Route::post('/whistleblowing/{report}/selesai', [\App\Http\Controllers\Kabag\WhistleblowingController::class, 'complete'])->name('whistleblowing.complete');
 });
 
 Route::middleware(['auth', 'role:kasubag'])->prefix('kasubag')->name('kasubag.')->group(function () {
