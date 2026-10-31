@@ -45,6 +45,11 @@ Route::middleware(['auth', 'role:kabag'])->prefix('kabag')->name('kabag.')->grou
     Route::get('/laporan-saya', [\App\Http\Controllers\Kabag\DashboardController::class, 'myReports'])->name('my-reports');
     Route::get('/riwayat', [\App\Http\Controllers\Kabag\DashboardController::class, 'history'])->name('history');
 
+    // Verification Tab
+    Route::get('/verifikasi', [\App\Http\Controllers\Kabag\VerificationController::class, 'index'])->name('verifikasi.index');
+    Route::post('/verifikasi/{report}/approve', [\App\Http\Controllers\Kabag\VerificationController::class, 'approve'])->name('verifikasi.approve');
+    Route::post('/verifikasi/{report}/revisi', [\App\Http\Controllers\Kabag\VerificationController::class, 'requestRevision'])->name('verifikasi.revisi');
+
     // Whistleblowing Exclusive Tab
     Route::get('/whistleblowing', [\App\Http\Controllers\Kabag\WhistleblowingController::class, 'index'])->name('whistleblowing');
     Route::post('/whistleblowing/{report}/proses', [\App\Http\Controllers\Kabag\WhistleblowingController::class, 'process'])->name('whistleblowing.process');
