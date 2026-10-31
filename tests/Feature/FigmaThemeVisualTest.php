@@ -40,4 +40,15 @@ class FigmaThemeVisualTest extends TestCase
         $register->assertStatus(200);
         $register->assertSee('#0a8080', false);
     }
+
+    public function test_whistleblowing_and_tracking_render_teal_theme(): void
+    {
+        $wb = $this->get('/whistleblowing/buat');
+        $wb->assertStatus(200);
+        $wb->assertSee('#0a8080', false);
+
+        $track = $this->get('/tracking');
+        $track->assertStatus(200);
+        $track->assertSee('#0a8080', false);
+    }
 }
