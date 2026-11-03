@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Pelapor - E-LAPOR FIKKIA</title>
+
+  <!-- Google Fonts: Plus Jakarta Sans, Poppins, Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            poppins: ['"Poppins"', 'sans-serif'],
+            inter: ['"Inter"', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              header: '#0C3934',
+              sidebar: '#2E978E',
+              sidebarActive: '#1B736B',
+              primaryTeal: '#0a8080',
+              primaryHover: '#086666',
+              darkHeading: '#0E3B43',
+              darkNavy: '#1E293B',
+              slateText: '#475569',
+              lightMint: '#CCFBF1',
+              softMintBorder: '#99F6E4',
+              pageBg: '#F4F7F8',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+      background-color: #F4F7F8;
+    }
+    .custom-scroll::-webkit-scrollbar {
+      width: 5px;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+      background-color: #cbd5e1;
+      border-radius: 9999px;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-[#F4F7F8] flex flex-col text-slate-800 antialiased selection:bg-[#0a8080] selection:text-white relative overflow-x-hidden">
+
+  <!-- ================= TOP HEADER BAR ================= -->
+ @include('komponen.header_Pelapor')
+
+  <!-- ================= LAYOUT CONTAINER ================= -->
+  <div class="flex-1 flex w-full relative pt-14">
+
+    <!-- ================= SIDEBAR NAVIGATION ================= -->
+    @include('komponen.sidebar_Pelapor')
+
+    <!-- ================= MAIN CONTENT ================= -->
+    <main class="flex-1 lg:ml-52 py-4 sm:py-5 px-4 sm:px-6 lg:px-8 max-w-[1220px] w-full mx-auto min-w-0">
+
+      <!-- Top Title & Badge Banner (Compact) -->
+      <div class="mb-4 space-y-1">
+        <div class="flex items-center gap-2.5">
+          <span class="text-xs font-semibold text-[#115E59] font-['Inter',sans-serif]">
+            Dashboard
+          </span>
+        </div>
+        <div class="flex items-center gap-2.5">
+          <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#CCFBF1] border border-[#99F6E4] text-[#115E59] font-['Plus_Jakarta_Sans',sans-serif] text-[11px] font-bold shadow-xs">
+            <span class="w-1.5 h-1.5 rounded-full bg-[#115E59]"></span>
+            E-Lapor FIKKIA
+          </div>
+        </div>
+
+        <h1 class="text-xl sm:text-2xl font-extrabold text-[#0E3B43] font-['Plus_Jakarta_Sans',sans-serif] tracking-tight">
+          Buat Laporan
+        </h1>
+
+        <p class="text-xs text-[#64748B] font-['Inter',sans-serif] max-w-2xl leading-normal">
+          Sampaikan permasalahan, saran, atau keluhan Anda. Laporan akan diteruskan melalui alur yang telah ditentukan.
+        </p>
+      </div>
+
+      <!-- Success & Error Notifications -->
+      @if (session('success'))
+        <div class="mb-4 p-3 rounded-xl bg-[#ECFDF5] border border-[#A7F3D0] text-[#064E3B] text-xs font-medium flex items-center gap-2.5 shadow-xs">
+          <svg class="w-4 h-4 text-[#059669] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+          </svg>
+          <span>{{ session('success') }}</span>
+        </div>
+      @endif
+
+      @if ($errors->any())
+        <div class="mb-4 p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-medium shadow-xs">
+          <ul class="list-disc list-inside space-y-0.5">
+            @foreach ($errors->all() as $error)
+              <li>{{ $error }}</li>
+            @endforeach
+          </ul>
+        </div>
+      @endif
+
+      <!-- Two-Column Grid: Form (7-8 Cols) : Info & Stats (4-5 Cols) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 items-start">
+
+        <!-- ================= FORM PENGADUAN ================= -->
+        <section class="lg:col-span-7 xl:col-span-8 bg-white rounded-2xl p-4 sm:p-5 border border-[#E2E8F0] shadow-sm">
+
+          <!-- Form Header -->
+          <div class="flex items-center gap-3 pb-3.5 mb-4 border-b border-slate-100">
+            <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#F0FDFA] border border-[#0D9488]/30 text-[#0D9488] flex items-center justify-center shrink-0 shadow-xs">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+            </div>
+            <div>
+              <h2 class="text-base sm:text-[17px] font-bold text-[#1E293B] font-['Inter',sans-serif] leading-tight">
+                Form Laporan
+              </h2>
+              <p class="text-[11px] sm:text-xs text-[#64748B] font-['Inter',sans-serif] mt-0.5">
+                Isi data berikut dengan lengkap dan benar
+              </p>
+            </div>
+          </div>
+
+          <!-- Submission Form -->
+          <form action="{{ route('pelapor.store') }}" method="POST" enctype="multipart/form-data" class="space-y-3.5 sm:space-y-4" id="reportForm">
+            @csrf
+
+            <!-- Field 1: Judul Keluhan -->
+            <div class="space-y-1">
+              <label for="title" class="block text-xs font-semibold text-[#334155] font-['Inter',sans-serif]">
+                1. Judul Keluhan <span class="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                id="title"
+                name="title"
+                value="{{ old('title') }}"
+                required
+                placeholder="Masukkan judul keluhan..."
+                class="w-full h-10 px-3.5 rounded-lg sm:rounded-xl border border-[#CBD5E1] bg-white text-xs sm:text-[13px] text-[#0F172A] font-medium placeholder-[#94A3B8] focus:outline-none focus:ring-2 focus:ring-[#0a8080]/20 focus:border-[#0a8080] transition"
+              >
+            </div>
+
+            <!-- Field 2 & 3: Dropdown Row -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+
+              <!-- Lokasi Kampus -->
+              <div class="space-y-1">
+                <label for="campus_location" class="block text-xs font-semibold text-[#334155] font-['Inter',sans-serif]">
+                  2. Lokasi Kampus <span class="text-red-500">*</span>
+                </label>
+                <div class="relative flex items-center">
+                  <span class="absolute left-3 text-[#7C9FA1] pointer-events-none">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                  </span>
+                  <select
+                    id="campus_location"
+                    name="campus_location"
+                    required
+                    class="w-full h-10 pl-9 pr-8 rounded-lg sm:rounded-xl border border-[#CBD5E1] bg-white text-xs sm:text-[13px] text-[#0F172A] font-medium focus:outline-none focus:ring-2 focus:ring-[#0a8080]/20 focus:border-[#0a8080] transition appearance-none cursor-pointer"
+                  >
+                    <option value="" disabled {{ old('campus_location') ? '' : 'selected' }}>Pilih lokasi kampus</option>
+                    <option value="mojo" {{ old('campus_location') === 'mojo' ? 'selected' : '' }}>Kampus Mojo</option>
+                    <option value="sobo" {{ old('campus_location') === 'sobo' ? 'selected' : '' }}>Kampus Sobo</option>
+                    <option value="giri" {{ old('campus_location') === 'giri' ? 'selected' : '' }}>Kampus Giri</option>
+                  </select>
+                  <span class="absolute right-3 text-slate-400 pointer-events-none">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </span>
+                </div>
+              </div>
+
+              <!-- Tujuan Keluhan (Sub Bagian) -->
+              <div class="space-y-1">
+                <label for="sub_department_id" class="block text-xs font-semibold text-[#334155] font-['Inter',sans-serif]">
+                  3. Tujuan Keluhan <span class="text-red-500">*</span>
+                </label>
+                <div class="relative flex items-center">
+                  <span class="absolute left-3 text-[#7C9FA1] pointer-events-none">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                  </span>
+                  <select
+                    id="sub_department_id"
+                    name="sub_department_id"
+                    required
+                    class="w-full h-10 pl-9 pr-8 rounded-lg sm:rounded-xl border border-[#CBD5E1] bg-white text-xs sm:text-[13px] text-[#0F172A] font-medium focus:outline-none focus:ring-2 focus:ring-[#0a8080]/20 focus:border-[#0a8080] transition appearance-none cursor-pointer"
+                  >
+                    <option value="" disabled {{ old('sub_department_id') ? '' : 'selected' }}>Pilih bidang tujuan</option>
+                    @foreach ($subDepartments as $dept)
+                      <option value="{{ $dept->id }}" {{ old('sub_department_id') == $dept->id ? 'selected' : '' }}>
+                        {{ $dept->name }}
+                      </option>
+                    @endforeach
+                  </select>
+                  <span class="absolute right-3 text-slate-400 pointer-events-none">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </span>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Field 4: Deskripsi Keluhan -->
+            <div class="space-y-1">
+              <label for="description" class="block text-xs font-semibold text-[#334155] font-['Inter',sans-serif]">
+                4. Deskripsi Keluhan <span class="text-red-500">*</span>
+              </label>
+              <div class="relative">
+                <textarea
+                  id="description"
+                  name="description"
+                  rows="3"
+                  maxlength="1000"
+                  required
+                  oninput="updateCharCount(this)"
+                  placeholder="Jelaskan permasalahan secara detail..."
+                  class="w-full p-3 rounded-lg sm:rounded-xl border border-[#CBD5E1] bg-white text-xs sm:text-[13px] text-[#0F172A] font-medium placeholder-[#94A3B8] focus:outline-none focus:ring-2 focus:ring-[#0a8080]/20 focus:border-[#0a8080] transition resize-y min-h-[85px] max-h-[140px]"
+                >{{ old('description') }}</textarea>
+                <div class="absolute bottom-2.5 right-3 text-[10px] text-slate-400 font-medium select-none pointer-events-none">
+                  <span id="charCount">0</span>/1000
+                </div>
+              </div>
+            </div>
+
+            <!-- Field 5: Upload Bukti Laporan (Dropzone Area Compact) -->
+            <div class="space-y-1">
+              <label class="block text-xs font-semibold text-[#334155] font-['Inter',sans-serif]">
+                5. Upload Bukti Laporan <span class="text-slate-400 font-normal">(Opsional)</span>
+              </label>
+
+              <div
+                id="dropzone"
+                onclick="document.getElementById('fileInput').click()"
+                class="w-full py-5 px-4 rounded-xl bg-[#F0FDFA] border-2 border-dashed border-[#99F6E4] hover:border-[#0D9488] transition-colors flex flex-col items-center justify-center text-center cursor-pointer group"
+              >
+                <!-- Cloud Upload Icon -->
+                <div class="w-9 h-9 rounded-full bg-white border border-[#99F6E4] text-[#0D9488] flex items-center justify-center mb-2 shadow-xs group-hover:scale-105 transition-transform">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                  </svg>
+                </div>
+
+                <p class="text-xs font-semibold text-[#334155] font-['Inter',sans-serif]">
+                  Seret dan lepas file di sini atau <span class="text-[#0D9488] underline underline-offset-2">klik untuk memilih file</span>
+                </p>
+
+                <p class="text-[10px] text-[#94A3B8] font-['Inter',sans-serif] mt-0.5">
+                  Format yang didukung: JPG, PNG, PDF, DOC, DOCX (maks. 10 MB)
+                </p>
+
+                <p id="fileNamePreview" class="text-[11px] font-semibold text-[#0E535E] mt-2 hidden bg-white px-2.5 py-0.5 rounded-md border border-[#CCFBF1]"></p>
+
+                <input
+                  type="file"
+                  id="fileInput"
+                  name="evidence"
+                  accept=".jpg,.jpeg,.png,.pdf,.doc,.docx"
+                  class="hidden"
+                  onchange="showFileName(this)"
+                >
+              </div>
+            </div>
+
+            <!-- Form Action Bar & Info Alert (Compact) -->
+            <div class="rounded-lg sm:rounded-xl bg-[#F0FDFA] border border-[#CCFBF1] py-2 px-3 sm:px-3.5 flex flex-col sm:flex-row items-center justify-between gap-2.5">
+              <!-- Left Info -->
+              <div class="flex items-center gap-2 text-left w-full sm:w-auto">
+                <div class="w-4 h-4 rounded-full bg-teal-100 border border-[#0D9488]/40 text-[#0D9488] flex items-center justify-center font-bold text-[9px] shrink-0">
+                  i
+                </div>
+                <div>
+                  <h4 class="text-[11px] sm:text-xs font-bold text-[#0E535E] font-['Inter',sans-serif] leading-tight">
+                    Laporan Anda akan langsung diteruskan ke Kabag untuk ditindaklanjuti.
+                  </h4>
+                  <p class="text-[10px] text-[#64748B] font-['Inter',sans-serif] leading-tight mt-0.5">
+                    Pastikan informasi yang Anda berikan sudah benar dan jelas.
+                  </p>
+                </div>
+              </div>
+
+              <!-- Submit Button -->
+              <button
+                type="submit"
+                id="submitBtn"
+                class="w-full sm:w-auto h-8 px-3.5 rounded-lg bg-[#0E535E] hover:bg-[#093D45] text-white font-semibold font-['Inter',sans-serif] text-[11.5px] sm:text-xs tracking-wide flex items-center justify-center gap-1.5 shadow-xs hover:shadow-sm transition duration-200 shrink-0 cursor-pointer"
+              >
+                <svg class="w-3.5 h-3.5 -rotate-45" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                </svg>
+                <span>Kirim Laporan</span>
+              </button>
+            </div>
+
+          </form>
+
+        </section>
+
+        <!-- ================= RIGHT COLUMN: INFO & STATISTIK ================= -->
+        <div class="lg:col-span-5 xl:col-span-4 space-y-4">
+
+          <!-- Card 1: Butuh Bantuan? (Compact) -->
+          <div class="bg-white rounded-2xl p-4 border border-[#E2E8F0] shadow-sm flex items-center gap-3.5">
+            <!-- Left Help Graphic -->
+            <div class="w-14 h-14 shrink-0">
+              <img src="{{ asset('assets/help_illustration.png') }}" alt="Butuh Bantuan" class="w-full h-auto object-contain">
+            </div>
+
+            <div class="space-y-1 flex-1">
+            <h3 class="font-['Poppins',sans-serif] text-xs sm:text-sm font-semibold text-[#0E3B43] leading-snug">
+              Butuh Bantuan?
+            </h3>
+            <p class="text-[11px] text-[#64748B] font-['Inter',sans-serif] leading-tight">
+              Jika Anda mengalami kendala saat membuat laporan, silakan hubungi bagian layanan informasi UNAIR.
+            </p>
+            <div class="pt-1">
+              <a href="https://wa.me/6281234567890" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[#0F766E] hover:bg-[#0c5c56] text-white text-[11px] font-semibold shadow-xs transition">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                </svg>
+                <span>Hubungi Kami</span>
+              </a>
+            </div>
+          </div>
+          </div>
+
+          <!-- Card 2: Informasi Penting (Compact) -->
+          <div class="bg-white rounded-2xl p-4 border border-[#E2E8F0] shadow-sm space-y-3">
+            <!-- Header -->
+            <div class="flex items-center gap-2">
+              <div class="w-5 h-5 rounded-full bg-[#ECFDF5] text-[#059669] flex items-center justify-center font-bold text-[11px] shrink-0">
+                i
+              </div>
+              <h3 class="text-sm font-bold text-[#0E3B43] font-['Poppins',sans-serif]">
+                Informasi Penting
+              </h3>
+            </div>
+
+            <!-- 4 Info Bullet Points with Icons -->
+            <div class="space-y-2.5 text-[11px] text-[#064E3B] font-['Poppins',sans-serif]">
+
+              <!-- Item 1 -->
+              <div class="flex items-start gap-2.5">
+                <div class="w-6 h-6 rounded-lg bg-[#F0FDFA] border border-[#99F6E4] text-[#0D9488] flex items-center justify-center shrink-0 mt-0.5">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                  </svg>
+                </div>
+                <p class="leading-snug">
+                  Laporan yang masuk akan diterima oleh Kabag sesuai dengan bidang yang Anda pilih.
+                </p>
+              </div>
+
+              <!-- Item 2 -->
+              <div class="flex items-start gap-2.5">
+                <div class="w-6 h-6 rounded-lg bg-[#F0FDFA] border border-[#99F6E4] text-[#0D9488] flex items-center justify-center shrink-0 mt-0.5">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </div>
+                <p class="leading-snug">
+                  Pastikan bidang, judul, dan deskripsi keluhan sudah jelas dan sesuai permasalahan.
+                </p>
+              </div>
+
+              <!-- Item 3 -->
+              <div class="flex items-start gap-2.5">
+                <div class="w-6 h-6 rounded-lg bg-[#F0FDFA] border border-[#99F6E4] text-[#0D9488] flex items-center justify-center shrink-0 mt-0.5">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <p class="leading-snug">
+                  Pantau perkembangan laporan melalui menu Riwayat dan Status Laporan.
+                </p>
+              </div>
+
+              <!-- Item 4 -->
+              <div class="flex items-start gap-2.5">
+                <div class="w-6 h-6 rounded-lg bg-[#F0FDFA] border border-[#99F6E4] text-[#0D9488] flex items-center justify-center shrink-0 mt-0.5">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
+                </div>
+                <p class="leading-snug">
+                  Laporan anonim khusus untuk hal sensitif/rahasia, bukan aduan fasilitas umum.
+                </p>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Card 3: Statistik Laporan (Compact Chart) -->
+          <div class="bg-white rounded-2xl p-4 border border-[#E2E8F0] shadow-sm space-y-3">
+            <!-- Header -->
+            <div class="flex items-center justify-between gap-2">
+              <div class="flex items-center gap-1.5">
+                <div class="w-5 h-5 rounded-full border-2 border-[#0D9488] flex items-center justify-center">
+                  <div class="w-2 h-2 rounded-full bg-[#0D9488]"></div>
+                </div>
+                <div>
+                  <h3 class="text-xs sm:text-[13px] font-bold text-[#0E3B43] font-['Poppins',sans-serif] leading-tight">
+                    Statistik laporan
+                  </h3>
+                  <p class="text-[9.5px] text-[#64748B] font-['Inter',sans-serif]">
+                    Jumlah laporan berdasarkan kategori
+                  </p>
+                </div>
+              </div>
+
+              <!-- Badge 30 Hari Terakhir -->
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md border border-[#14B8A6] text-[#0F766E] text-[9.5px] font-semibold font-['Poppins',sans-serif] bg-white">
+                <span>30 Hari</span>
+                <svg class="w-2.5 h-2.5 text-[#0F766E]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </span>
+            </div>
+
+            <!-- Bar Chart Visualization -->
+            <div class="pt-1">
+              <div class="relative h-28 flex items-end justify-between px-3 pb-1 border-b border-[#E2E8F0]">
+                <!-- Grid Lines -->
+                <div class="absolute inset-0 flex flex-col justify-between pointer-events-none opacity-30">
+                  <div class="border-b border-[#E2E8F0] w-full"></div>
+                  <div class="border-b border-[#E2E8F0] w-full"></div>
+                  <div class="border-b border-[#E2E8F0] w-full"></div>
+                  <div class="border-b border-[#E2E8F0] w-full"></div>
+                </div>
+
+                <!-- Bar 1: Sarana Prasarana -->
+                <div class="relative z-10 flex flex-col items-center gap-1 w-10 group cursor-pointer" title="Sarana Prasarana">
+                  <div class="w-6 sm:w-7 bg-[#0D9488] group-hover:bg-[#0a8080] rounded-t-sm transition-all duration-300" style="height: 75px;"></div>
+                </div>
+
+                <!-- Bar 2: Keuangan & SDM -->
+                <div class="relative z-10 flex flex-col items-center gap-1 w-10 group cursor-pointer" title="Keuangan & SDM">
+                  <div class="w-6 sm:w-7 bg-[#0D9488] group-hover:bg-[#0a8080] rounded-t-sm transition-all duration-300" style="height: 25px;"></div>
+                </div>
+
+                <!-- Bar 3: Pendidikan & Kemahasiswaan -->
+                <div class="relative z-10 flex flex-col items-center gap-1 w-10 group cursor-pointer" title="Pendidikan & Kemahasiswaan">
+                  <div class="w-6 sm:w-7 bg-[#0D9488] group-hover:bg-[#0a8080] rounded-t-sm transition-all duration-300" style="height: 50px;"></div>
+                </div>
+
+                <!-- Bar 4: Kepala Bagian -->
+                <div class="relative z-10 flex flex-col items-center gap-1 w-10 group cursor-pointer" title="Kepala Bagian">
+                  <div class="w-6 sm:w-7 bg-[#0D9488] group-hover:bg-[#0a8080] rounded-t-sm transition-all duration-300" style="height: 60px;"></div>
+                </div>
+              </div>
+
+              <!-- Bar Labels X-Axis -->
+              <div class="grid grid-cols-4 gap-1 text-center pt-1.5 text-[8.5px] sm:text-[9.5px] font-semibold text-[#0E3B43] font-['Poppins',sans-serif] leading-tight">
+                <div>Sarana<br>Prasarana</div>
+                <div>Keuangan<br>& SDM</div>
+                <div>Pendidikan<br>& Ormawa</div>
+                <div>Kepala<br>Bagian</div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </main>
+
+  </div>
+
+  <!-- ================= SCRIPTS ================= -->
+  <script>
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebarMenu');
+      const backdrop = document.getElementById('sidebarBackdrop');
+
+      if (sidebar.classList.contains('-translate-x-full')) {
+        sidebar.classList.remove('-translate-x-full');
+        backdrop.classList.remove('hidden');
+      } else {
+        sidebar.classList.add('-translate-x-full');
+        backdrop.classList.add('hidden');
+      }
+    }
+
+    function updateCharCount(textarea) {
+      document.getElementById('charCount').textContent = textarea.value.length;
+    }
+
+    function showFileName(input) {
+      const preview = document.getElementById('fileNamePreview');
+      if (input.files && input.files[0]) {
+        preview.textContent = 'File dipilih: ' + input.files[0].name;
+        preview.classList.remove('hidden');
+      } else {
+        preview.classList.add('hidden');
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const desc = document.getElementById('description');
+      if (desc) {
+        updateCharCount(desc);
+      }
+    });
+  </script>
+</body>
+</html>

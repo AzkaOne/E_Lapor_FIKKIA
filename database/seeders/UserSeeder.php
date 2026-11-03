@@ -94,6 +94,7 @@ class UserSeeder extends Seeder
         // 4. Demo Pelapor (Mahasiswa & Dosen)
         User::updateOrCreate(['email' => 'pelapor@unair.ac.id'], [
             'name' => 'Ahmad Pelapor (Mahasiswa)',
+            'phone_number' => '081234567891',
             'identity_number' => '164221054',
             'role' => 'pelapor',
             'position' => 'mahasiswa',
@@ -103,6 +104,7 @@ class UserSeeder extends Seeder
 
         User::updateOrCreate(['email' => 'dosen@unair.ac.id'], [
             'name' => 'Dr. Siti Pelapor (Dosen)',
+            'phone_number' => '081234567892',
             'identity_number' => '198101012005012001',
             'role' => 'pelapor',
             'position' => 'dosen',

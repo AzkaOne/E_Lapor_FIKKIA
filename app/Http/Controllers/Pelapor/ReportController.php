@@ -22,7 +22,7 @@ class ReportController extends Controller
 
         $subDepartments = SubDepartment::orderBy('name')->get();
 
-        return view('pelapor.dashboard', compact('activeReports', 'subDepartments'));
+        return view('pelapor.Dashboard_Pelapor', compact('activeReports', 'subDepartments'));
     }
 
     public function create(): View
@@ -66,26 +66,103 @@ class ReportController extends Controller
             ->with('success', 'Laporan pelayanan berhasil dikirim dan siap ditinjau oleh KABAG.');
     }
 
-    public function status(): View
+    public function status(Request $request): View
     {
-        $reports = Report::with(['subDepartment', 'dispositions', 'evidences'])
-            ->where('user_id', auth()->id())
-            ->whereIn('status', ['diajukan', 'didisposisi', 'diterima', 'proses', 'verifikasi_kabag'])
-            ->latest()
-            ->get();
+        $userId = auth()->id();
 
-        return view('pelapor.status', compact('reports'));
+        // 5 Summary metrics
+        $countsQuery = Report::where('user_id', $userId);
+        $totalCount = (clone $countsQuery)->count();
+        $prosesCount = (clone $countsQuery)->whereIn('status', ['didisposisi', 'diterima', 'proses', 'verifikasi_kabag'])->count();
+        $selesaiCount = (clone $countsQuery)->where('status', 'selesai')->count();
+        $perbaikanCount = (clone $countsQuery)->where('status', 'ditolak')->count();
+        $menungguCount = (clone $countsQuery)->where('status', 'diajukan')->count();
+
+        // Table Query
+        $query = Report::with(['subDepartment', 'evidences', 'dispositions.sender', 'dispositions.receiver'])
+            ->where('user_id', $userId);
+
+        if ($request->filled('status')) {
+            if ($request->status === 'proses') {
+                $query->whereIn('status', ['didisposisi', 'diterima', 'proses', 'verifikasi_kabag']);
+            } elseif ($request->status === 'menunggu') {
+                $query->where('status', 'diajukan');
+            } elseif ($request->status === 'perbaikan' || $request->status === 'ditolak') {
+                $query->where('status', 'ditolak');
+            } elseif ($request->status === 'selesai') {
+                $query->where('status', 'selesai');
+            } elseif ($request->status === 'all') {
+                // all statuses
+            } else {
+                $query->where('status', $request->status);
+            }
+        } else {
+            $query->whereIn('status', ['diajukan', 'didisposisi', 'diterima', 'proses', 'verifikasi_kabag']);
+        }
+
+        if ($request->filled('bidang')) {
+            $query->where('sub_department_id', $request->bidang);
+        }
+
+        if ($request->filled('q')) {
+            $search = $request->q;
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('ticket_code', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('tanggal')) {
+            $query->whereDate('created_at', $request->tanggal);
+        }
+
+        $reports = $query->latest()->paginate(10)->withQueryString();
+        $subDepartments = SubDepartment::orderBy('name')->get();
+
+        return view('pelapor.Status_Pelapor', compact(
+            'reports',
+            'subDepartments',
+            'totalCount',
+            'prosesCount',
+            'selesaiCount',
+            'perbaikanCount',
+            'menungguCount'
+        ));
     }
 
-    public function history(): View
+    public function history(Request $request): View
     {
-        $completedReports = Report::with(['subDepartment', 'evidences'])
+        $query = Report::with(['subDepartment', 'evidences', 'dispositions.sender', 'dispositions.receiver'])
             ->where('user_id', auth()->id())
-            ->whereIn('status', ['selesai', 'ditolak'])
-            ->latest()
-            ->get();
+            ->whereIn('status', ['selesai', 'ditolak']);
 
-        return view('pelapor.history', compact('completedReports'));
+        if ($request->filled('bidang')) {
+            $query->where('sub_department_id', $request->bidang);
+        }
+
+        if ($request->filled('status') && in_array($request->status, ['selesai', 'ditolak'])) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('q')) {
+            $search = $request->q;
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('ticket_code', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('tanggal')) {
+            $query->whereDate('created_at', $request->tanggal);
+        }
+
+        $reports = $query->latest()->paginate(10)->withQueryString();
+        $completedReports = $reports;
+        $subDepartments = SubDepartment::orderBy('name')->get();
+
+        return view('pelapor.Riwayat_Pelapor', compact('reports', 'completedReports', 'subDepartments'));
     }
 
     public function rate(Request $request, Report $report): RedirectResponse

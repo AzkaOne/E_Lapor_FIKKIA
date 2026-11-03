@@ -10,7 +10,7 @@ class PublicController extends Controller
 {
     public function index(): View
     {
-        return view('welcome');
+        return view('Hal_Utama');
     }
 
     public function track(Request $request): View

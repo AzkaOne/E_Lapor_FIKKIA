@@ -15,6 +15,7 @@ class AuthTest extends TestCase
         $response = $this->post('/register', [
             'name' => 'Budi Pelapor',
             'email' => 'budi@gmail.com',
+            'phone_number' => '081234567890',
             'identity_number' => '082111223344',
             'position' => 'mahasiswa',
             'password' => 'secret123',
@@ -25,7 +26,7 @@ class AuthTest extends TestCase
         $this->assertDatabaseMissing('users', ['email' => 'budi@gmail.com']);
     }
 
-    public function test_registration_succeeds_with_unair_email(): void
+    public function test_registration_requires_phone_number(): void
     {
         $response = $this->post('/register', [
             'name' => 'Budi Pelapor',
@@ -36,11 +37,54 @@ class AuthTest extends TestCase
             'password_confirmation' => 'secret123',
         ]);
 
+        $response->assertSessionHasErrors('phone_number');
+        $this->assertDatabaseMissing('users', ['email' => 'budi@unair.ac.id']);
+    }
+
+    public function test_registration_succeeds_with_unair_email_and_phone(): void
+    {
+        $response = $this->post('/register', [
+            'name' => 'Budi Pelapor',
+            'email' => 'budi@unair.ac.id',
+            'phone_number' => '081234567890',
+            'identity_number' => '082111223344',
+            'position' => 'mahasiswa',
+            'password' => 'secret123',
+            'password_confirmation' => 'secret123',
+        ]);
+
         $response->assertRedirect('/pelapor/dashboard');
         $this->assertDatabaseHas('users', [
             'email' => 'budi@unair.ac.id',
+            'phone_number' => '081234567890',
             'role' => 'pelapor',
             'position' => 'mahasiswa',
+        ]);
+
+        $user = User::where('email', 'budi@unair.ac.id')->first();
+        $this->assertEquals('081234567890', $user->phone_number);
+        $this->assertEquals('081234567890', $user->no_telp);
+        $this->assertAuthenticated();
+    }
+
+    public function test_registration_succeeds_with_no_telp_parameter(): void
+    {
+        $response = $this->post('/register', [
+            'name' => 'Dewi Pelapor',
+            'email' => 'dewi@unair.ac.id',
+            'no_telp' => '089876543210',
+            'identity_number' => '082111998877',
+            'position' => 'dosen',
+            'password' => 'secret123',
+            'password_confirmation' => 'secret123',
+        ]);
+
+        $response->assertRedirect('/pelapor/dashboard');
+        $this->assertDatabaseHas('users', [
+            'email' => 'dewi@unair.ac.id',
+            'phone_number' => '089876543210',
+            'role' => 'pelapor',
+            'position' => 'dosen',
         ]);
         $this->assertAuthenticated();
     }

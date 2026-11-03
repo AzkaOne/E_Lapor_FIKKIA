@@ -18,6 +18,7 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'phone_number',
         'password',
         'role',
         'identity_number',
@@ -81,5 +82,15 @@ class User extends Authenticatable
     public function isPetugas(): bool
     {
         return $this->role === 'petugas';
+    }
+
+    public function getNoTelpAttribute(): ?string
+    {
+        return $this->phone_number;
+    }
+
+    public function setNoTelpAttribute(?string $value): void
+    {
+        $this->attributes['phone_number'] = $value;
     }
 }
