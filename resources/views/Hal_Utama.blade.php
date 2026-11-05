@@ -365,10 +365,17 @@
   <!-- =================  FOOTER ================= -->
   <!-- FigCraft: Frame 'FOOTER' (1440x42 @ y:982, fill: #0C3934) -->
   <footer class="w-full bg-[#0C3934] text-[#CCFBF1] py-3.5 px-4 sm:px-8 text-center text-xs font-['Plus_Jakarta_Sans',sans-serif] z-20 shadow-xs">
-    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 font-medium">
-      <span>© 2025 FIKKIA UNAIR</span>
-      <span class="hidden sm:inline text-teal-400">|</span>
-      <span>E-Lapor. Suara Anda, Perubahan Nyata.</span>
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-4 font-medium">
+      <div class="flex items-center gap-2 sm:gap-4">
+        <span>© 2025 FIKKIA UNAIR</span>
+        <span class="hidden sm:inline text-teal-400">|</span>
+        <span>E-Lapor. Suara Anda, Perubahan Nyata.</span>
+      </div>
+      <div>
+        <a href="{{ route('login.admin') }}" class="text-teal-300 hover:text-white underline underline-offset-2 transition text-[11px] font-semibold">
+          Portal Admin / Pengelola &rarr;
+        </a>
+      </div>
     </div>
   </footer>
 

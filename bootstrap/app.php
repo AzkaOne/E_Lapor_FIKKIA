@@ -14,6 +14,11 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => \App\Http\Middleware\EnsureUserHasRole::class,
         ]);
+        $middleware->redirectGuestsTo(fn (\Illuminate\Http\Request $request) => 
+            $request->is('kabag*', 'kasubag*', 'petugas*') 
+                ? route('login.admin') 
+                : route('login')
+        );
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

@@ -18,6 +18,12 @@ Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [LoginController::class, 'login']);
 
+    // Admin / Staff Login Routes (Kabag, Kasubag, Petugas)
+    Route::get('/login-admin', [LoginController::class, 'showAdminLoginForm'])->name('login.admin');
+    Route::post('/login-admin', [LoginController::class, 'loginAdmin']);
+    Route::get('/admin/login', [LoginController::class, 'showAdminLoginForm'])->name('admin.login');
+    Route::post('/admin/login', [LoginController::class, 'loginAdmin']);
+
     Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
     Route::post('/register', [RegisterController::class, 'register']);
 });

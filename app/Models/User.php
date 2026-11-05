@@ -93,4 +93,29 @@ class User extends Authenticatable
     {
         $this->attributes['phone_number'] = $value;
     }
+
+    public function getNipAttribute(): ?string
+    {
+        return $this->identity_number;
+    }
+
+    public function setNipAttribute(?string $value): void
+    {
+        $this->attributes['identity_number'] = $value;
+    }
+
+    public function getJabatanAttribute(): ?string
+    {
+        return $this->position;
+    }
+
+    public function setJabatanAttribute(?string $value): void
+    {
+        $this->attributes['position'] = $value;
+    }
+
+    public function getBidangAttribute(): ?string
+    {
+        return $this->subDepartment?->name;
+    }
 }

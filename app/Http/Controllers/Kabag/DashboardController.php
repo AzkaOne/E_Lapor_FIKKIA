@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Kabag;
 
 use App\Http\Controllers\Controller;
 use App\Models\Report;
+use App\Models\ReportDisposition;
 use App\Models\SubDepartment;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -24,7 +25,7 @@ class DashboardController extends Controller
             $query->where('sub_department_id', $request->sub_department_id);
         }
 
-        $reports = $query->latest()->paginate(15);
+        $reports = $query->latest()->paginate(10);
 
         $counts = [
             'total' => Report::where('type', 'pelayanan')->count(),
@@ -38,7 +39,36 @@ class DashboardController extends Controller
 
         $subDepartments = SubDepartment::orderBy('name')->get();
 
-        return view('kabag.dashboard', compact('reports', 'counts', 'subDepartments'));
+        // Sub department counts for donut chart
+        $subDeptCounts = Report::where('type', 'pelayanan')
+            ->selectRaw('sub_department_id, count(*) as count')
+            ->groupBy('sub_department_id')
+            ->pluck('count', 'sub_department_id')
+            ->toArray();
+
+        // Whistleblower reports for right list
+        $whistleblowerReports = Report::where('type', 'whistleblowing')
+            ->with('subDepartment')
+            ->latest()
+            ->take(6)
+            ->get();
+
+        // Recent notes / comments
+        $recentNotes = ReportDisposition::with(['sender.subDepartment', 'report'])
+            ->whereNotNull('notes')
+            ->where('notes', '!=', '')
+            ->latest()
+            ->take(4)
+            ->get();
+
+        return view('kabag.Dashboard_Kabag', compact(
+            'reports',
+            'counts',
+            'subDepartments',
+            'subDeptCounts',
+            'whistleblowerReports',
+            'recentNotes'
+        ));
     }
 
     public function show(Report $report): View

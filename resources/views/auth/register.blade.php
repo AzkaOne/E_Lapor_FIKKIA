@@ -78,10 +78,19 @@
     <!-- Layout Grid: 12 Columns (5 Left : 7 Right for spacious 2-column form card) -->
     <div class="w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center z-10 relative">
 
-      <!-- ================= LEFT COLUMN: HERO & BRANDING ================= -->
       <section class="lg:col-span-5 flex flex-col gap-6 lg:pr-2">
 
-        <!-- Tag Chip (FigCraft: Frame 'Tag Chip' @ x=55, y=138) -->
+         <a href="{{ route('home') }}"
+       class="inline-flex items-center gap-1.5 text-xs font-bold text-slate-600 hover:text-[#0a8080] transition px-3 py-1.5 rounded-xl border border-slate-200 hover:bg-slate-50 w-fit">
+
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M10 19l-7-7m0 0l7-7m-7 7h18">
+            </path>
+        </svg>
+
+        <span>Kembali ke Beranda</span>
+    </a>
         <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#F0FDFA] border border-[#99F6E4] text-[#115E59] font-['Poppins',sans-serif] text-xs font-bold w-fit tracking-wide shadow-sm">
           <span class="w-2 h-2 rounded-full bg-[#0D9488]"></span>
           E-LAPOR FIKKIA

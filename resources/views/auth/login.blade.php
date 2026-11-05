@@ -63,27 +63,39 @@
   <!-- ================= MAIN CONTENT WRAPPER ================= -->
   <main class="flex-1 flex items-center justify-center py-8 px-4 sm:px-6 lg:px-12 relative overflow-hidden">
 
-    <!-- Background Gradient Accent on Left Side (Rectangle 31 in FigCraft) -->
+
     <div class="absolute inset-y-0 left-0 w-full lg:w-[54%] bg-gradient-to-br from-[#E8F7F5]/80 via-[#F0FBF9]/60 to-transparent pointer-events-none z-0"></div>
 
-    <!-- Botanical Foliage SVG at Bottom-Left Corner (FigCraft id=251) -->
+
     <div class="absolute -bottom-10 -left-12 w-64 sm:w-80 lg:w-96 pointer-events-none z-0 select-none hidden sm:block opacity-90">
       <img src="{{ asset('assets/foliage_left.svg') }}" alt="" class="w-full h-auto">
     </div>
 
-    <!-- Layout Grid: 12 Columns (7 Left : 5 Right) -->
+
     <div class="w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center z-10 relative">
 
-      <!-- ================= LEFT COLUMN: HERO & BRANDING ================= -->
+
       <section class="lg:col-span-7 flex flex-col gap-6 lg:pr-4">
 
-        <!-- Tag Chip (FigCraft: Frame 'Tag Chip' @ x=55, y=138) -->
+         <a href="{{ route('home') }}"
+       class="inline-flex items-center gap-1.5 text-xs font-bold text-slate-600 hover:text-[#0a8080] transition px-3 py-1.5 rounded-xl border border-slate-200 hover:bg-slate-50 w-fit">
+
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M10 19l-7-7m0 0l7-7m-7 7h18">
+            </path>
+        </svg>
+
+        <span>Kembali ke Beranda</span>
+    </a>
+
         <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#F0FDFA] border border-[#99F6E4] text-[#115E59] font-['Poppins',sans-serif] text-xs font-bold w-fit tracking-wide shadow-sm">
           <span class="w-2 h-2 rounded-full bg-[#0D9488]"></span>
           E-LAPOR FIKKIA
         </div>
 
-        <!-- Big Heading (FigCraft: 'Heading 2 - Big Main Title' font: Poppins 48px Extra Bold) -->
+
+
         <div class="space-y-3">
           <h1 class="text-3xl sm:text-4xl lg:text-[46px] xl:text-[48px] font-extrabold text-[#1A3A4B] font-['Poppins',sans-serif] leading-[1.18] tracking-tight">
             Satu Langkah<br class="hidden sm:inline"> untuk Perubahan
@@ -93,10 +105,10 @@
           </p>
         </div>
 
-        <!-- 4 Feature Cards Grid (FigCraft: Groups 23, 24, 25, 26) -->
+
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-3.5">
 
-          <!-- Card 1: Respon Cepat -->
+
           <div class="bg-white p-3.5 sm:p-4 rounded-[14px] border border-[#CCFBF1] shadow-sm flex flex-col items-center text-center gap-2.5 transition hover:shadow-md hover:-translate-y-0.5 duration-200">
             <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-full border border-[#99F6E4] bg-[#F0FDFA] flex items-center justify-center text-[#0D9488]">
               <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -317,7 +329,6 @@
               <span>Belum punya akun? Daftar disini</span>
             </a>
 
-            <!-- Help Card (FigCraft: Group 83, bg: #F8FAFC, border: #E2E8F0, radius: 14px) -->
             <div
               class="w-full p-3 sm:p-3.5 rounded-[14px] bg-[#F8FAFC] hover:bg-slate-100/90 border border-[#E2E8F0] flex items-center justify-between gap-3 text-left transition duration-200 group cursor-pointer"
             >
