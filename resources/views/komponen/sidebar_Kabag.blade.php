@@ -41,8 +41,8 @@
       </a>
 
       <!-- 2. Laporan Pelayanan -->
-      <a href="{{ route('kabag.dashboard') }}#laporan-pelayanan"
-         class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-[13px] transition text-white/90 hover:bg-white/10 hover:text-white font-medium">
+      <a href="{{ route('kabag.laporan-pelayanan') }}"
+         class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-[13px] transition {{ request()->routeIs('kabag.laporan-pelayanan*') ? 'bg-[#166E65] text-white font-bold shadow-xs' : 'text-white/90 hover:bg-white/10 hover:text-white font-medium' }}">
         <svg class="w-4 h-4 shrink-0 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
         </svg>

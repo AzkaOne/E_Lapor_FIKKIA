@@ -41,29 +41,37 @@ class ReportController extends Controller
             'evidence' => ['nullable', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'],
         ]);
 
-        $report = Report::create([
-            'type' => 'pelayanan',
-            'ticket_code' => Report::generateTicketCode('LP'),
-            'user_id' => auth()->id(),
-            'sub_department_id' => $validated['sub_department_id'],
-            'campus_location' => $validated['campus_location'],
-            'title' => $validated['title'],
-            'description' => $validated['description'],
-            'status' => 'diajukan',
-        ]);
-
-        if ($request->hasFile('evidence')) {
-            $path = $request->file('evidence')->store('evidences', 'public');
-            ReportEvidence::create([
-                'report_id' => $report->id,
-                'uploaded_by_id' => auth()->id(),
-                'file_path' => $path,
-                'type' => 'initial',
+        try {
+            $report = Report::create([
+                'type' => 'pelayanan',
+                'ticket_code' => Report::generateTicketCode('LP'),
+                'user_id' => auth()->id(),
+                'sub_department_id' => $validated['sub_department_id'],
+                'campus_location' => $validated['campus_location'],
+                'title' => $validated['title'],
+                'description' => $validated['description'],
+                'status' => 'diajukan',
             ]);
-        }
 
-        return redirect()->route('pelapor.dashboard')
-            ->with('success', 'Laporan pelayanan berhasil dikirim dan siap ditinjau oleh KABAG.');
+            if ($request->hasFile('evidence')) {
+                $path = $request->file('evidence')->store('evidences', 'public');
+                ReportEvidence::create([
+                    'report_id' => $report->id,
+                    'uploaded_by_id' => auth()->id(),
+                    'file_path' => $path,
+                    'type' => 'initial',
+                ]);
+            }
+
+            return redirect()->route('pelapor.dashboard')
+                ->with('success', 'Laporan pelayanan berhasil dikirim dan siap ditinjau oleh KABAG.')
+                ->with('ticket_code', $report->ticket_code)
+                ->with('report_title', $report->title);
+        } catch (\Throwable $e) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Gagal mengirim laporan. Terjadi gangguan pada sistem: ' . $e->getMessage());
+        }
     }
 
     public function status(Request $request): View

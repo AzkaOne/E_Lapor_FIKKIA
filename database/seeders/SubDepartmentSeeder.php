@@ -16,17 +16,17 @@ class SubDepartmentSeeder extends Seeder
                 'description' => 'Pimpinan Fakultas, Dekan, Wakil Dekan, dan Departemen Akademik.',
             ],
             [
-                'name' => 'Sub Bagian Sarana dan Prasarana',
+                'name' => 'Sarana dan Prasarana',
                 'code' => 'SARPRAS',
                 'description' => 'Pengelolaan fasilitas fisik, gedung, kelistrikan, air, AC, dan ruang kuliah.',
             ],
             [
-                'name' => 'Sub Bagian SDM dan Keuangan',
+                'name' => 'SDM dan Keuangan',
                 'code' => 'SDM_KEUANGAN',
                 'description' => 'Layanan kepegawaian tenaga pendidik/kependidikan serta administrasi keuangan.',
             ],
             [
-                'name' => 'Sub Bagian Pendidikan dan Kemahasiswaan',
+                'name' => 'Pendidikan dan Kemahasiswaan',
                 'code' => 'PENDIDIKAN_KEMAHASISWAAN',
                 'description' => 'Layanan akademik, kemahasiswaan, beasiswa, dan organisasi mahasiswa (Ormawa).',
             ],

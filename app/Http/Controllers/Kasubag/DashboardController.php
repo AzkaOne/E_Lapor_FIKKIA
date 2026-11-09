@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Kasubag;
 
 use App\Http\Controllers\Controller;
 use App\Models\Report;
+use App\Models\ReportDisposition;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -14,7 +15,7 @@ class DashboardController extends Controller
     {
         $subDeptId = auth()->user()->sub_department_id;
 
-        $query = Report::with(['user', 'handler'])
+        $query = Report::with(['user', 'handler', 'subDepartment'])
             ->where('type', 'pelayanan')
             ->where('sub_department_id', $subDeptId);
 
@@ -22,16 +23,57 @@ class DashboardController extends Controller
             $query->where('status', $request->status);
         }
 
-        $reports = $query->latest()->paginate(15);
+        $reports = $query->latest()->paginate(10);
+
+        $masuk = Report::where('sub_department_id', $subDeptId)->where('status', 'didisposisi')->count();
+        $dikerjakan = Report::where('sub_department_id', $subDeptId)->whereIn('status', ['diterima', 'proses'])->count();
+        $verifikasi = Report::where('sub_department_id', $subDeptId)->where('status', 'verifikasi_kabag')->count();
+        $selesai = Report::where('sub_department_id', $subDeptId)->where('status', 'selesai')->count();
+        $tertunda = Report::where('sub_department_id', $subDeptId)
+            ->where(function ($q) {
+                $q->where('status', 'ditolak')
+                  ->orWhere('execution_result', 'tertunda');
+            })->count();
 
         $counts = [
-            'masuk' => Report::where('sub_department_id', $subDeptId)->where('status', 'didisposisi')->count(),
-            'dikerjakan' => Report::where('sub_department_id', $subDeptId)->whereIn('status', ['diterima', 'proses'])->count(),
-            'verifikasi' => Report::where('sub_department_id', $subDeptId)->where('status', 'verifikasi_kabag')->count(),
-            'selesai' => Report::where('sub_department_id', $subDeptId)->where('status', 'selesai')->count(),
+            'masuk' => $masuk,
+            'dikerjakan' => $dikerjakan,
+            'verifikasi' => $verifikasi,
+            'selesai' => $selesai,
+            'tertunda' => $tertunda,
+            'perlu_penanganan' => $masuk,
+            'dalam_penanganan' => $dikerjakan,
         ];
 
-        return view('kasubag.dashboard', compact('reports', 'counts'));
+        $totalReports = $selesai + $masuk + $dikerjakan + $tertunda;
+
+        $todayNewCount = Report::where('sub_department_id', $subDeptId)
+            ->whereDate('created_at', today())
+            ->count();
+
+        $recentNotes = ReportDisposition::whereHas('report', function ($q) use ($subDeptId) {
+                $q->where('sub_department_id', $subDeptId);
+            })
+            ->whereNotNull('notes')
+            ->where('notes', '!=', '')
+            ->with(['report', 'sender.subDepartment'])
+            ->latest()
+            ->take(3)
+            ->get();
+
+        $recentActivities = Report::where('sub_department_id', $subDeptId)
+            ->latest('updated_at')
+            ->take(4)
+            ->get();
+
+        return view('kasubag.dashboard_kasubag', compact(
+            'reports',
+            'counts',
+            'totalReports',
+            'todayNewCount',
+            'recentNotes',
+            'recentActivities'
+        ));
     }
 
     public function show(Report $report): View

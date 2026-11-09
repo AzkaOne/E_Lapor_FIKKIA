@@ -43,11 +43,12 @@ Route::middleware(['auth', 'role:pelapor'])->prefix('pelapor')->name('pelapor.')
 // Kabag Routes
 Route::middleware(['auth', 'role:kabag'])->prefix('kabag')->name('kabag.')->group(function () {
     Route::get('/dashboard', [\App\Http\Controllers\Kabag\DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/laporan-pelayanan', [\App\Http\Controllers\Kabag\DashboardController::class, 'laporanPelayanan'])->name('laporan-pelayanan');
     Route::get('/laporan/{report}', [\App\Http\Controllers\Kabag\DashboardController::class, 'show'])->name('show');
     Route::post('/laporan/{report}/disposisi', [\App\Http\Controllers\Kabag\DispositionController::class, 'dispose'])->name('dispose');
     Route::post('/laporan/{report}/kerjakan-sendiri', [\App\Http\Controllers\Kabag\DispositionController::class, 'selfExecute'])->name('self-execute');
     Route::post('/laporan/{report}/selesai-mandiri', [\App\Http\Controllers\Kabag\DispositionController::class, 'completeSelfExecution'])->name('complete-self');
-    Route::post('/laporan/{report}/tolak', [\App\Http\Controllers\Kabag\DispositionController::class, 'reject'])->name('reject');
+    Route::post('/laporan/{repobrt}/tolak', [\App\Http\Controllers\Kabag\DispositionController::class, 'reject'])->name('reject');
     Route::get('/laporan-saya', [\App\Http\Controllers\Kabag\DashboardController::class, 'myReports'])->name('my-reports');
     Route::get('/riwayat', [\App\Http\Controllers\Kabag\DashboardController::class, 'history'])->name('history');
 

@@ -489,6 +489,196 @@
 
   </div>
 
+  <!-- ================= POPUP STATUS MODAL (Tengah Layar) ================= -->
+  @php
+    $hasSuccessModal = session('success');
+    $hasErrorModal = session('error') || $errors->any();
+    $showModalOnLoad = $hasSuccessModal || $hasErrorModal;
+  @endphp
+
+  <div id="reportStatusModal"
+       class="fixed inset-0 z-50 {{ $showModalOnLoad ? 'flex' : 'hidden' }} items-center justify-center p-4 sm:p-6"
+       role="dialog"
+       aria-modal="true"
+       aria-labelledby="modalStatusTitle">
+
+    <!-- Modal Backdrop Overlay -->
+    <div id="modalBackdrop"
+         onclick="closeStatusModal()"
+         class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity duration-300 {{ $showModalOnLoad ? 'opacity-100' : 'opacity-0' }}"></div>
+
+    <!-- Modal Dialog Card (Centered) -->
+    <div id="modalCard"
+         class="relative w-full max-w-md bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden z-10 transform transition-all duration-300 ease-out {{ $showModalOnLoad ? 'scale-100 opacity-100' : 'scale-95 opacity-0' }}">
+
+      <!-- Close Button Top Right -->
+      <button type="button"
+              onclick="closeStatusModal()"
+              class="absolute top-4 right-4 z-20 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-400 hover:text-slate-700 flex items-center justify-center transition shadow-xs cursor-pointer"
+              title="Tutup Modal"
+              aria-label="Tutup Modal">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+
+      <!-- Static Blade Content or Dynamic JS Target -->
+      <div id="modalContentContainer">
+        @if ($hasSuccessModal)
+          <!-- ================= KONTEN SUKSES ================= -->
+          <div class="p-6 sm:p-7 text-center">
+            
+            <!-- Animated Top Glow / Illustration Ring -->
+            <div class="relative w-24 h-24 mx-auto mb-4 flex items-center justify-center">
+              <!-- Pulsing outer ring -->
+              <div class="absolute inset-0 rounded-full bg-[#CCFBF1] animate-ping opacity-30"></div>
+              <!-- Glow background -->
+              <div class="absolute inset-1 rounded-full bg-gradient-to-tr from-[#99F6E4] to-[#CCFBF1] opacity-70"></div>
+              <!-- Icon Badge -->
+              <div class="relative w-16 h-16 rounded-2xl bg-gradient-to-br from-[#0a8080] to-[#0C3934] text-white flex items-center justify-center shadow-lg shadow-[#0a8080]/30 border-2 border-white">
+                <svg class="w-9 h-9 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+            </div>
+
+            <!-- Title & Subtitle -->
+            <h3 id="modalStatusTitle" class="text-xl sm:text-2xl font-black text-[#0C3934] font-['Plus_Jakarta_Sans',sans-serif] tracking-tight">
+              Laporan Berhasil Terkirim!
+            </h3>
+            <p class="text-xs sm:text-[13px] text-slate-600 font-['Inter',sans-serif] mt-2 leading-relaxed">
+              {{ session('success') }}
+            </p>
+
+            <!-- Detail Card Info -->
+            <div class="bg-gradient-to-b from-[#F0FDFA] to-[#F8FAFC] rounded-2xl p-4 border border-[#CCFBF1] my-5 text-left space-y-2.5 text-xs">
+              <!-- Tiket -->
+              <div class="flex items-center justify-between pb-2 border-b border-slate-200/60">
+                <span class="text-slate-500 font-medium">Nomor Tiket</span>
+                <span class="font-bold text-[#0D9488] font-mono bg-white px-2.5 py-1 rounded-lg border border-[#99F6E4] shadow-xs">
+                  #{{ session('ticket_code') ?? 'LP-TERCATAT' }}
+                </span>
+              </div>
+
+              @if (session('report_title'))
+                <!-- Judul Laporan -->
+                <div class="flex items-start justify-between gap-3 pb-2 border-b border-slate-200/60">
+                  <span class="text-slate-500 font-medium shrink-0">Judul Laporan</span>
+                  <span class="font-bold text-slate-800 text-right line-clamp-1">
+                    {{ session('report_title') }}
+                  </span>
+                </div>
+              @endif
+
+              <!-- Status Alur -->
+              <div class="flex items-center justify-between pb-2 border-b border-slate-200/60">
+                <span class="text-slate-500 font-medium">Status Awal</span>
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#FFFBEB] text-[#D97706] border border-[#FDE68A]">
+                  <span class="w-1.5 h-1.5 rounded-full bg-[#F59E0B]"></span>
+                  <span>Diajukan (Menunggu Review KABAG)</span>
+                </span>
+              </div>
+
+              <!-- Waktu Pengiriman -->
+              <div class="flex items-center justify-between">
+                <span class="text-slate-500 font-medium">Waktu Kirim</span>
+                <span class="font-medium text-slate-700">
+                  {{ now()->translatedFormat('d M Y, H:i') }} WIB
+                </span>
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="space-y-2.5 pt-1">
+              <a href="{{ route('pelapor.status') }}"
+                 class="w-full py-3 px-4 rounded-xl bg-[#0a8080] hover:bg-[#086666] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition duration-200">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                </svg>
+                <span>Pantau Status Laporan</span>
+              </a>
+
+              <button type="button"
+                      onclick="closeStatusModal()"
+                      class="w-full py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs sm:text-sm transition duration-200 cursor-pointer">
+                Selesai & Tutup
+              </button>
+            </div>
+
+          </div>
+
+        @elseif ($hasErrorModal)
+          <!-- ================= KONTEN GAGAL / ERROR ================= -->
+          <div class="p-6 sm:p-7 text-center">
+            
+            <!-- Animated Top Warning Ring -->
+            <div class="relative w-24 h-24 mx-auto mb-4 flex items-center justify-center">
+              <!-- Pulsing outer ring -->
+              <div class="absolute inset-0 rounded-full bg-rose-100 animate-ping opacity-30"></div>
+              <!-- Glow background -->
+              <div class="absolute inset-1 rounded-full bg-gradient-to-tr from-rose-200 to-rose-100 opacity-70"></div>
+              <!-- Icon Badge -->
+              <div class="relative w-16 h-16 rounded-2xl bg-gradient-to-br from-rose-500 to-rose-700 text-white flex items-center justify-center shadow-lg shadow-rose-500/30 border-2 border-white">
+                <svg class="w-9 h-9 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+            </div>
+
+            <!-- Title & Subtitle -->
+            <h3 id="modalStatusTitle" class="text-xl sm:text-2xl font-black text-rose-950 font-['Plus_Jakarta_Sans',sans-serif] tracking-tight">
+              Pengiriman Laporan Gagal
+            </h3>
+            <p class="text-xs sm:text-[13px] text-slate-600 font-['Inter',sans-serif] mt-2 leading-relaxed">
+              Mohon maaf, laporan Anda belum dapat diproses. Silakan periksa kendala di bawah ini:
+            </p>
+
+            <!-- Error Details Box -->
+            <div class="bg-rose-50/70 rounded-2xl p-4 border border-rose-200/80 my-5 text-left space-y-2 text-xs text-rose-800 max-h-48 overflow-y-auto custom-scroll">
+              @if (session('error'))
+                <div class="flex items-start gap-2">
+                  <svg class="w-4 h-4 text-rose-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span class="font-medium">{{ session('error') }}</span>
+                </div>
+              @endif
+
+              @if ($errors->any())
+                @foreach ($errors->all() as $err)
+                  <div class="flex items-start gap-2">
+                    <svg class="w-4 h-4 text-rose-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>{{ $err }}</span>
+                  </div>
+                @endforeach
+              @endif
+            </div>
+
+            <!-- Action Button -->
+            <div class="pt-1">
+              <button type="button"
+                      onclick="closeStatusModal()"
+                      class="w-full py-3 px-4 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition duration-200 cursor-pointer">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+                <span>Periksa dan Lengkapi Data</span>
+              </button>
+            </div>
+
+          </div>
+        @else
+          <!-- Dynamic JS-rendered placeholder -->
+          <div id="dynamicPlaceholder"></div>
+        @endif
+      </div>
+
+    </div>
+
+  </div>
+
   <!-- ================= SCRIPTS ================= -->
   <script>
     function toggleSidebar() {
@@ -518,10 +708,190 @@
       }
     }
 
+    /* Modal Popup Controller */
+    function openStatusModal() {
+      const modal = document.getElementById('reportStatusModal');
+      const backdrop = document.getElementById('modalBackdrop');
+      const card = document.getElementById('modalCard');
+
+      if (!modal) return;
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+
+      setTimeout(() => {
+        if (backdrop) {
+          backdrop.classList.remove('opacity-0');
+          backdrop.classList.add('opacity-100');
+        }
+        if (card) {
+          card.classList.remove('scale-95', 'opacity-0');
+          card.classList.add('scale-100', 'opacity-100');
+        }
+      }, 10);
+    }
+
+    function closeStatusModal() {
+      const modal = document.getElementById('reportStatusModal');
+      const backdrop = document.getElementById('modalBackdrop');
+      const card = document.getElementById('modalCard');
+
+      if (!modal) return;
+      if (backdrop) {
+        backdrop.classList.remove('opacity-100');
+        backdrop.classList.add('opacity-0');
+      }
+      if (card) {
+        card.classList.remove('scale-100', 'opacity-100');
+        card.classList.add('scale-95', 'opacity-0');
+      }
+
+      setTimeout(() => {
+        modal.classList.remove('flex');
+        modal.classList.add('hidden');
+      }, 300);
+    }
+
+    // Expose helpers globally
+    window.closeStatusModal = closeStatusModal;
+    window.openStatusModal = openStatusModal;
+
+    // Helper to dynamically show success modal from client-side if needed
+    window.showSuccessPopup = function(data = {}) {
+      const container = document.getElementById('modalContentContainer');
+      const ticket = data.ticketCode || 'LP-TERCATAT';
+      const title = data.title || 'Laporan Pengaduan';
+      const message = data.message || 'Laporan Anda telah berhasil dicatat dan diteruskan ke KABAG.';
+      const statusUrl = "{{ route('pelapor.status') }}";
+
+      if (container) {
+        container.innerHTML = `
+          <div class="p-6 sm:p-7 text-center">
+            <div class="relative w-24 h-24 mx-auto mb-4 flex items-center justify-center">
+              <div class="absolute inset-0 rounded-full bg-[#CCFBF1] animate-ping opacity-30"></div>
+              <div class="absolute inset-1 rounded-full bg-gradient-to-tr from-[#99F6E4] to-[#CCFBF1] opacity-70"></div>
+              <div class="relative w-16 h-16 rounded-2xl bg-gradient-to-br from-[#0a8080] to-[#0C3934] text-white flex items-center justify-center shadow-lg shadow-[#0a8080]/30 border-2 border-white">
+                <svg class="w-9 h-9 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+            </div>
+            <h3 id="modalStatusTitle" class="text-xl sm:text-2xl font-black text-[#0C3934] font-['Plus_Jakarta_Sans',sans-serif] tracking-tight">
+              Laporan Berhasil Terkirim!
+            </h3>
+            <p class="text-xs sm:text-[13px] text-slate-600 font-['Inter',sans-serif] mt-2 leading-relaxed">
+              ${message}
+            </p>
+            <div class="bg-gradient-to-b from-[#F0FDFA] to-[#F8FAFC] rounded-2xl p-4 border border-[#CCFBF1] my-5 text-left space-y-2.5 text-xs">
+              <div class="flex items-center justify-between pb-2 border-b border-slate-200/60">
+                <span class="text-slate-500 font-medium">Nomor Tiket</span>
+                <span class="font-bold text-[#0D9488] font-mono bg-white px-2.5 py-1 rounded-lg border border-[#99F6E4] shadow-xs">
+                  #${ticket}
+                </span>
+              </div>
+              <div class="flex items-start justify-between gap-3 pb-2 border-b border-slate-200/60">
+                <span class="text-slate-500 font-medium shrink-0">Judul Laporan</span>
+                <span class="font-bold text-slate-800 text-right line-clamp-1">${title}</span>
+              </div>
+              <div class="flex items-center justify-between pb-2 border-b border-slate-200/60">
+                <span class="text-slate-500 font-medium">Status Awal</span>
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#FFFBEB] text-[#D97706] border border-[#FDE68A]">
+                  <span class="w-1.5 h-1.5 rounded-full bg-[#F59E0B]"></span>
+                  <span>Diajukan (Menunggu Review KABAG)</span>
+                </span>
+              </div>
+            </div>
+            <div class="space-y-2.5 pt-1">
+              <a href="${statusUrl}" class="w-full py-3 px-4 rounded-xl bg-[#0a8080] hover:bg-[#086666] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition duration-200">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                </svg>
+                <span>Pantau Status Laporan</span>
+              </a>
+              <button type="button" onclick="closeStatusModal()" class="w-full py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs sm:text-sm transition duration-200">
+                Selesai & Tutup
+              </button>
+            </div>
+          </div>
+        `;
+      }
+      openStatusModal();
+    };
+
+    // Helper to dynamically show error modal from client-side if needed
+    window.showErrorPopup = function(title = 'Pengiriman Laporan Gagal', errors = []) {
+      const container = document.getElementById('modalContentContainer');
+      const errList = Array.isArray(errors) ? errors : [errors];
+
+      if (container) {
+        container.innerHTML = `
+          <div class="p-6 sm:p-7 text-center">
+            <div class="relative w-24 h-24 mx-auto mb-4 flex items-center justify-center">
+              <div class="absolute inset-0 rounded-full bg-rose-100 animate-ping opacity-30"></div>
+              <div class="absolute inset-1 rounded-full bg-gradient-to-tr from-rose-200 to-rose-100 opacity-70"></div>
+              <div class="relative w-16 h-16 rounded-2xl bg-gradient-to-br from-rose-500 to-rose-700 text-white flex items-center justify-center shadow-lg shadow-rose-500/30 border-2 border-white">
+                <svg class="w-9 h-9 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+            </div>
+            <h3 id="modalStatusTitle" class="text-xl sm:text-2xl font-black text-rose-950 font-['Plus_Jakarta_Sans',sans-serif] tracking-tight">
+              ${title}
+            </h3>
+            <p class="text-xs sm:text-[13px] text-slate-600 font-['Inter',sans-serif] mt-2 leading-relaxed">
+              Mohon maaf, laporan Anda belum dapat diproses. Silakan periksa kendala berikut:
+            </p>
+            <div class="bg-rose-50/70 rounded-2xl p-4 border border-rose-200/80 my-5 text-left space-y-2 text-xs text-rose-800">
+              ${errList.map(err => `
+                <div class="flex items-start gap-2">
+                  <svg class="w-4 h-4 text-rose-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span>${err}</span>
+                </div>
+              `).join('')}
+            </div>
+            <div class="pt-1">
+              <button type="button" onclick="closeStatusModal()" class="w-full py-3 px-4 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition duration-200">
+                <span>Periksa dan Lengkapi Data</span>
+              </button>
+            </div>
+          </div>
+        `;
+      }
+      openStatusModal();
+    };
+
+    // Close on Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeStatusModal();
+      }
+    });
+
     document.addEventListener('DOMContentLoaded', () => {
       const desc = document.getElementById('description');
       if (desc) {
         updateCharCount(desc);
+      }
+
+      // Hook form submit to display immediate loading feedback
+      const reportForm = document.getElementById('reportForm');
+      const submitBtn = document.getElementById('submitBtn');
+
+      if (reportForm && submitBtn) {
+        reportForm.addEventListener('submit', function (e) {
+          if (reportForm.checkValidity()) {
+            submitBtn.disabled = true;
+            submitBtn.classList.add('opacity-80', 'cursor-not-allowed');
+            submitBtn.innerHTML = `
+              <svg class="animate-spin w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <span>Mengirim Laporan...</span>
+            `;
+          }
+        });
       }
     });
   </script>

@@ -93,4 +93,52 @@ class PelaporReportTest extends TestCase
         $response->assertStatus(422);
         $this->assertNull($rejectedReport->fresh()->rating);
     }
+
+    public function test_submitting_report_displays_success_popup_on_dashboard(): void
+    {
+        Storage::fake('public');
+
+        $pelapor = User::factory()->create(['role' => 'pelapor', 'email' => 'mhs@unair.ac.id']);
+        $subDept = SubDepartment::create(['name' => 'Sarpras', 'code' => 'SARPRAS']);
+
+        $response = $this->actingAs($pelapor)->post('/pelapor/laporan', [
+            'title' => 'Lampu Koridor Rusak',
+            'campus_location' => 'sobo',
+            'sub_department_id' => $subDept->id,
+            'description' => 'Lampu padam sejak kemarin.',
+        ]);
+
+        $response->assertRedirect('/pelapor/dashboard');
+        $response->assertSessionHas('success');
+        $response->assertSessionHas('ticket_code');
+
+        $report = Report::where('title', 'Lampu Koridor Rusak')->first();
+
+        $dashboardWithFlash = $this->actingAs($pelapor)->withSession([
+            'success' => 'Laporan pelayanan berhasil dikirim dan siap ditinjau oleh KABAG.',
+            'ticket_code' => $report->ticket_code,
+            'report_title' => $report->title,
+        ])->get('/pelapor/dashboard');
+
+        $dashboardWithFlash->assertStatus(200);
+        $dashboardWithFlash->assertSee('reportStatusModal');
+        $dashboardWithFlash->assertSee('Laporan Berhasil Terkirim!');
+        $dashboardWithFlash->assertSee($report->ticket_code);
+        $dashboardWithFlash->assertSee('Pantau Status Laporan');
+    }
+
+    public function test_submitting_report_with_errors_displays_error_popup_on_dashboard(): void
+    {
+        $pelapor = User::factory()->create(['role' => 'pelapor', 'email' => 'mhs@unair.ac.id']);
+
+        $dashboardWithError = $this->actingAs($pelapor)->withSession([
+            'error' => 'Gagal mengirim laporan. Terjadi gangguan pada koneksi.',
+        ])->get('/pelapor/dashboard');
+
+        $dashboardWithError->assertStatus(200);
+        $dashboardWithError->assertSee('reportStatusModal');
+        $dashboardWithError->assertSee('Pengiriman Laporan Gagal');
+        $dashboardWithError->assertSee('Gagal mengirim laporan. Terjadi gangguan pada koneksi.');
+        $dashboardWithError->assertSee('Periksa dan Lengkapi Data');
+    }
 }

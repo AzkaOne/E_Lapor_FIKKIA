@@ -103,22 +103,22 @@ class UserSeeder extends Seeder
         User::updateOrCreate(['email' => 'pelapor@unair.ac.id'], [
             'name' => 'Ahmad Pelapor (Mahasiswa)',
             'phone_number' => '081234567891',
-            'identity_number' => '164221054',
+            'identity_number' => '362358302026',
             'role' => 'pelapor',
             'position' => 'mahasiswa',
             'sub_department_id' => null,
             'password' => Hash::make('password123'),
         ]);
 
-        User::updateOrCreate(['email' => 'dosen@unair.ac.id'], [
-            'name' => 'Dr. Siti Pelapor (Dosen)',
-            'phone_number' => '081234567892',
-            'identity_number' => '198101012005012001',
-            'role' => 'pelapor',
-            'position' => 'dosen',
-            'sub_department_id' => null,
-            'password' => Hash::make('password123'),
-        ]);
+        // User::updateOrCreate(['email' => 'dosen@unair.ac.id'], [
+        //     'name' => 'Dr. Siti Pelapor (Dosen)',
+        //     'phone_number' => '081234567892',
+        //     'identity_number' => '198101012005012001',
+        //     'role' => 'pelapor',
+        //     'position' => 'dosen',
+        //     'sub_department_id' => null,
+        //     'password' => Hash::make('password123'),
+        // ]);
 
         // ==========================================
         // 5. Akun Pengelola Resmi (Kabag, Kasubag, Petugas)
