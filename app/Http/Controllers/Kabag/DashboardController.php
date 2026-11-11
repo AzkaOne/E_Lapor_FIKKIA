@@ -162,7 +162,8 @@ class DashboardController extends Controller
                 }
             })->with('subDepartment')->get();
 
-        return view('kabag.detail_Kabag', compact('report', 'subDepartments', 'kasubags', 'petugasKabag', 'petugas'));
+        $isKasubag = false;
+        return view('kabag.detail_Kabag', compact('report', 'subDepartments', 'kasubags', 'petugasKabag', 'petugas', 'isKasubag'));
     }
 
     public function myReports(): View

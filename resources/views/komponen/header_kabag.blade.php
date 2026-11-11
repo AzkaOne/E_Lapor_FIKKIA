@@ -27,21 +27,43 @@
 
           <!-- Mobile Title for Compact View -->
           <div class="sm:hidden flex items-center gap-2">
-            <span class="text-xs font-bold tracking-tight text-white uppercase">E-Lapor KABAG</span>
+            <span class="text-xs font-bold tracking-tight text-white uppercase">
+              E-Lapor {{ auth()->check() && auth()->user()->role === 'petugas' ? 'PETUGAS' : (auth()->check() && auth()->user()->role === 'kasubag' ? 'KASUBAG' : 'KABAG') }}
+            </span>
           </div>
         </div>
 
         <!-- Right: Notifications & User Profile -->
         <div class="flex items-center gap-3 sm:gap-4">
           <!-- Notification Bell -->
-          <a href="{{ route('kabag.verifikasi.index') }}" class="relative p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white transition" title="Verifikasi Laporan">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-            </svg>
-            @if (($counts['verifikasi'] ?? 0) > 0)
-              <span class="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-[#EF4444] rounded-full ring-2 ring-[#2E978E]"></span>
-            @endif
-          </a>
+          @if (auth()->check() && auth()->user()->role === 'petugas')
+            <a href="{{ route('petugas.my-reports') }}" class="relative p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white transition" title="Laporan Masuk">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+              </svg>
+              @if ((($counts['masuk'] ?? 0) > 0) || (($counts['perlu_penanganan'] ?? 0) > 0))
+                <span class="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-[#EF4444] rounded-full ring-2 ring-[#2E978E]"></span>
+              @endif
+            </a>
+          @elseif (auth()->check() && auth()->user()->role === 'kasubag')
+            <a href="{{ route('kasubag.status') }}" class="relative p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white transition" title="Laporan Masuk">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+              </svg>
+              @if ((($counts['masuk'] ?? 0) > 0) || (($counts['perlu_penanganan'] ?? 0) > 0))
+                <span class="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-[#EF4444] rounded-full ring-2 ring-[#2E978E]"></span>
+              @endif
+            </a>
+          @else
+            <a href="{{ route('kabag.verifikasi.index') }}" class="relative p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white transition" title="Verifikasi Laporan">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+              </svg>
+              @if (($counts['verifikasi'] ?? 0) > 0)
+                <span class="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-[#EF4444] rounded-full ring-2 ring-[#2E978E]"></span>
+              @endif
+            </a>
+          @endif
 
           <!-- User Profile Badge -->
             <div class="flex items-center gap-2 pl-2 sm:pl-3 border-l border-white/20">
@@ -54,10 +76,10 @@
 
                 <div class="hidden md:flex flex-col text-left">
                     <span class="text-xs font-bold text-white leading-tight truncate max-w-[130px]">
-                        {{ auth()->user()->name ?? 'Fuad Raden, S.D., S.Mp' }}
+                        {{ auth()->user()->name ?? (auth()->check() && auth()->user()->role === 'petugas' ? 'Petugas' : (auth()->check() && auth()->user()->role === 'kasubag' ? 'Kasubag' : 'Fuad Raden, S.D., S.Mp')) }}
                     </span>
                     <span class="text-[10px] text-teal-200 capitalize leading-tight">
-                        {{ auth()->user()->position ?? 'Kepala Bagian' }}
+                        {{ auth()->user()->position ?? (auth()->check() && auth()->user()->role === 'petugas' ? ('Petugas ' . (auth()->user()->subDepartment?->name ?? 'Lapangan')) : (auth()->check() && auth()->user()->role === 'kasubag' ? ('Kasubag ' . (auth()->user()->subDepartment?->name ?? 'Unit')) : 'Kepala Bagian')) }}
                     </span>
                 </div>
             </div>

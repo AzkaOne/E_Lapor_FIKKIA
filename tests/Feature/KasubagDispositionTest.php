@@ -47,6 +47,42 @@ class KasubagDispositionTest extends TestCase
         $response->assertDontSee('LP-SDM-1');
     }
 
+    public function test_kasubag_dashboard_header_and_sidebar_components(): void
+    {
+        $sarpras = SubDepartment::create(['name' => 'Sarana dan Prasarana', 'code' => 'SARPRAS']);
+        $kasubag = User::factory()->create([
+            'role' => 'kasubag',
+            'name' => 'Mas Gatot Kasubag',
+            'position' => 'Kepala Sub Bagian',
+            'sub_department_id' => $sarpras->id,
+        ]);
+
+        $response = $this->actingAs($kasubag)->get('/kasubag/dashboard');
+
+        $response->assertStatus(200);
+
+        // Sidebar Kasubag items
+        $response->assertSee('Dashboard');
+        $response->assertSee('Laporan Masuk');
+        $response->assertSee('Riwayat Laporan');
+        $response->assertSee('Manajemen Petugas');
+
+        // Should not see Kabag-only sidebar items
+        $response->assertDontSee('Laporan Whistleblower');
+        $response->assertDontSee('Manajemen Kasubag');
+
+        // Top section cards
+        $response->assertSee('E-Lapor FIKKIA');
+        $response->assertSee('Laporan Per Bidang');
+        $response->assertSee('Perlu penanganan');
+        $response->assertSee('Dalam Penanganan');
+        $response->assertSee('Menunggu Verifikasi');
+        $response->assertSee('Catatan / Komentar');
+
+        // Header user info
+        $response->assertSee('Mas Gatot Kasubag');
+    }
+
     public function test_kasubag_can_dispose_to_petugas_in_same_unit(): void
     {
         $sarpras = SubDepartment::create(['name' => 'Sarpras', 'code' => 'SARPRAS']);
@@ -155,5 +191,107 @@ class KasubagDispositionTest extends TestCase
         $response->assertRedirect();
         $this->assertEquals('verifikasi_kabag', $report->fresh()->status);
         $this->assertEquals('terlaksana', $report->fresh()->execution_result);
+    }
+
+    public function test_kasubag_detail_page_renders_detail_kabag_with_three_action_menus(): void
+    {
+        $sarpras = SubDepartment::create(['name' => 'Sarana dan Prasarana', 'code' => 'SARPRAS']);
+        $sdm = SubDepartment::create(['name' => 'SDM', 'code' => 'SDM']);
+
+        $kasubag = User::factory()->create([
+            'role' => 'kasubag',
+            'name' => 'Mas Gatot Kasubag',
+            'sub_department_id' => $sarpras->id,
+        ]);
+
+        $petugasSarpras = User::factory()->create([
+            'role' => 'petugas',
+            'name' => 'Rusdiana Petugas Sarpras',
+            'sub_department_id' => $sarpras->id,
+        ]);
+
+        $petugasSdm = User::factory()->create([
+            'role' => 'petugas',
+            'name' => 'Doni Petugas SDM',
+            'sub_department_id' => $sdm->id,
+        ]);
+
+        $kabag = User::factory()->create(['role' => 'kabag']);
+
+        $report = Report::create([
+            'ticket_code' => 'LP-2026-KASUBAGVIEW',
+            'title' => 'AC Rusak Ruang 102',
+            'description' => 'AC bocor air',
+            'type' => 'pelayanan',
+            'sub_department_id' => $sarpras->id,
+            'campus_location' => 'mojo',
+            'status' => 'didisposisi',
+        ]);
+
+        // Report has a disposition from Kabag (this previously triggered the variable overwrite bug)
+        \App\Models\ReportDisposition::create([
+            'report_id' => $report->id,
+            'sender_id' => $kabag->id,
+            'receiver_id' => $kasubag->id,
+            'notes' => 'Tolong segera ditindaklanjuti tim sarpras.',
+        ]);
+
+        $response = $this->actingAs($kasubag)->get("/kasubag/laporan/{$report->id}");
+
+        $response->assertStatus(200);
+        $response->assertViewIs('kabag.detail_Kabag');
+
+        // 3 action menus for Kasubag
+        $response->assertSee('Kirim ke Petugas');
+        $response->assertSee('Kerjakan Mandiri');
+        $response->assertSee('Tolak Laporan');
+
+        // Kasubag MUST NOT see 'Disposisi Ke Kasubag'
+        $response->assertDontSee('Disposisi Ke Kasubag');
+
+        // Form action for Kirim ke Petugas MUST point to kasubag route, NOT kabag route
+        $response->assertSee(route('kasubag.dispose', $report));
+        $response->assertDontSee(route('kabag.dispose', $report));
+
+        // Only officers matching report's sub_department are displayed
+        $response->assertSee('Rusdiana Petugas Sarpras');
+        $response->assertDontSee('Doni Petugas SDM');
+    }
+
+    public function test_kasubag_can_reject_report_and_redirect_to_kabag(): void
+    {
+        $kabag = User::factory()->create(['role' => 'kabag', 'name' => 'Fuad Kabag']);
+        $sarpras = SubDepartment::create(['name' => 'Sarana dan Prasarana', 'code' => 'SARPRAS']);
+        $kasubag = User::factory()->create([
+            'role' => 'kasubag',
+            'name' => 'Mas Gatot Kasubag',
+            'sub_department_id' => $sarpras->id,
+        ]);
+
+        $report = Report::create([
+            'ticket_code' => 'LP-2026-REJECT',
+            'title' => 'Laporan Salah Sub Bagian',
+            'description' => 'Bukan tugas kami',
+            'type' => 'pelayanan',
+            'sub_department_id' => $sarpras->id,
+            'campus_location' => 'giri',
+            'status' => 'didisposisi',
+        ]);
+
+        $response = $this->actingAs($kasubag)->post("/kasubag/laporan/{$report->id}/tolak", [
+            'rejection_reason' => 'Laporan tidak relevan dan ditolak oleh Kasubag.',
+        ]);
+
+        $response->assertRedirect();
+        $this->assertEquals('ditolak', $report->fresh()->status);
+        $this->assertNull($report->fresh()->handler_id);
+        $this->assertEquals('Laporan tidak relevan dan ditolak oleh Kasubag.', $report->fresh()->rejection_reason);
+
+        // Verify disposition redirects to Kabag
+        $this->assertDatabaseHas('report_dispositions', [
+            'report_id' => $report->id,
+            'sender_id' => $kasubag->id,
+            'receiver_id' => $kabag->id,
+        ]);
     }
 }

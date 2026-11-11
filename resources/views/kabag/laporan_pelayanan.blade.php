@@ -197,7 +197,7 @@
             <div class="min-w-0">
               <div class="text-xs font-semibold text-[#0369A1] leading-tight truncate">Sarpras</div>
               <div class="text-2xl sm:text-3xl font-extrabold text-[#0F172A] mt-0.5 leading-tight">
-                {{ $counts['sarpras'] ?? 5 }}
+                {{ $counts['sarpras'] ?? 0 }}
               </div>
             </div>
           </div>
@@ -212,7 +212,7 @@
             <div class="min-w-0">
               <div class="text-xs font-semibold text-[#15803D] leading-tight truncate">Dekanat</div>
               <div class="text-2xl sm:text-3xl font-extrabold text-[#0F172A] mt-0.5 leading-tight">
-                {{ $counts['dekanat'] ?? 3 }}
+                {{ $counts['dekanat'] ?? 0 }}
               </div>
             </div>
           </div>
@@ -227,7 +227,7 @@
             <div class="min-w-0">
               <div class="text-xs font-semibold text-[#78350F] leading-tight truncate">Keuangan</div>
               <div class="text-2xl sm:text-3xl font-extrabold text-[#0F172A] mt-0.5 leading-tight">
-                {{ $counts['keuangan'] ?? 4 }}
+                {{ $counts['keuangan'] ?? 0 }}
               </div>
             </div>
           </div>
@@ -242,7 +242,7 @@
             <div class="min-w-0">
               <div class="text-xs font-semibold text-[#7E22CE] leading-tight truncate">Akademik</div>
               <div class="text-2xl sm:text-3xl font-extrabold text-[#0F172A] mt-0.5 leading-tight">
-                {{ $counts['akademik'] ?? 3 }}
+                {{ $counts['akademik'] ?? 0 }}
               </div>
             </div>
           </div>

@@ -282,40 +282,12 @@
                 </div>
               </div>
             @empty
-              <!-- FigCraft Sample Comment Item 1 -->
-              <div class="space-y-1.5">
-                <div class="flex items-center gap-2.5">
-                  <div class="w-8 h-8 rounded-full bg-[#CCFBF1] text-[#0D9488] flex items-center justify-center font-bold text-xs shrink-0">
-                    F
-                  </div>
-                  <div class="min-w-0">
-                    <div class="text-xs font-semibold text-slate-900 truncate">Fuad Zikr, S.Kom</div>
-                    <div class="text-[10px] text-slate-400">Kasubag Sarana Prasarana</div>
-                  </div>
-                  <span class="text-[10px] text-slate-400 ml-auto shrink-0">15 Mei 2025 • 09:20</span>
-                </div>
-                <div class="bg-[#F8FAFC] border border-slate-100 rounded-xl p-2.5 text-xs text-slate-600">
-                  <div class="font-semibold text-slate-900 mb-0.5">Kerusakan AC di Ruang Kelas 3.2</div>
-                  <p class="text-[11px] text-slate-500">Kerusakan AC pada kelas ini sudah parah tidak bisa dikerjakan karena para petugas sibuk</p>
-                </div>
-              </div>
-
-              <!-- FigCraft Sample Comment Item 2 -->
-              <div class="space-y-1.5 pt-2 border-t border-slate-100">
-                <div class="flex items-center gap-2.5">
-                  <div class="w-8 h-8 rounded-full bg-[#CCFBF1] text-[#0D9488] flex items-center justify-center font-bold text-xs shrink-0">
-                    F
-                  </div>
-                  <div class="min-w-0">
-                    <div class="text-xs font-semibold text-slate-900 truncate">Fuad Zikr, S.Kom</div>
-                    <div class="text-[10px] text-slate-400">Kasubag Sarana Prasarana</div>
-                  </div>
-                  <span class="text-[10px] text-slate-400 ml-auto shrink-0">15 Mei 2025 • 09:20</span>
-                </div>
-                <div class="bg-[#F8FAFC] border border-slate-100 rounded-xl p-2.5 text-xs text-slate-600">
-                  <div class="font-semibold text-slate-900 mb-0.5">Kerusakan AC di Ruang Kelas 3.2</div>
-                  <p class="text-[11px] text-slate-500">Kerusakan AC pada kelas ini sudah parah tidak bisa dikerjakan karena para petugas sibuk</p>
-                </div>
+         <div class="py-8 text-center text-slate-400">
+                <svg class="w-8 h-8 text-slate-300 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                </svg>
+                <p class="text-xs font-semibold text-slate-600">Belum ada catatan atau komentar</p>
+                <p class="text-[11px] text-slate-400 mt-0.5">Catatan disposisi dan penyelesaian laporan akan muncul di sini.</p>
               </div>
             @endforelse
           </div>

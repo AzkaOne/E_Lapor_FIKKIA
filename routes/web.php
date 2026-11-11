@@ -48,7 +48,7 @@ Route::middleware(['auth', 'role:kabag'])->prefix('kabag')->name('kabag.')->grou
     Route::post('/laporan/{report}/disposisi', [\App\Http\Controllers\Kabag\DispositionController::class, 'dispose'])->name('dispose');
     Route::post('/laporan/{report}/kerjakan-sendiri', [\App\Http\Controllers\Kabag\DispositionController::class, 'selfExecute'])->name('self-execute');
     Route::post('/laporan/{report}/selesai-mandiri', [\App\Http\Controllers\Kabag\DispositionController::class, 'completeSelfExecution'])->name('complete-self');
-    Route::post('/laporan/{repobrt}/tolak', [\App\Http\Controllers\Kabag\DispositionController::class, 'reject'])->name('reject');
+    Route::post('/laporan/{report}/tolak', [\App\Http\Controllers\Kabag\DispositionController::class, 'reject'])->name('reject');
     Route::get('/laporan-saya', [\App\Http\Controllers\Kabag\DashboardController::class, 'myReports'])->name('my-reports');
     Route::get('/riwayat', [\App\Http\Controllers\Kabag\DashboardController::class, 'history'])->name('history');
 
@@ -73,10 +73,12 @@ Route::middleware(['auth', 'role:kasubag'])->prefix('kasubag')->name('kasubag.')
     Route::get('/laporan/{report}', [\App\Http\Controllers\Kasubag\DashboardController::class, 'show'])->name('show');
     Route::post('/laporan/{report}/disposisi', [\App\Http\Controllers\Kasubag\DispositionController::class, 'dispose'])->name('dispose');
     Route::post('/laporan/{report}/kembalikan', [\App\Http\Controllers\Kasubag\DispositionController::class, 'returnToKabag'])->name('return');
+    Route::post('/laporan/{report}/tolak', [\App\Http\Controllers\Kasubag\DispositionController::class, 'reject'])->name('reject');
     Route::post('/laporan/{report}/kerjakan-sendiri', [\App\Http\Controllers\Kasubag\DispositionController::class, 'selfExecute'])->name('self-execute');
     Route::post('/laporan/{report}/kirim-verifikasi', [\App\Http\Controllers\Kasubag\DispositionController::class, 'submitVerification'])->name('submit-verification');
     Route::get('/laporan-saya', [\App\Http\Controllers\Kasubag\DashboardController::class, 'myReports'])->name('my-reports');
     Route::get('/status', [\App\Http\Controllers\Kasubag\DashboardController::class, 'status'])->name('status');
+    Route::get('/laporan-masuk', [\App\Http\Controllers\Kasubag\DashboardController::class, 'status'])->name('laporan-masuk');
     Route::get('/riwayat', [\App\Http\Controllers\Kasubag\DashboardController::class, 'history'])->name('history');
 
     // Petugas Management
@@ -90,5 +92,6 @@ Route::middleware(['auth', 'role:petugas'])->prefix('petugas')->name('petugas.')
     Route::post('/laporan/{report}/mulai', [\App\Http\Controllers\Petugas\ExecutionController::class, 'start'])->name('start');
     Route::post('/laporan/{report}/selesai', [\App\Http\Controllers\Petugas\ExecutionController::class, 'complete'])->name('complete');
     Route::get('/laporan-saya', [\App\Http\Controllers\Petugas\DashboardController::class, 'myReports'])->name('my-reports');
+    Route::get('/laporan-masuk', [\App\Http\Controllers\Petugas\DashboardController::class, 'myReports'])->name('laporan-masuk');
     Route::get('/riwayat', [\App\Http\Controllers\Petugas\DashboardController::class, 'history'])->name('history');
 });

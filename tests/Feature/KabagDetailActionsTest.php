@@ -23,9 +23,14 @@ class KabagDetailActionsTest extends TestCase
             'name' => 'Bambang Kasubag Sarpras',
             'sub_department_id' => $sarpras->id,
         ]);
-        $petugas = User::factory()->create([
+        $petugasSarpras = User::factory()->create([
             'role' => 'petugas',
-            'name' => 'Joko Petugas Dekanat',
+            'name' => 'Joko Petugas Sarpras',
+            'sub_department_id' => $sarpras->id,
+        ]);
+        $petugasDekanat = User::factory()->create([
+            'role' => 'petugas',
+            'name' => 'Doni Petugas Dekanat',
             'sub_department_id' => $dekanat->id,
         ]);
 
@@ -54,10 +59,10 @@ class KabagDetailActionsTest extends TestCase
         $response->assertSee('Bambang Kasubag Sarpras');
         $response->assertSee('Bidang: Sarana dan Prasarana');
 
-        // 3. Petugas modal shows name and sub_department name
+        // 3. Petugas modal only shows officer matching report's sub_department (Sarpras), NOT Dekanat
         $response->assertSee('Tugaskan Laporan Ke Petugas');
-        $response->assertSee('Joko Petugas Dekanat');
-        $response->assertSee('Bidang: Dekanat');
+        $response->assertSee('Joko Petugas Sarpras');
+        $response->assertDontSee('Doni Petugas Dekanat');
 
         // 4. Checklist states exist
         $response->assertSee('Lanjutkan Kerjakan Mandiri');

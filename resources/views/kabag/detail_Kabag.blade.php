@@ -1,9 +1,20 @@
+@php
+  $isKasubag = isset($isKasubag) ? $isKasubag : (auth()->check() && auth()->user()->role === 'kasubag');
+  $canTakeAction = ($isKasubag && $report->status === 'didisposisi') || (!$isKasubag && $report->status === 'diajukan');
+
+  $allPetugas = $petugas->isNotEmpty() ? $petugas : ($petugasKabag ?? collect());
+  if ($report->sub_department_id) {
+      $filteredPetugas = $allPetugas->filter(fn($p) => $p->sub_department_id == $report->sub_department_id);
+  } else {
+      $filteredPetugas = $allPetugas->filter(fn($p) => is_null($p->sub_department_id));
+  }
+@endphp
 <!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Detail Laporan #{{ $report->ticket_code }} - Panel KABAG E-Lapor FIKKIA</title>
+  <title>Detail Laporan #{{ $report->ticket_code }} - Panel {{ $isKasubag ? 'KASUBAG' : 'KABAG' }} E-Lapor FIKKIA</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -47,7 +58,7 @@
         showPetugasModal: false,
         selectedChecklist: '',
         selectedKasubagId: '{{ $kasubags->firstWhere('sub_department_id', $report->sub_department_id)?->id ?? $kasubags->first()?->id ?? '' }}',
-        selectedPetugasId: '{{ $petugas->firstWhere('sub_department_id', $report->sub_department_id)?->id ?? $petugas->first()?->id ?? '' }}',
+        selectedPetugasId: '{{ $filteredPetugas->first()?->id ?? '' }}',
         notesCount: 0,
         copied: false,
         copyTicket() {
@@ -56,69 +67,6 @@
           setTimeout(() => this.copied = false, 2000);
         }
       }">
-
-  <!-- ================= TOP HEADER BAR ================= -->
-  {{-- <header class="bg-white border-b border-slate-200/80 sticky top-0 z-30 shadow-xs lg:ml-52">
-    <div class="px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-4">
-
-      <!-- Left: Mobile Toggle & Header Title -->
-      <div class="flex items-center gap-3 sm:gap-4">
-        <!-- Mobile Sidebar Hamburger Toggle -->
-        <button type="button" onclick="toggleSidebar()" class="lg:hidden p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition focus:outline-none" title="Buka Menu">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
-        </button>
-
-        <!-- Page Header Title and Subtitle -->
-        <div>
-          <h1 class="text-lg sm:text-xl lg:text-2xl font-bold text-slate-900 tracking-tight leading-tight">
-            Laporan Masuk
-          </h1>
-          <p class="text-xs sm:text-[13px] text-slate-500 mt-0.5 hidden sm:block">
-            Berikut adalah daftar laporan pelayanan yang masuk dan perlu ditinjau oleh Kepala Bagian.
-          </p>
-        </div>
-      </div>
-
-
-      <div class="flex items-center gap-3 sm:gap-4">
-        <!-- Notification Bell -->
-        <a href="{{ route('kabag.verifikasi.index') }}" class="relative p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition" title="Verifikasi Laporan">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-          </svg>
-        </a>
-
-        <!-- User Profile Pill -->
-        <div class="flex items-center gap-2.5 sm:gap-3 pl-2 sm:pl-3 border-l border-slate-200">
-          <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#E2E8F0] text-slate-700 flex items-center justify-center font-bold text-sm shadow-xs shrink-0">
-            <svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-            </svg>
-          </div>
-          <div class="hidden sm:block text-left leading-tight">
-            <div class="text-xs sm:text-sm font-bold text-slate-900 truncate max-w-[150px] lg:max-w-[200px]">
-              {{ auth()->user()->name ?? 'Moch Hisom Azka, S.Kom' }}
-            </div>
-            <div class="text-[11px] text-slate-500 font-medium">Kepala Bagian</div>
-          </div>
-        </div>
-
-        <!-- Logout Action -->
-        <form method="POST" action="{{ route('logout') }}" class="inline">
-          @csrf
-          <button type="submit" class="p-2 rounded-xl bg-slate-100 hover:bg-[#EF4444] hover:text-white text-slate-600 transition text-xs font-semibold flex items-center gap-1.5" title="Keluar">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-            </svg>
-            <span class="hidden md:inline">Keluar</span>
-          </button>
-        </form>
-      </div>
-
-    </div>
-  </header> --}}
 
 <header class="bg-white text-slate-900 h-16 sm:h-20 fixed top-0 left-0 right-0 lg:left-52 z-40 shadow-sm border-b border-slate-200">
     <div class="px-4 sm:px-6 lg:px-8 h-full flex items-center justify-between gap-4">
@@ -142,7 +90,7 @@
                     Laporan Masuk
                 </h1>
                 <p class="hidden sm:block text-xs sm:text-[13px] text-slate-500 mt-0.5 truncate">
-                    Berikut adalah daftar laporan pelayanan yang masuk dan perlu ditinjau oleh Kepala Bagian.
+                    Berikut adalah daftar laporan pelayanan yang masuk dan perlu ditinjau oleh {{ $isKasubag ? 'Kepala Sub Bagian' : 'Kepala Bagian' }}.
                 </p>
             </div>
 
@@ -152,16 +100,16 @@
         <div class="flex items-center gap-3 sm:gap-4 shrink-0">
 
             <!-- Notification Bell -->
-            <a href="{{ route('kabag.verifikasi.index') }}"
+            <a href="{{ $isKasubag ? route('kasubag.status') : route('kabag.verifikasi.index') }}"
                class="relative p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition"
-               title="Verifikasi Laporan">
+               title="{{ $isKasubag ? 'Laporan Masuk' : 'Verifikasi Laporan' }}">
 
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                           d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                 </svg>
 
-                @if (($counts['verifikasi'] ?? 0) > 0)
+                @if (!$isKasubag && ($counts['verifikasi'] ?? 0) > 0)
                     <span class="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-[#EF4444] rounded-full ring-2 ring-white"></span>
                 @endif
             </a>
@@ -178,10 +126,10 @@
 
                 <div class="hidden md:flex flex-col text-left">
                     <span class="text-xs font-bold text-slate-900 leading-tight truncate max-w-[130px]">
-                        {{ auth()->user()->name ?? 'Fuad Raden, S.D., S.Mp' }}
+                        {{ auth()->user()->name ?? ($isKasubag ? 'Kasubag' : 'Fuad Raden, S.D., S.Mp') }}
                     </span>
                     <span class="text-[10px] text-slate-500 capitalize leading-tight">
-                        {{ auth()->user()->position ?? 'Kepala Bagian' }}
+                        {{ auth()->user()->position ?? ($isKasubag ? 'Kepala Sub Bagian' : 'Kepala Bagian') }}
                     </span>
                 </div>
 
@@ -218,7 +166,7 @@
 
       <!-- ================= BREADCRUMB ================= -->
       <nav class="flex items-center gap-2 text-xs sm:text-sm text-slate-500 font-medium">
-        <a href="{{ route('kabag.laporan-pelayanan') }}" class="hover:text-[#2E978E] transition">Laporan Masuk</a>
+        <a href="{{ $isKasubag ? route('kasubag.status') : route('kabag.laporan-pelayanan') }}" class="hover:text-[#2E978E] transition">Laporan Masuk</a>
         <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
         </svg>
@@ -556,21 +504,21 @@
 
                 @forelse ($validDispositions as $disp)
                 @php
-                    $role = strtolower($disp->sender?->role ?? 'kabag');
-                    $isKabag = $role === 'kabag';
-                    $isKasubag = $role === 'kasubag';
+                    $dispRole = strtolower($disp->sender?->role ?? 'kabag');
+                    $dispIsKabag = $dispRole === 'kabag';
+                    $dispIsKasubag = $dispRole === 'kasubag';
                 @endphp
                 <div class="border border-slate-200/90 rounded-2xl p-4 bg-white space-y-2">
                     <div class="flex items-center justify-between gap-2">
                     <div class="flex items-center gap-2.5 min-w-0">
                         <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0
-                        {{ $isKabag ? 'bg-[#CCFBF1] text-[#059669]' : ($isKasubag ? 'bg-[#DBEAFE] text-[#1D4ED8]' : 'bg-[#FFEDD5] text-[#C2410C]') }}">
+                        {{ $dispIsKabag ? 'bg-[#CCFBF1] text-[#059669]' : ($dispIsKasubag ? 'bg-[#DBEAFE] text-[#1D4ED8]' : 'bg-[#FFEDD5] text-[#C2410C]') }}">
                         {{ strtoupper(substr($disp->sender?->name ?? 'U', 0, 1)) }}
                         </div>
                         <div class="min-w-0">
                         <div class="font-bold text-slate-900 text-xs truncate">{{ $disp->sender?->name ?? 'Pengguna' }}</div>
                         <div class="text-[10px] font-semibold uppercase tracking-wider
-                            {{ $isKabag ? 'text-[#059669]' : ($isKasubag ? 'text-[#1D4ED8]' : 'text-[#C2410C]') }}">
+                            {{ $dispIsKabag ? 'text-[#059669]' : ($dispIsKasubag ? 'text-[#1D4ED8]' : 'text-[#C2410C]') }}">
                             {{ strtoupper($disp->sender?->role ?? 'Petugas') }} {{ $disp->sender?->subDepartment?->name ? '• ' . $disp->sender->subDepartment->name : '' }}
                         </div>
                         </div>
@@ -580,7 +528,7 @@
                     </div>
                     </div>
                     <div class="p-3 rounded-xl text-xs leading-relaxed text-slate-800
-                    {{ $isKabag ? 'bg-[#ECFDF5]' : ($isKasubag ? 'bg-[#EFF6FF]' : 'bg-[#FFF7ED]') }}">
+                    {{ $dispIsKabag ? 'bg-[#ECFDF5]' : ($dispIsKasubag ? 'bg-[#EFF6FF]' : 'bg-[#FFF7ED]') }}">
                     {{ $disp->notes }}
                     </div>
                 </div>
@@ -640,7 +588,7 @@
         </div>
 
 
-        @if ($report->status === 'diajukan')
+        @if ($canTakeAction)
           <!-- COLUMN 2: BOX TINDAKAN -->
           <div class="lg:col-span-5 bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 sm:p-6">
 
@@ -649,25 +597,28 @@
               <span class="text-[11px] text-slate-400 font-medium">Pilih salah satu menu</span>
             </div>
 
-            <!-- 4 KARTU TINDAKAN (2x2) -->
+            <!-- KARTU TINDAKAN -->
+            {{-- <div class="grid grid-cols-1 {{ $isKasubag ? 'sm:grid-cols-3' : 'sm:grid-cols-2' }} gap-3 mt-4"> --}}
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
 
-              <!-- 1. Disposisi ke Kasubag (Buka Popup Kasubag & Bidangnya) -->
-              <div @click="showKasubagModal = true"
-                   class="rounded-xl border border-[#10B981] bg-[#ECFDF5] hover:bg-[#D1FAE5] p-3.5 cursor-pointer transition flex items-center justify-between gap-2.5 shadow-xs hover:shadow-md hover:scale-[1.01] group">
-                <div class="flex items-center gap-2.5 min-w-0">
-                  <div class="w-10 h-10 rounded-xl bg-[#047857] text-white flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 transition-transform">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+              @if (!$isKasubag)
+                <!-- 1. Disposisi ke Kasubag (Buka Popup Kasubag & Bidangnya) -->
+                <div @click="showKasubagModal = true"
+                     class="rounded-xl border border-[#10B981] bg-[#ECFDF5] hover:bg-[#D1FAE5] p-3.5 cursor-pointer transition flex items-center justify-between gap-2.5 shadow-xs hover:shadow-md hover:scale-[1.01] group">
+                  <div class="flex items-center gap-2.5 min-w-0">
+                    <div class="w-10 h-10 rounded-xl bg-[#047857] text-white flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 transition-transform">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    </div>
+                    <div class="min-w-0">
+                      <div class="text-xs font-bold text-[#064E3B] leading-tight">Disposisi Ke Kasubag</div>
+                      <p class="text-[10px] sm:text-[10.5px] text-[#059669] mt-0.5 leading-snug">Pilih Kasubag & bidang</p>
+                    </div>
                   </div>
-                  <div class="min-w-0">
-                    <div class="text-xs font-bold text-[#064E3B] leading-tight">Disposisi Ke Kasubag</div>
-                    <p class="text-[10px] sm:text-[10.5px] text-[#059669] mt-0.5 leading-snug">Pilih Kasubag & bidang</p>
+                  <div class="w-6 h-6 rounded-lg bg-white/90 border border-[#A7F3D0] flex items-center justify-center text-[#047857] shrink-0 group-hover:translate-x-0.5 transition-transform">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
                   </div>
                 </div>
-                <div class="w-6 h-6 rounded-lg bg-white/90 border border-[#A7F3D0] flex items-center justify-center text-[#047857] shrink-0 group-hover:translate-x-0.5 transition-transform">
-                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
-                </div>
-              </div>
+              @endif
 
               <!-- 2. Kirim ke Petugas (Buka Popup Petugas & Bidangnya) -->
               <div @click="showPetugasModal = true"
@@ -696,7 +647,7 @@
                   </div>
                   <div class="min-w-0">
                     <div class="text-xs font-bold text-[#6D28D9] leading-tight">Kerjakan Mandiri</div>
-                    <p class="text-[10px] sm:text-[10.5px] text-[#7C3AED] mt-0.5 leading-snug">Tangani langsung oleh Kabag</p>
+                    <p class="text-[10px] sm:text-[10.5px] text-[#7C3AED] mt-0.5 leading-snug">Tangani langsung oleh {{ $isKasubag ? 'Kasubag' : 'Kabag' }}</p>
                   </div>
                 </div>
                 <!-- Checklist Box Indicator -->
@@ -709,16 +660,16 @@
               </div>
 
               <!-- 4. Tolak Laporan (Bentuk Button Checklist) -->
-              <div @click="selectedChecklist = (selectedChecklist === 'tolak' ? '' : 'tolak')"
-                   class="rounded-xl border p-3.5 cursor-pointer transition flex items-center justify-between gap-2.5 shadow-xs hover:shadow-md"
-                   :class="selectedChecklist === 'tolak' ? 'border-[#B91C1C] bg-[#FEE2E2] ring-2 ring-[#B91C1C]/40' : 'border-[#FECACA] bg-[#FFF5F5] hover:bg-[#FEE2E2]'">
+             <div @click="selectedChecklist = (selectedChecklist === 'tolak' ? '' : 'tolak')"
+     class="{{ $isKasubag ? 'sm:col-span-2 sm:w-[calc(50%-0.375rem)] sm:justify-self-center' : '' }} rounded-xl border p-3.5 cursor-pointer transition flex items-center justify-between gap-2.5 shadow-xs hover:shadow-md"
+     :class="selectedChecklist === 'tolak' ? 'border-[#B91C1C] bg-[#FEE2E2] ring-2 ring-[#B91C1C]/40' : 'border-[#FECACA] bg-[#FFF5F5] hover:bg-[#FEE2E2]'">
                 <div class="flex items-center gap-2.5 min-w-0">
                   <div class="w-10 h-10 rounded-xl bg-[#EF4444] text-white flex items-center justify-center shrink-0 shadow-xs">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                   </div>
                   <div class="min-w-0">
                     <div class="text-xs font-bold text-[#B91C1C] leading-tight">Tolak Laporan</div>
-                    <p class="text-[10px] sm:text-[10.5px] text-[#DC2626] mt-0.5 leading-snug">Tolak jika tidak valid/spam</p>
+                    <p class="text-[10px] sm:text-[10.5px] text-[#DC2626] mt-0.5 leading-snug">{{ $isKasubag ? 'Tolak dan kembalikan ke Kabag' : 'Tolak jika tidak valid/spam' }}</p>
                   </div>
                 </div>
                 <!-- Checklist Box Indicator -->
@@ -740,13 +691,17 @@
               <!-- State 0: Belum Memilih Checklist -->
               <div x-show="selectedChecklist === ''" class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 text-center">
                 <p class="text-xs text-slate-500 font-medium">
-                  Pilih <span class="font-bold text-[#064E3B]">Disposisi Ke Kasubag</span> atau <span class="font-bold text-[#0369A1]">Kirim ke Petugas</span> untuk membuka popup pemilihan nama dan bidangnya, atau klik checklist <span class="font-bold text-[#6D28D9]">Kerjakan Mandiri</span> / <span class="font-bold text-[#B91C1C]">Tolak Laporan</span> lalu klik tombol <span class="font-bold text-slate-700">Lanjutkan</span>.
+                  @if (!$isKasubag)
+                    Pilih <span class="font-bold text-[#064E3B]">Disposisi Ke Kasubag</span> atau <span class="font-bold text-[#0369A1]">Kirim ke Petugas</span> untuk membuka popup pemilihan nama dan bidangnya, atau klik checklist <span class="font-bold text-[#6D28D9]">Kerjakan Mandiri</span> / <span class="font-bold text-[#B91C1C]">Tolak Laporan</span> lalu klik tombol <span class="font-bold text-slate-700">Lanjutkan</span>.
+                  @else
+                    Pilih <span class="font-bold text-[#0369A1]">Kirim ke Petugas</span> untuk membuka popup pemilihan nama dan bidangnya, atau klik checklist <span class="font-bold text-[#6D28D9]">Kerjakan Mandiri</span> / <span class="font-bold text-[#B91C1C]">Tolak Laporan</span> lalu klik tombol <span class="font-bold text-slate-700">Lanjutkan</span>.
+                  @endif
                 </p>
               </div>
 
               <!-- State 1: Kerjakan Mandiri Terpilih -->
               <div x-show="selectedChecklist === 'sendiri'" style="display: none;">
-                <form action="{{ route('kabag.self-execute', $report) }}" method="POST"
+                <form action="{{ $isKasubag ? route('kasubag.self-execute', $report) : route('kabag.self-execute', $report) }}" method="POST"
                       onsubmit="return confirm('Apakah Anda yakin ingin memproses laporan ini secara mandiri?')">
                   @csrf
                   <div class="p-3.5 rounded-xl bg-[#EDE9FE] border border-[#DDD6FE] text-[#6D28D9] text-xs space-y-1 mb-4">
@@ -771,7 +726,7 @@
 
               <!-- State 2: Tolak Laporan Terpilih -->
               <div x-show="selectedChecklist === 'tolak'" style="display: none;">
-                <form action="{{ route('kabag.reject', $report) }}" method="POST"
+                <form action="{{ $isKasubag ? route('kasubag.reject', $report) : route('kabag.reject', $report) }}" method="POST"
                       onsubmit="return confirm('Apakah Anda yakin ingin menolak laporan ini?')">
                   @csrf
                   <div class="mb-3">
@@ -779,9 +734,11 @@
                       Alasan Penolakan <span class="text-rose-500">*</span>
                     </label>
                     <textarea rows="4" maxlength="500" name="rejection_reason" required
-                              placeholder="Contoh: Laporan tidak valid karena bukti foto tidak relevan atau informasi tidak lengkap..."
+                              placeholder="{{ $isKasubag ? 'Jelaskan alasan laporan ditolak dan dikembalikan ke KABAG...' : 'Contoh: Laporan tidak valid karena bukti foto tidak relevan atau informasi tidak lengkap...' }}"
                               class="w-full px-3.5 py-2.5 rounded-xl border border-rose-300 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-rose-500 focus:outline-none transition"></textarea>
-                    <p class="text-[11px] text-slate-400 mt-1">Alasan penolakan akan dapat dibaca oleh pelapor pada halaman status laporannya.</p>
+                    <p class="text-[11px] text-slate-400 mt-1">
+                      {{ $isKasubag ? 'Laporan akan diarahkan kembali ke KABAG dan status laporan menjadi ditolak.' : 'Alasan penolakan akan dapat dibaca oleh pelapor pada halaman status laporannya.' }}
+                    </p>
                   </div>
 
                   <div class="flex justify-center">
@@ -804,7 +761,7 @@
             $completedAt = null;
 
             if ($report->status === 'ditolak') {
-                $rejectionDisposition = $report->dispositions->first(function ($d) {
+                $rejectionDisposition = $report->dispositions->sortByDesc('id')->first(function ($d) {
                     return str_contains(strtolower($d->notes ?? ''), 'ditolak') || ($d->receiver_id === null && $d->sender?->role === 'kabag');
                 });
                 $assignedUser = $rejectionDisposition?->sender ?? $report->dispositions->first()?->sender ?? auth()->user();
@@ -899,7 +856,7 @@
                   </div>
                   <div class="min-w-0">
                     <div class="text-sm font-bold text-[#0C3934] leading-tight">Telepon</div>
-                    <div class="text-xs text-slate-700 mt-0.5">{{ $assignedUser?->phone_number ?? $assignedUser?->no_telp ?? '-' }}</div>
+                    <div class="text-xs text-slate-700 mt-0.5">{{ $assignedUser?->phone_number ?? $assignedUser?->phone ?? $assignedUser?->no_telp ?? '-' }}</div>
                   </div>
                 </div>
               </div>
@@ -953,6 +910,7 @@
 
   </div>
 
+  @if (!$isKasubag)
   <!-- ================= POPUP MODAL DISPOSISI KE KASUBAG ================= -->
   <div x-show="showKasubagModal" style="display: none;"
        class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4"
@@ -1065,6 +1023,7 @@
 
     </div>
   </div>
+  @endif
 
   <!-- ================= POPUP MODAL KIRIM KE PETUGAS ================= -->
   <div x-show="showPetugasModal" style="display: none;"
@@ -1093,9 +1052,11 @@
       </div>
 
       <!-- Form Kirim ke Petugas -->
-      <form action="{{ route('kabag.dispose', $report) }}" method="POST" class="space-y-4">
+      <form action="{{ $isKasubag ? route('kasubag.dispose', $report) : route('kabag.dispose', $report) }}" method="POST" class="space-y-4">
         @csrf
-        <input type="hidden" name="target_type" value="petugas">
+        @if (!$isKasubag)
+          <input type="hidden" name="target_type" value="petugas">
+        @endif
 
         <!-- Ringkasan Laporan Singkat -->
         <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80 text-xs flex items-center justify-between">
@@ -1115,10 +1076,7 @@
             Pilih Petugas Pelaksana <span class="text-red-500">*</span>
           </label>
           <div class="space-y-2 max-h-56 overflow-y-auto custom-scroll pr-1">
-            @php
-              $displayPetugas = $petugas->isNotEmpty() ? $petugas : $petugasKabag;
-            @endphp
-            @forelse ($displayPetugas as $p)
+            @forelse ($filteredPetugas as $p)
               @php
                 $isMatchingDept = $report->sub_department_id && $p->sub_department_id == $report->sub_department_id;
               @endphp
@@ -1148,7 +1106,7 @@
               </label>
             @empty
               <div class="p-4 text-center text-xs text-slate-400 bg-slate-50 rounded-xl">
-                Belum ada data akun petugas yang terdaftar di sistem.
+                Belum ada data akun petugas yang terdaftar pada bidang {{ $report->subDepartment?->name ?? 'ini' }}.
               </div>
             @endforelse
           </div>

@@ -71,6 +71,33 @@ class DispositionController extends Controller
             ->with('success', 'Laporan berhasil dikembalikan ke KABAG karena bukan ranah sub bagian ini.');
     }
 
+    public function reject(Request $request, Report $report): RedirectResponse
+    {
+        if ($report->sub_department_id !== auth()->user()->sub_department_id) {
+            abort(403);
+        }
+
+        $validated = $request->validate([
+            'rejection_reason' => ['required', 'string'],
+        ]);
+
+        $kabag = User::where('role', 'kabag')->first();
+
+        $report->status = 'ditolak';
+        $report->handler_id = null;
+        $report->rejection_reason = $validated['rejection_reason'];
+        $report->save();
+
+        ReportDisposition::create([
+            'report_id' => $report->id,
+            'sender_id' => auth()->id(),
+            'receiver_id' => $kabag?->id,
+            'notes' => 'Laporan ditolak oleh Kasubag (' . (auth()->user()->subDepartment?->name ?? 'Sub Bagian') . ') dan dikembalikan ke KABAG: ' . $validated['rejection_reason'],
+        ]);
+
+        return redirect()->back()->with('success', 'Laporan berhasil ditolak dan status laporan menjadi ditolak serta diarahkan kembali ke KABAG.');
+    }
+
     public function selfExecute(Report $report): RedirectResponse
     {
         if ($report->sub_department_id !== auth()->user()->sub_department_id) {
