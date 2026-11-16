@@ -27,6 +27,13 @@ class Report extends Model
         'rejection_reason',
         'postponed_reason',
         'resolution_notes',
+        'show_evidence_to_pelapor',
+        'show_notes_to_pelapor',
+    ];
+
+    protected $casts = [
+        'show_evidence_to_pelapor' => 'boolean',
+        'show_notes_to_pelapor' => 'boolean',
     ];
 
     public function user(): BelongsTo

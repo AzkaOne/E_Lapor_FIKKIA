@@ -294,4 +294,41 @@ class KasubagDispositionTest extends TestCase
             'receiver_id' => $kabag->id,
         ]);
     }
+
+    public function test_kasubag_my_reports_page_uses_laporan_saya_petugas_layout(): void
+    {
+        $sarpras = SubDepartment::create(['name' => 'Sarana Prasarana', 'code' => 'SARPRAS']);
+        $kasubag = User::factory()->create([
+            'role' => 'kasubag',
+            'sub_department_id' => $sarpras->id,
+        ]);
+
+        $report = Report::create([
+            'ticket_code' => 'LP-KASUBAG-MY',
+            'title' => 'Perbaikan Jaringan WiFi',
+            'description' => 'WiFi mati',
+            'type' => 'pelayanan',
+            'sub_department_id' => $sarpras->id,
+            'campus_location' => 'mojo',
+            'status' => 'proses',
+            'handler_id' => $kasubag->id,
+        ]);
+
+        $response = $this->actingAs($kasubag)->get(route('kasubag.my-reports'));
+
+        $response->assertStatus(200);
+        $response->assertSee('Laporan Saya - Panel KASUBAG');
+        $response->assertSee('LP-KASUBAG-MY');
+        $response->assertSee('Perbaikan Jaringan WiFi');
+        $response->assertSee(route('kasubag.show', $report));
+        $response->assertSee('Detail');
+
+        // Tabs
+        $response->assertSee('Laporan Pelayanan');
+        $response->assertSee('Laporan Saya');
+
+        // No filters for status or date
+        $response->assertDontSee('title="Filter Berdasarkan Status Laporan"', false);
+        $response->assertDontSee('title="Filter Berdasarkan Tanggal"', false);
+    }
 }

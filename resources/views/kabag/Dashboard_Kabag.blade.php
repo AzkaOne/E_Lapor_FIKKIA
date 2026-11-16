@@ -78,7 +78,7 @@
       @endif
 
       <!-- ================= GREETING & TITLE ================= -->
-      <div class="space-y-1">
+      <div class="space-y-1 mt-6">
         <!-- Tag / Badge Pill -->
         <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#CCFBF1] text-[#0C3934] text-xs font-semibold shadow-xs">
           <span class="w-2 h-2 rounded-full bg-[#0D9488]"></span>

@@ -292,7 +292,7 @@
           </div>
 
           <div class="pt-2 text-right">
-            <a href="{{ route('petugas.my-reports') }}" class="text-[11px] font-semibold text-[#0D9488] hover:underline flex items-center justify-end gap-1">
+            <a href="{{ route('petugas.laporan-masuk') }}" class="text-[11px] font-semibold text-[#0D9488] hover:underline flex items-center justify-end gap-1">
               <span>Buka Laporan Masuk</span>
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
             </a>
@@ -312,7 +312,7 @@
               <p class="text-xs text-slate-500">Daftar penugasan lapangan untuk {{ Auth::user()->name }}</p>
             </div>
             <div class="flex items-center gap-2">
-              <a href="{{ route('petugas.my-reports') }}" class="text-xs font-semibold text-[#0F766E] hover:underline flex items-center gap-1">
+              <a href="{{ route('petugas.laporan-masuk') }}" class="text-xs font-semibold text-[#0F766E] hover:underline flex items-center gap-1">
                 <span>Lihat semua</span>
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
               </a>
@@ -337,11 +337,13 @@
                       {{ $reports->firstItem() ? $reports->firstItem() + $index : $index + 1 }}
                     </td>
                     <td class="px-5 py-4">
-                      <div class="font-semibold text-slate-900 line-clamp-1 hover:text-[#0F766E] transition">
+                      <a href="{{ route('petugas.show', $report) }}" class="font-semibold text-slate-900 line-clamp-1 hover:text-[#0F766E] transition">
                         {{ $report->title }}
-                      </div>
+                      </a>
                       <div class="text-[11px] font-mono font-bold text-[#0A8080] mt-0.5">
-                        {{ $report->ticket_code }}
+                        <a href="{{ route('petugas.show', $report) }}" class="hover:underline">
+                          {{ $report->ticket_code }}
+                        </a>
                       </div>
                     </td>
                     <td class="px-5 py-4 whitespace-nowrap">
@@ -381,25 +383,10 @@
                       @endif
                     </td>
                     <td class="px-5 py-4 text-right whitespace-nowrap">
-                      @if ($report->status === 'diterima')
-                        <form action="{{ route('petugas.start', $report) }}" method="POST" class="inline-block">
-                          @csrf
-                          <button type="submit"
-                                  class="inline-block px-3 py-1.5 rounded-lg bg-[#2E978E] text-white hover:bg-[#166E65] text-xs font-bold transition shadow-xs">
-                            Mulai Kerjakan
-                          </button>
-                        </form>
-                      @elseif ($report->status === 'proses')
-                        <a href="{{ route('petugas.my-reports') }}"
-                           class="inline-block px-3 py-1.5 rounded-lg border border-teal-200 text-xs font-bold text-[#0F766E] hover:bg-teal-50 transition">
-                          Lanjutkan
-                        </a>
-                      @else
-                        <a href="{{ route('petugas.history') }}"
-                           class="inline-block px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-50 transition">
-                          Lihat Riwayat
-                        </a>
-                      @endif
+                      <a href="{{ route('petugas.show', $report) }}"
+                         class="inline-block px-3.5 py-1.5 rounded-xl border border-[#0D9488] text-xs font-bold text-[#0D9488] hover:bg-[#0D9488] hover:text-white transition shadow-xs">
+                        Detail
+                      </a>
                     </td>
                   </tr>
                 @empty
@@ -430,7 +417,7 @@
         <div class="lg:col-span-4 space-y-4">
 
           <!-- Card 1: Informasi Hari Ini -->
-          <a href="{{ route('petugas.my-reports') }}" class="block group">
+          <a href="{{ route('petugas.laporan-masuk') }}" class="block group">
             <div class="bg-[#E9FAF6] border border-[#A7F3D0]/70 p-4 sm:p-5 rounded-2xl flex items-center justify-between gap-4 transition hover:shadow-xs hover:border-[#2E978E]">
               <div class="flex items-center gap-3.5 min-w-0">
                 <div class="w-12 h-12 rounded-xl bg-[#256E62] text-white flex items-center justify-center shrink-0 shadow-xs">

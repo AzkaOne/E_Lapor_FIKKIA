@@ -69,6 +69,56 @@ class PelaporReportTest extends TestCase
         $this->assertEquals(5, $report->fresh()->rating);
     }
 
+    public function test_pelapor_can_navigate_to_detail_pelapor_from_tables_and_view_rating_box_when_completed(): void
+    {
+        $pelapor = User::factory()->create(['role' => 'pelapor', 'email' => 'mhs@unair.ac.id']);
+        $subDept = SubDepartment::create(['name' => 'Sarpras', 'code' => 'SARPRAS']);
+
+        $report = Report::create([
+            'user_id' => $pelapor->id,
+            'sub_department_id' => $subDept->id,
+            'ticket_code' => 'LP-2026-DETAIL',
+            'title' => 'Kerusakan Meja Kuliah',
+            'campus_location' => 'sobo',
+            'description' => 'Meja patah di kelas',
+            'type' => 'pelayanan',
+            'status' => 'selesai',
+            'execution_result' => 'terlaksana',
+        ]);
+
+        // Status table links to detail_pelapor
+        $statusRes = $this->actingAs($pelapor)->get('/pelapor/status?status=all');
+        $statusRes->assertStatus(200);
+        $statusRes->assertSee(route('pelapor.show', $report));
+        $statusRes->assertDontSee('openModal(');
+
+        // Riwayat table links to detail_pelapor
+        $historyRes = $this->actingAs($pelapor)->get('/pelapor/riwayat');
+        $historyRes->assertStatus(200);
+        $historyRes->assertSee(route('pelapor.show', $report));
+        $historyRes->assertDontSee('openModal(');
+
+        // Detail pelapor page renders with completion banner and star rating box underneath
+        $detailRes = $this->actingAs($pelapor)->get(route('pelapor.show', $report));
+        $detailRes->assertStatus(200);
+        $detailRes->assertViewIs('pelapor.detail_pelapor');
+        $detailRes->assertSee('Laporan ini telah selesai.');
+        $detailRes->assertSee('Beri Penilaian Pelayanan');
+        $detailRes->assertSee('Berapa bintang untuk penanganan laporan ini?');
+        $detailRes->assertSee('Kirim Penilaian');
+
+        // Submit rating 4
+        $rateRes = $this->actingAs($pelapor)->post(route('pelapor.rate', $report), [
+            'rating' => 4,
+        ]);
+        $rateRes->assertRedirect();
+
+        // Refresh detail page to verify rating box display
+        $detailResAfter = $this->actingAs($pelapor)->get(route('pelapor.show', $report));
+        $detailResAfter->assertStatus(200);
+        $detailResAfter->assertSee('Penilaian Anda: 4/5 Bintang');
+    }
+
     public function test_pelapor_cannot_rate_rejected_or_non_terlaksana_report(): void
     {
         $pelapor = User::factory()->create(['role' => 'pelapor', 'email' => 'mhs@unair.ac.id']);

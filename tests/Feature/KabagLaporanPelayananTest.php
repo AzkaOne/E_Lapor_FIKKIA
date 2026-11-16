@@ -182,4 +182,53 @@ class KabagLaporanPelayananTest extends TestCase
         $response->assertSee('Laporan Hari Ini');
         $response->assertDontSee('Laporan Minggu Lalu');
     }
+
+    public function test_kabag_laporan_pelayanan_renders_tabs_with_laporan_saya_beside_laporan_pelayanan(): void
+    {
+        $kabag = User::factory()->create(['role' => 'kabag']);
+
+        $response = $this->actingAs($kabag)->get(route('kabag.laporan-pelayanan'));
+
+        $response->assertStatus(200);
+        $response->assertSee('Laporan Pelayanan');
+        $response->assertSee('Laporan Saya');
+        $response->assertSee('Verifikasi laporan');
+        $response->assertSee(route('kabag.my-reports'));
+        $response->assertSee(route('kabag.verifikasi.index'));
+    }
+
+    public function test_kabag_my_reports_page_uses_laporan_saya_petugas_layout(): void
+    {
+        $kabag = User::factory()->create(['role' => 'kabag']);
+        $sarpras = SubDepartment::create(['name' => 'Sarana Prasarana', 'code' => 'SARPRAS']);
+
+        $report = Report::create([
+            'ticket_code' => 'LP-KABAG-MY',
+            'title' => 'Pengadaan Laptop Dosen',
+            'description' => 'Laptop pengadaan',
+            'type' => 'pelayanan',
+            'sub_department_id' => $sarpras->id,
+            'campus_location' => 'mojo',
+            'status' => 'proses',
+            'handler_id' => $kabag->id,
+        ]);
+
+        $response = $this->actingAs($kabag)->get(route('kabag.my-reports'));
+
+        $response->assertStatus(200);
+        $response->assertSee('Laporan Saya - Panel KABAG');
+        $response->assertSee('LP-KABAG-MY');
+        $response->assertSee('Pengadaan Laptop Dosen');
+        $response->assertSee(route('kabag.show', $report));
+        $response->assertSee('Detail');
+
+        // Tabs
+        $response->assertSee('Laporan Pelayanan');
+        $response->assertSee('Laporan Saya');
+        $response->assertSee('Verifikasi laporan');
+
+        // No filters for status or date
+        $response->assertDontSee('title="Filter Berdasarkan Status Laporan"', false);
+        $response->assertDontSee('title="Filter Berdasarkan Tanggal"', false);
+    }
 }

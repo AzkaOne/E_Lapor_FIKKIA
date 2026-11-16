@@ -125,14 +125,16 @@ class DispositionController extends Controller
         }
 
         $validated = $request->validate([
-            'notes' => ['required', 'string'],
+            'notes' => ['nullable', 'string'],
             'execution_result' => ['required', 'in:terlaksana,tertunda'],
             'evidence' => ['nullable', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'],
         ]);
 
+        $notes = $validated['notes'] ?? ($validated['execution_result'] === 'terlaksana' ? 'Pengerjaan selesai terlaksana oleh Kasubag.' : 'Pengerjaan tertunda.');
+
         $report->status = 'verifikasi_kabag';
         $report->execution_result = $validated['execution_result'];
-        $report->resolution_notes = $validated['notes'];
+        $report->resolution_notes = $notes;
         $report->save();
 
         if ($request->hasFile('evidence')) {
@@ -149,10 +151,10 @@ class DispositionController extends Controller
             'report_id' => $report->id,
             'sender_id' => auth()->id(),
             'receiver_id' => null,
-            'notes' => 'Kasubag telah menyelesaikan pengerjaan mandiri (' . $validated['execution_result'] . ') dan meneruskan ke KABAG untuk verifikasi akhir.',
+            'notes' => !empty($validated['notes']) ? $validated['notes'] : ('Kasubag telah menyelesaikan pengerjaan mandiri (' . $validated['execution_result'] . ') dan meneruskan ke KABAG untuk verifikasi akhir.'),
         ]);
 
-        return redirect()->route('kasubag.my-reports')
+        return redirect()->route('kasubag.laporan-masuk')
             ->with('success', 'Pengerjaan laporan berhasil dikirim ke KABAG untuk tahap verifikasi.');
     }
 }

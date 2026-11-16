@@ -59,7 +59,7 @@
     [x-cloak] { display: none !important; }
   </style>
 </head>
-<body class="min-h-screen bg-[#F4F7F8] flex flex-col text-slate-800 antialiased selection:bg-[#0a8080] selection:text-white relative overflow-x-hidden" x-data="statusReportModal()">
+<body class="min-h-screen bg-[#F4F7F8] flex flex-col text-slate-800 antialiased selection:bg-[#0a8080] selection:text-white relative overflow-x-hidden">
 
   <!-- ================= TOP HEADER BAR ================= -->
   @include('komponen.header_Pelapor')
@@ -410,9 +410,9 @@
                     <!-- Judul Laporan -->
                     <td class="py-3.5 px-3.5">
                       <div class="space-y-0.5">
-                        <div class="font-bold text-[#1E293B] text-[12.5px] leading-snug line-clamp-1 hover:text-[#0F766E] transition cursor-pointer" @click="openModal({{ json_encode($report) }})">
+                        <a href="{{ route('pelapor.show', [$report, 'from' => 'status']) }}" class="font-bold text-[#1E293B] text-[12.5px] leading-snug line-clamp-1 hover:text-[#0F766E] transition">
                           {{ $report->title }}
-                        </div>
+                        </a>
                         <p class="text-[11px] text-[#64748B] line-clamp-1 leading-normal">
                           {{ $report->description }}
                         </p>
@@ -464,13 +464,13 @@
 
                     <!-- Aksi -->
                     <td class="py-3.5 px-3.5 text-center whitespace-nowrap">
-                      <button type="button" @click="openModal({{ json_encode($report) }})" class="inline-flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-[#14B8A6]/70 hover:bg-teal-50 text-[#0F766E] font-semibold text-xs shadow-2xs transition">
+                      <a href="{{ route('pelapor.show', [$report, 'from' => 'status']) }}" class="inline-flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-[#14B8A6]/70 hover:bg-teal-50 text-[#0F766E] font-semibold text-xs shadow-2xs transition" title="Lihat Detail Laporan">
                         <svg class="w-3.5 h-3.5 text-[#0F766E]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                         </svg>
                         <span>Lihat Detail</span>
-                      </button>
+                      </a>
                     </td>
 
                   </tr>
@@ -497,154 +497,6 @@
     </main>
 
   </div>
-
-  <!-- ================= MODAL DETAIL LAPORAN ================= -->
-  <div x-show="showModal" x-cloak class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-    <!-- Backdrop Overlay -->
-    <div x-show="showModal" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity" @click="closeModal()"></div>
-
-    <!-- Modal Content Box -->
-    <div class="min-h-full flex items-center justify-center p-4">
-      <div x-show="showModal" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" class="relative bg-white rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden border border-slate-200 text-left my-8" @click.away="closeModal()">
-
-        <!-- Modal Header -->
-        <div class="bg-gradient-to-r from-[#0C3934] to-[#134E48] px-5 py-4 text-white flex items-center justify-between">
-          <div class="flex items-center gap-2.5">
-            <span class="font-mono text-xs font-bold px-2 py-0.5 rounded bg-white/15 text-teal-200 border border-white/20" x-text="activeReport?.ticket_code"></span>
-            <span class="text-xs font-semibold px-2 py-0.5 rounded-full capitalize bg-white/15 text-white border border-white/20" x-text="getStatusLabel(activeReport?.status)"></span>
-          </div>
-          <button type="button" @click="closeModal()" class="w-7 h-7 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center text-white/90 hover:text-white transition">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-
-        <!-- Modal Body -->
-        <div class="p-5 sm:p-6 space-y-4 max-h-[75vh] overflow-y-auto custom-scroll text-xs">
-
-          <!-- Judul & Meta -->
-          <div>
-            <h2 class="text-base sm:text-lg font-bold text-slate-900 leading-snug" x-text="activeReport?.title"></h2>
-            <div class="flex flex-wrap items-center gap-2 mt-1.5 text-[11px] text-slate-500">
-              <span class="font-medium text-[#0F766E]" x-text="activeReport?.sub_department?.name || 'Umum'"></span>
-              <span>&bull;</span>
-              <span>Kampus <span class="capitalize font-semibold text-slate-700" x-text="activeReport?.campus_location"></span></span>
-              <span>&bull;</span>
-              <span x-text="formatDate(activeReport?.created_at)"></span>
-            </div>
-          </div>
-
-          <!-- Deskripsi Masalah -->
-          <div class="bg-slate-50 rounded-xl p-3.5 border border-slate-100">
-            <h4 class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Uraian Masalah</h4>
-            <p class="text-slate-700 leading-relaxed whitespace-pre-line text-xs" x-text="activeReport?.description"></p>
-          </div>
-
-          <!-- Catatan / Resolusi Laporan -->
-          <template x-if="activeReport?.resolution_notes || activeReport?.postponed_reason || activeReport?.rejection_reason">
-            <div class="p-3.5 rounded-xl border bg-slate-50 border-slate-200">
-              <span class="font-bold block mb-1 text-slate-800" x-text="activeReport?.status === 'selesai' ? 'Catatan Penyelesaian:' : 'Alasan Penolakan / Catatan Khusus:'"></span>
-              <p class="text-xs leading-relaxed text-slate-600" x-text="activeReport?.resolution_notes || activeReport?.postponed_reason || activeReport?.rejection_reason"></p>
-            </div>
-          </template>
-
-          <!-- Bukti / Lampiran (Evidences) -->
-          <template x-if="activeReport?.evidences && activeReport?.evidences.length > 0">
-            <div>
-              <h4 class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">Lampiran Bukti</h4>
-              <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                <template x-for="evidence in activeReport.evidences" :key="evidence.id">
-                  <a :href="'/storage/' + evidence.file_path" target="_blank" rel="noopener noreferrer" class="p-2 rounded-lg border border-slate-200 hover:border-teal-500 bg-white flex items-center gap-2 transition group">
-                    <svg class="w-4 h-4 text-[#0F766E] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                    </svg>
-                    <span class="text-[11px] font-medium text-slate-700 truncate group-hover:text-[#0F766E]">Lihat Berkas</span>
-                  </a>
-                </template>
-              </div>
-            </div>
-          </template>
-
-          <!-- Timeline Alur & Catatan Disposisi -->
-          <div class="pt-3 border-t border-slate-100">
-            <h4 class="text-xs font-bold text-slate-900 mb-2.5">Histori Alur Penanganan</h4>
-
-            <template x-if="!activeReport?.dispositions || activeReport?.dispositions.length === 0">
-              <div class="p-3 rounded-xl bg-slate-50 border border-slate-100 text-slate-500 italic text-[11px]">
-                Laporan telah diterima oleh sistem dan sedang menunggu review disposisi oleh KABAG.
-              </div>
-            </template>
-
-            <template x-if="activeReport?.dispositions && activeReport?.dispositions.length > 0">
-              <div class="space-y-2.5">
-                <template x-for="(disp, idx) in activeReport.dispositions" :key="disp.id">
-                  <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-100 flex items-start gap-2.5">
-                    <div class="w-6 h-6 rounded-full bg-[#0F766E]/15 text-[#0F766E] flex items-center justify-center shrink-0 mt-0.5 font-bold text-[10px]">
-                      <span x-text="idx + 1"></span>
-                    </div>
-                    <div class="flex-1 min-w-0">
-                      <div class="flex items-center justify-between gap-2">
-                        <span class="font-bold text-[#0F766E] text-[11px]" x-text="(disp.sender?.name || 'Petugas') + ' (' + (disp.sender?.role || 'KABAG').toUpperCase() + ')'"></span>
-                        <span class="text-[10px] text-slate-400" x-text="formatDate(disp.created_at)"></span>
-                      </div>
-                      <p class="text-slate-600 text-[11px] mt-0.5" x-text="disp.notes || 'Disposisi penugasan diteruskan.'"></p>
-                    </div>
-                  </div>
-                </template>
-              </div>
-            </template>
-          </div>
-
-        </div>
-
-        <!-- Modal Footer -->
-        <div class="px-5 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-end">
-          <button type="button" @click="closeModal()" class="px-4 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 text-xs font-medium transition">
-            Tutup
-          </button>
-        </div>
-
-      </div>
-    </div>
-  </div>
-
-  <!-- ================= SCRIPTS ================= -->
-  <script>
-    function statusReportModal() {
-      return {
-        showModal: false,
-        activeReport: null,
-        openModal(report) {
-          this.activeReport = report;
-          this.showModal = true;
-        },
-        closeModal() {
-          this.showModal = false;
-          this.activeReport = null;
-        },
-        getStatusLabel(status) {
-          if (!status) return 'Menunggu';
-          if (['didisposisi', 'diterima', 'proses', 'verifikasi_kabag'].includes(status)) return 'Dalam Proses';
-          if (status === 'diajukan') return 'Menunggu';
-          if (status === 'selesai') return 'Selesai';
-          if (status === 'ditolak') return 'Perlu Perbaikan';
-          return status;
-        },
-        formatDate(dateString) {
-          if (!dateString) return '-';
-          const d = new Date(dateString);
-          return d.toLocaleDateString('id-ID', {
-            day: 'numeric',
-            month: 'short',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-          }) + ' WIB';
-        }
-      }
-    }
-  </script>
 
 </body>
 </html>

@@ -165,7 +165,7 @@
           <!-- Gradient Shadow Overlay -->
           <div class="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent flex items-center p-6 sm:p-8">
             <!-- Handwritten Slogan (Font Caveat Bold) -->
-            <div class="font-['Caveat',cursive] font-bold text-white text-3xl sm:text-4xl lg:text-[40px] leading-tight drop-shadow-lg select-none">
+            <div class="font-['Caveat',cursive] font-bold text-white text-3xl sm:text-4xl lg:text-[40px] leading-tight drop-shadow-lg select-none -rotate-12">
               Bersama<br>Wujudkan<br>Layanan yang<br>Lebih Baik
             </div>
           </div>

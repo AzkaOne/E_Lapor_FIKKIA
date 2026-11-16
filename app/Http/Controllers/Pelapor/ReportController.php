@@ -173,6 +173,23 @@ class ReportController extends Controller
         return view('pelapor.Riwayat_Pelapor', compact('reports', 'completedReports', 'subDepartments'));
     }
 
+    public function show(Report $report): View
+    {
+        if ($report->user_id !== auth()->id()) {
+            abort(403, 'Laporan ini berada di luar akses akun Anda.');
+        }
+
+        $report->load([
+            'subDepartment',
+            'evidences',
+            'dispositions.sender.subDepartment',
+            'dispositions.receiver.subDepartment',
+            'handler.subDepartment',
+        ]);
+
+        return view('pelapor.detail_pelapor', compact('report'));
+    }
+
     public function rate(Request $request, Report $report): RedirectResponse
     {
         if ($report->user_id !== auth()->id()) {

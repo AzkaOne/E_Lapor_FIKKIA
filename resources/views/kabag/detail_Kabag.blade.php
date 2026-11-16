@@ -1,6 +1,10 @@
 @php
+  $isPetugas = isset($isPetugas) ? $isPetugas : (auth()->check() && auth()->user()->role === 'petugas');
   $isKasubag = isset($isKasubag) ? $isKasubag : (auth()->check() && auth()->user()->role === 'kasubag');
-  $canTakeAction = ($isKasubag && $report->status === 'didisposisi') || (!$isKasubag && $report->status === 'diajukan');
+  $canTakeAction = ($isPetugas && in_array($report->status, ['diterima', 'didisposisi'])) || ($isKasubag && $report->status === 'didisposisi') || (!$isKasubag && !$isPetugas && $report->status === 'diajukan');
+
+  $isSelfExecuting = ($report->status === 'proses') && (auth()->check() && $report->handler_id === auth()->id());
+  $isVerifying = (!$isKasubag && !$isPetugas && $report->status === 'verifikasi_kabag');
 
   $allPetugas = $petugas->isNotEmpty() ? $petugas : ($petugasKabag ?? collect());
   if ($report->sub_department_id) {
@@ -14,7 +18,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Detail Laporan #{{ $report->ticket_code }} - Panel {{ $isKasubag ? 'KASUBAG' : 'KABAG' }} E-Lapor FIKKIA</title>
+  <title>Detail Laporan #{{ $report->ticket_code }} - Panel {{ $isPetugas ? 'PETUGAS' : ($isKasubag ? 'KASUBAG' : 'KABAG') }} E-Lapor FIKKIA</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -53,10 +57,14 @@
 <body class="bg-[#F8FAFC] text-[#0F172A] antialiased min-h-screen flex flex-col selection:bg-[#2E978E] selection:text-white"
       x-data="{
         activeTab: 'informasi',
-        evidenceTab: 'pelapor',
+        evidenceTab: '{{ $report->evidences->whereIn('type', ['resolution', 'completion', 'rejection'])->isNotEmpty() && !in_array($report->status, ['diajukan', 'didisposisi']) ? 'petugas' : 'pelapor' }}',
         showKasubagModal: false,
         showPetugasModal: false,
         selectedChecklist: '',
+        selectedVerificationAction: 'selesai',
+        verificationKasubagId: '{{ $kasubags->firstWhere('sub_department_id', $report->sub_department_id)?->id ?? $kasubags->first()?->id ?? '' }}',
+        showEvidenceToPelapor: {{ $report->show_evidence_to_pelapor === false ? 'false' : 'true' }},
+        showNotesToPelapor: {{ $report->show_notes_to_pelapor === false ? 'false' : 'true' }},
         selectedKasubagId: '{{ $kasubags->firstWhere('sub_department_id', $report->sub_department_id)?->id ?? $kasubags->first()?->id ?? '' }}',
         selectedPetugasId: '{{ $filteredPetugas->first()?->id ?? '' }}',
         notesCount: 0,
@@ -90,7 +98,7 @@
                     Laporan Masuk
                 </h1>
                 <p class="hidden sm:block text-xs sm:text-[13px] text-slate-500 mt-0.5 truncate">
-                    Berikut adalah daftar laporan pelayanan yang masuk dan perlu ditinjau oleh {{ $isKasubag ? 'Kepala Sub Bagian' : 'Kepala Bagian' }}.
+                    Berikut adalah daftar laporan pelayanan yang masuk dan perlu ditinjau oleh {{ $isPetugas ? 'Petugas' : ($isKasubag ? 'Kepala Sub Bagian' : 'Kepala Bagian') }}.
                 </p>
             </div>
 
@@ -100,16 +108,16 @@
         <div class="flex items-center gap-3 sm:gap-4 shrink-0">
 
             <!-- Notification Bell -->
-            <a href="{{ $isKasubag ? route('kasubag.status') : route('kabag.verifikasi.index') }}"
+            <a href="{{ $isPetugas ? route('petugas.laporan-masuk') : ($isKasubag ? route('kasubag.status') : route('kabag.verifikasi.index')) }}"
                class="relative p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition"
-               title="{{ $isKasubag ? 'Laporan Masuk' : 'Verifikasi Laporan' }}">
+               title="{{ $isPetugas ? 'Laporan Masuk' : ($isKasubag ? 'Laporan Masuk' : 'Verifikasi Laporan') }}">
 
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                           d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                 </svg>
 
-                @if (!$isKasubag && ($counts['verifikasi'] ?? 0) > 0)
+                @if (!$isKasubag && !$isPetugas && ($counts['verifikasi'] ?? 0) > 0)
                     <span class="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-[#EF4444] rounded-full ring-2 ring-white"></span>
                 @endif
             </a>
@@ -126,10 +134,10 @@
 
                 <div class="hidden md:flex flex-col text-left">
                     <span class="text-xs font-bold text-slate-900 leading-tight truncate max-w-[130px]">
-                        {{ auth()->user()->name ?? ($isKasubag ? 'Kasubag' : 'Fuad Raden, S.D., S.Mp') }}
+                        {{ auth()->user()->name ?? ($isPetugas ? 'Petugas' : ($isKasubag ? 'Kasubag' : 'Fuad Raden, S.D., S.Mp')) }}
                     </span>
                     <span class="text-[10px] text-slate-500 capitalize leading-tight">
-                        {{ auth()->user()->position ?? ($isKasubag ? 'Kepala Sub Bagian' : 'Kepala Bagian') }}
+                        {{ auth()->user()->position ?? ($isPetugas ? 'Petugas Lapangan' : ($isKasubag ? 'Kepala Sub Bagian' : 'Kepala Bagian')) }}
                     </span>
                 </div>
 
@@ -166,7 +174,7 @@
 
       <!-- ================= BREADCRUMB ================= -->
       <nav class="flex items-center gap-2 text-xs sm:text-sm text-slate-500 font-medium">
-        <a href="{{ $isKasubag ? route('kasubag.status') : route('kabag.laporan-pelayanan') }}" class="hover:text-[#2E978E] transition">Laporan Masuk</a>
+        <a href="{{ $isPetugas ? route('petugas.laporan-masuk') : ($isKasubag ? route('kasubag.status') : route('kabag.laporan-pelayanan')) }}" class="hover:text-[#2E978E] transition">Laporan Masuk</a>
         <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
         </svg>
@@ -388,9 +396,12 @@
                     class="pb-3 text-sm font-bold transition border-b-2 -mb-px flex items-center gap-2"
                     :class="activeTab === 'komentar' ? 'border-[#166E65] text-[#166E65]' : 'border-transparent text-slate-500 hover:text-slate-700'">
             Komentar
-            @if ($report->dispositions->whereNotNull('notes')->count() > 0)
+            @php
+              $totalCommentsCount = $report->dispositions->whereNotNull('notes')->filter(fn($d) => trim($d->notes) !== '')->count() + (!empty($report->resolution_notes) && !$report->dispositions->contains(fn($d) => trim($d->notes ?? '') === trim($report->resolution_notes)) ? 1 : 0);
+            @endphp
+            @if ($totalCommentsCount > 0)
                 <span class="px-2 rounded-full text-[10px] font-bold bg-[#CCFBF1] text-[#0F766E]">
-                {{ $report->dispositions->whereNotNull('notes')->count() }}
+                {{ $totalCommentsCount }}
                 </span>
             @endif
             </button>
@@ -450,7 +461,7 @@
                 @php
                     $evidenceGroups = [
                     'pelapor' => $report->evidences->where('type', 'initial'),
-                    'petugas' => $report->evidences->where('type', 'completion'),
+                    'petugas' => $report->evidences->whereIn('type', ['resolution', 'completion', 'rejection'])->sortByDesc('created_at'),
                     ];
                     $publicDisk = \Illuminate\Support\Facades\Storage::disk('public');
                 @endphp
@@ -500,7 +511,32 @@
                 class="space-y-3.5 max-h-[520px] overflow-y-auto custom-scroll pr-1">
                 @php
                 $validDispositions = $report->dispositions->whereNotNull('notes')->filter(fn($d) => trim($d->notes) !== '');
+                $hasResolutionInDisp = $validDispositions->contains(fn($d) => trim($d->notes ?? '') === trim($report->resolution_notes ?? ''));
                 @endphp
+
+                @if (!empty($report->resolution_notes) && !$hasResolutionInDisp)
+                <div class="border border-slate-200/90 rounded-2xl p-4 bg-white space-y-2">
+                    <div class="flex items-center justify-between gap-2">
+                    <div class="flex items-center gap-2.5 min-w-0">
+                        <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0 bg-[#FFEDD5] text-[#C2410C]">
+                        {{ strtoupper(substr($report->handler?->name ?? 'P', 0, 1)) }}
+                        </div>
+                        <div class="min-w-0">
+                        <div class="font-bold text-slate-900 text-xs truncate">{{ $report->handler?->name ?? 'Petugas Pelaksana' }}</div>
+                        <div class="text-[10px] font-semibold uppercase tracking-wider text-[#C2410C]">
+                            PETUGAS PELAKSANA {{ $report->subDepartment?->name ? '• ' . $report->subDepartment->name : '' }}
+                        </div>
+                        </div>
+                    </div>
+                    <div class="text-[10px] text-slate-400 shrink-0 text-right">
+                        {{ $report->updated_at->format('d M Y') }}<br>{{ $report->updated_at->format('H:i') }}
+                    </div>
+                    </div>
+                    <div class="p-3 rounded-xl text-xs leading-relaxed text-slate-800 bg-[#FFF7ED]">
+                    {{ $report->resolution_notes }}
+                    </div>
+                </div>
+                @endif
 
                 @forelse ($validDispositions as $disp)
                 @php
@@ -588,7 +624,190 @@
         </div>
 
 
-        @if ($canTakeAction)
+        @if ($isVerifying)
+          <!-- COLUMN 2: VERIFIKASI KABAG (Selesai & Revisi) -->
+          <div class="lg:col-span-5 bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 sm:p-6">
+
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+              <h3 class="text-sm font-bold text-slate-800">Verifikasi Laporan</h3>
+              <span class="text-[11px] font-semibold px-2.5 py-0.5 rounded-full uppercase
+                {{ $report->execution_result === 'terlaksana' ? 'bg-[#DCFCE7] text-[#15803D]' : 'bg-[#FEE2E2] text-[#B91C1C]' }}">
+                Hasil: {{ $report->execution_result ?? 'Menunggu Verifikasi' }}
+              </span>
+            </div>
+
+            <form :action="selectedVerificationAction === 'revisi' ? '{{ route('kabag.verifikasi.revisi', $report) }}' : '{{ route('kabag.verifikasi.approve', $report) }}'"
+                  method="POST" enctype="multipart/form-data" class="mt-4 space-y-4">
+              @csrf
+
+              <!-- 2 BUTTONS: SELESAI (HIJAU) & REVISI (MERAH) -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+
+                <!-- 1. Tombol Selesai (Warna Hijau, Bentuk Ceklis) -->
+                <div @click="selectedVerificationAction = 'selesai'"
+                     class="rounded-xl border p-3.5 cursor-pointer transition flex items-center justify-between gap-2.5 shadow-xs hover:shadow-md"
+                     :class="selectedVerificationAction === 'selesai' ? 'border-[#15803D] bg-[#DCFCE7] ring-2 ring-[#15803D]/40' : 'border-[#15803D]/30 bg-[#F0FDF4] hover:bg-[#DCFCE7]'">
+                  <div class="flex items-center gap-2.5 min-w-0">
+                    <div class="w-10 h-10 rounded-xl bg-[#22C55E] text-white flex items-center justify-center shrink-0 shadow-xs">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                    </div>
+                    <div class="min-w-0">
+                      <div class="text-xs font-bold text-[#15803D] leading-tight">Selesai</div>
+                      <p class="text-[10px] sm:text-[10.5px] text-[#15803D] mt-0.5 leading-snug">Verifikasi & sahkan tiket</p>
+                    </div>
+                  </div>
+                  <!-- Checklist Box Indicator -->
+                  <div class="w-6 h-6 rounded-lg border-2 flex items-center justify-center transition shrink-0"
+                       :class="selectedVerificationAction === 'selesai' ? 'bg-[#15803D] border-[#15803D] text-white shadow-xs' : 'border-[#86EFAC] bg-white text-transparent'">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                    </svg>
+                  </div>
+                </div>
+
+                <!-- 2. Tombol Revisi (Warna Merah) -->
+                <div @click="selectedVerificationAction = 'revisi'"
+                     class="rounded-xl border p-3.5 cursor-pointer transition flex items-center justify-between gap-2.5 shadow-xs hover:shadow-md"
+                     :class="selectedVerificationAction === 'revisi' ? 'border-[#B91C1C] bg-[#FEE2E2] ring-2 ring-[#B91C1C]/40' : 'border-[#B91C1C]/30 bg-[#FFF5F5] hover:bg-[#FEE2E2]'">
+                  <div class="flex items-center gap-2.5 min-w-0">
+                    <div class="w-10 h-10 rounded-xl bg-[#EF4444] text-white flex items-center justify-center shrink-0 shadow-xs">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                    </div>
+                    <div class="min-w-0">
+                      <div class="text-xs font-bold text-[#B91C1C] leading-tight">Revisi</div>
+                      <p class="text-[10px] sm:text-[10.5px] text-[#B91C1C] mt-0.5 leading-snug">Disposisi perbaikan</p>
+                    </div>
+                  </div>
+                  <!-- Checklist Box Indicator -->
+                  <div class="w-6 h-6 rounded-lg border-2 flex items-center justify-center transition shrink-0"
+                       :class="selectedVerificationAction === 'revisi' ? 'bg-[#B91C1C] border-[#B91C1C] text-white shadow-xs' : 'border-[#FCA5A5] bg-white text-transparent'">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                    </svg>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- JIKA REVISI DIKLIK: MUNCUL DAFTAR NAMA KASUBAG UNTUK DISPOSISI -->
+              <div x-show="selectedVerificationAction === 'revisi'" x-cloak class="p-3.5 rounded-xl bg-[#FEF2F2] border border-[#FECACA] space-y-2.5">
+                <div class="flex items-center justify-between">
+                  <label class="block text-xs font-bold text-[#991B1B] uppercase tracking-wider">
+                    Daftar Nama Kasubag (Tujuan Disposisi) <span class="text-red-500">*</span>
+                  </label>
+                  <span class="text-[10px] text-[#B91C1C]">Pilih penerima revisi</span>
+                </div>
+                <div class="space-y-2 max-h-48 overflow-y-auto custom-scroll pr-1">
+                  @forelse ($kasubags as $kasubag)
+                    @php
+                      $isMatchingDept = $report->sub_department_id && $kasubag->sub_department_id == $report->sub_department_id;
+                    @endphp
+                    <label class="flex items-center justify-between p-2.5 rounded-xl border cursor-pointer transition hover:bg-white"
+                           :class="verificationKasubagId == '{{ $kasubag->id }}' ? 'border-[#B91C1C] bg-white ring-1 ring-[#B91C1C]' : 'border-rose-200/80 bg-white/70'">
+                      <div class="flex items-center gap-2.5 min-w-0">
+                        <input type="radio" name="receiver_id" value="{{ $kasubag->id }}"
+                               x-model="verificationKasubagId"
+                               class="text-[#B91C1C] focus:ring-[#B91C1C] shrink-0"
+                               :required="selectedVerificationAction === 'revisi'">
+                        <div class="min-w-0 text-left">
+                          <div class="font-bold text-xs text-slate-900 truncate">
+                            {{ $kasubag->name }}
+                          </div>
+                          <div class="text-[10px] font-semibold text-[#B91C1C] flex items-center gap-1 mt-0.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-[#B91C1C]"></span>
+                            <span>Bidang: {{ $kasubag->subDepartment?->name ?? 'Dekanat' }}</span>
+                          </div>
+                        </div>
+                      </div>
+                      @if ($isMatchingDept)
+                        <span class="px-2 py-0.5 rounded-md text-[9.5px] font-bold bg-[#FEE2E2] text-[#B91C1C] border border-[#FECACA] shrink-0">
+                          Sesuai Bidang
+                        </span>
+                      @endif
+                    </label>
+                  @empty
+                    <div class="p-3 text-center text-xs text-slate-400 bg-white rounded-xl">
+                      Belum ada data akun Kasubag yang terdaftar di sistem.
+                    </div>
+                  @endforelse
+                </div>
+              </div>
+
+              <!-- TEMPAT UNTUK MEMASUKKAN KOMENTAR (OPSIONAL) -->
+              <div>
+                <label class="block text-xs font-bold uppercase tracking-wider text-[#0C3934] mb-1.5">
+                  Catatan / Komentar <span class="text-slate-400 text-[10px] font-normal normal-case">(Opsional)</span>
+                </label>
+                <textarea rows="3" maxlength="500" name="notes"
+                          @input="notesCount = $event.target.value.length"
+                          :placeholder="selectedVerificationAction === 'revisi' ? 'Tuliskan catatan arahan atau instruksi poin perbaikan kepada Kasubag...' : 'Tuliskan catatan apresiasi, tindak lanjut, atau verifikasi laporan...'"
+                          class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-[#2E978E] focus:outline-none transition"></textarea>
+                <div class="text-right text-[11px] text-slate-400 mt-1 pr-1" x-text="notesCount + '/500'">0/500</div>
+              </div>
+
+              <!-- FORM UPLOAD BUKTI LAPORAN (OPSIONAL) -->
+              <div>
+                <label class="block text-xs font-bold uppercase tracking-wider text-[#0C3934] mb-1.5">
+                  Bukti Laporan <span class="text-slate-400 text-[10px] font-normal normal-case">(Opsional - JPG, PNG, PDF maks 5MB)</span>
+                </label>
+                <div class="relative border-2 border-dashed border-slate-200 hover:border-[#2E978E] rounded-xl p-3 bg-slate-50/50 hover:bg-[#F0FDFA] transition text-center group cursor-pointer">
+                  <input type="file" name="evidence" id="evidence_verification_kabag" accept=".jpg,.jpeg,.png,.pdf"
+                         class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                         onchange="document.getElementById('evidence-verif-filename').textContent = this.files[0] ? this.files[0].name : 'Klik atau seret file bukti untuk mengunggah'">
+                  <div class="flex items-center justify-center gap-2 text-slate-500 group-hover:text-[#166E65]">
+                    <svg class="w-4 h-4 shrink-0 text-[#2E978E]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+                    </svg>
+                    <span id="evidence-verif-filename" class="text-xs font-medium truncate max-w-xs text-slate-600">
+                      Klik atau seret file bukti untuk mengunggah
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 2 CEKLIS VISIBILITAS KEPADA PELAPOR -->
+              <div class="pt-3.5 border-t border-slate-200 space-y-2.5">
+                <div class="text-xs font-bold uppercase tracking-wider text-[#0C3934]">
+                  Pengaturan Visibilitas Pelapor
+                </div>
+
+                <!-- Ceklis 1: Bukti laporan terlihat oleh pelapor atau tidak -->
+                <label class="flex items-start gap-2.5 cursor-pointer group">
+                  <input type="checkbox" name="show_evidence_to_pelapor" value="1"
+                         x-model="showEvidenceToPelapor"
+                         class="mt-0.5 w-4 h-4 rounded text-[#166E65] border-slate-300 focus:ring-[#2E978E]">
+                  <div class="text-xs">
+                    <span class="font-bold text-slate-800 group-hover:text-[#166E65] transition">Tampilkan bukti laporan kepada pelapor</span>
+                    <p class="text-[10.5px] text-slate-500 leading-snug">Izinkan pelapor melihat file bukti pengerjaan/verifikasi pada riwayat laporan.</p>
+                  </div>
+                </label>
+
+                <!-- Ceklis 2: Menunjukan komentar ke pelapor atau tidak (komentar dari petugas / yang mengerjakan laporan) -->
+                <label class="flex items-start gap-2.5 cursor-pointer group">
+                  <input type="checkbox" name="show_notes_to_pelapor" value="1"
+                         x-model="showNotesToPelapor"
+                         class="mt-0.5 w-4 h-4 rounded text-[#166E65] border-slate-300 focus:ring-[#2E978E]">
+                  <div class="text-xs">
+                    <span class="font-bold text-slate-800 group-hover:text-[#166E65] transition">Tampilkan komentar petugas kepada pelapor</span>
+                    <p class="text-[10.5px] text-slate-500 leading-snug">Izinkan pelapor membaca catatan / komentar penanganan dari petugas pelaksana.</p>
+                  </div>
+                </label>
+              </div>
+
+              <!-- TOMBOL PROSES -->
+              <div class="flex justify-center pt-2">
+                <button type="submit"
+                        class="px-8 py-2.5 rounded-xl font-bold text-white text-xs sm:text-sm shadow-sm hover:shadow-md transition inline-flex items-center gap-2 cursor-pointer"
+                        :class="selectedVerificationAction === 'revisi' ? 'bg-[#DC2626] hover:bg-[#B91C1C]' : 'bg-[#166E65] hover:bg-[#0C3934]'">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+                  <span x-text="selectedVerificationAction === 'revisi' ? 'Kirim Perintah Revisi' : 'Selesaikan & Verifikasi'"></span>
+                </button>
+              </div>
+
+            </form>
+
+          </div>
+        @elseif ($canTakeAction)
           <!-- COLUMN 2: BOX TINDAKAN -->
           <div class="lg:col-span-5 bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 sm:p-6">
 
@@ -601,7 +820,7 @@
             {{-- <div class="grid grid-cols-1 {{ $isKasubag ? 'sm:grid-cols-3' : 'sm:grid-cols-2' }} gap-3 mt-4"> --}}
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
 
-              @if (!$isKasubag)
+              @if (!$isKasubag && !$isPetugas)
                 <!-- 1. Disposisi ke Kasubag (Buka Popup Kasubag & Bidangnya) -->
                 <div @click="showKasubagModal = true"
                      class="rounded-xl border border-[#10B981] bg-[#ECFDF5] hover:bg-[#D1FAE5] p-3.5 cursor-pointer transition flex items-center justify-between gap-2.5 shadow-xs hover:shadow-md hover:scale-[1.01] group">
@@ -620,6 +839,7 @@
                 </div>
               @endif
 
+              @if (!$isPetugas)
               <!-- 2. Kirim ke Petugas (Buka Popup Petugas & Bidangnya) -->
               <div @click="showPetugasModal = true"
                    class="rounded-xl border border-[#0369A1] bg-[#DBEAFE] hover:bg-[#BFDBFE] p-3.5 cursor-pointer transition flex items-center justify-between gap-2.5 shadow-xs hover:shadow-md hover:scale-[1.01] group">
@@ -636,6 +856,7 @@
                   <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
                 </div>
               </div>
+              @endif
 
               <!-- 3. Kerjakan Mandiri (Bentuk Button Checklist) -->
               <div @click="selectedChecklist = (selectedChecklist === 'sendiri' ? '' : 'sendiri')"
@@ -647,7 +868,7 @@
                   </div>
                   <div class="min-w-0">
                     <div class="text-xs font-bold text-[#6D28D9] leading-tight">Kerjakan Mandiri</div>
-                    <p class="text-[10px] sm:text-[10.5px] text-[#7C3AED] mt-0.5 leading-snug">Tangani langsung oleh {{ $isKasubag ? 'Kasubag' : 'Kabag' }}</p>
+                    <p class="text-[10px] sm:text-[10.5px] text-[#7C3AED] mt-0.5 leading-snug">{{ $isPetugas ? 'Mulai kerjakan penugasan di lapangan' : ($isKasubag ? 'Tangani langsung oleh Kasubag' : 'Tangani langsung oleh Kabag') }}</p>
                   </div>
                 </div>
                 <!-- Checklist Box Indicator -->
@@ -660,16 +881,16 @@
               </div>
 
               <!-- 4. Tolak Laporan (Bentuk Button Checklist) -->
-             <div @click="selectedChecklist = (selectedChecklist === 'tolak' ? '' : 'tolak')"
-     class="{{ $isKasubag ? 'sm:col-span-2 sm:w-[calc(50%-0.375rem)] sm:justify-self-center' : '' }} rounded-xl border p-3.5 cursor-pointer transition flex items-center justify-between gap-2.5 shadow-xs hover:shadow-md"
-     :class="selectedChecklist === 'tolak' ? 'border-[#B91C1C] bg-[#FEE2E2] ring-2 ring-[#B91C1C]/40' : 'border-[#FECACA] bg-[#FFF5F5] hover:bg-[#FEE2E2]'">
+              <div @click="selectedChecklist = (selectedChecklist === 'tolak' ? '' : 'tolak')"
+                   class="{{ ($isKasubag && !$isPetugas) ? 'sm:col-span-2 sm:w-[calc(50%-0.375rem)] sm:justify-self-center' : '' }} rounded-xl border p-3.5 cursor-pointer transition flex items-center justify-between gap-2.5 shadow-xs hover:shadow-md"
+                   :class="selectedChecklist === 'tolak' ? 'border-[#B91C1C] bg-[#FEE2E2] ring-2 ring-[#B91C1C]/40' : 'border-[#FECACA] bg-[#FFF5F5] hover:bg-[#FEE2E2]'">
                 <div class="flex items-center gap-2.5 min-w-0">
                   <div class="w-10 h-10 rounded-xl bg-[#EF4444] text-white flex items-center justify-center shrink-0 shadow-xs">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                   </div>
                   <div class="min-w-0">
                     <div class="text-xs font-bold text-[#B91C1C] leading-tight">Tolak Laporan</div>
-                    <p class="text-[10px] sm:text-[10.5px] text-[#DC2626] mt-0.5 leading-snug">{{ $isKasubag ? 'Tolak dan kembalikan ke Kabag' : 'Tolak jika tidak valid/spam' }}</p>
+                    <p class="text-[10px] sm:text-[10.5px] text-[#DC2626] mt-0.5 leading-snug">{{ ($isKasubag || $isPetugas) ? 'Tolak dan kembalikan ke Kabag' : 'Tolak jika tidak valid/spam' }}</p>
                   </div>
                 </div>
                 <!-- Checklist Box Indicator -->
@@ -691,18 +912,19 @@
               <!-- State 0: Belum Memilih Checklist -->
               <div x-show="selectedChecklist === ''" class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 text-center">
                 <p class="text-xs text-slate-500 font-medium">
-                  @if (!$isKasubag)
-                    Pilih <span class="font-bold text-[#064E3B]">Disposisi Ke Kasubag</span> atau <span class="font-bold text-[#0369A1]">Kirim ke Petugas</span> untuk membuka popup pemilihan nama dan bidangnya, atau klik checklist <span class="font-bold text-[#6D28D9]">Kerjakan Mandiri</span> / <span class="font-bold text-[#B91C1C]">Tolak Laporan</span> lalu klik tombol <span class="font-bold text-slate-700">Lanjutkan</span>.
-                  @else
+                  @if ($isPetugas)
+                    Pilih menu checklist <span class="font-bold text-[#6D28D9]">Kerjakan Mandiri</span> untuk mulai menangani laporan di lapangan, atau <span class="font-bold text-[#B91C1C]">Tolak Laporan</span> jika ada ketidaksesuaian untuk dikembalikan ke KABAG.
+                  @elseif ($isKasubag)
                     Pilih <span class="font-bold text-[#0369A1]">Kirim ke Petugas</span> untuk membuka popup pemilihan nama dan bidangnya, atau klik checklist <span class="font-bold text-[#6D28D9]">Kerjakan Mandiri</span> / <span class="font-bold text-[#B91C1C]">Tolak Laporan</span> lalu klik tombol <span class="font-bold text-slate-700">Lanjutkan</span>.
+                  @else
+                    Pilih <span class="font-bold text-[#064E3B]">Disposisi Ke Kasubag</span> atau <span class="font-bold text-[#0369A1]">Kirim ke Petugas</span> untuk membuka popup pemilihan nama dan bidangnya, atau klik checklist <span class="font-bold text-[#6D28D9]">Kerjakan Mandiri</span> / <span class="font-bold text-[#B91C1C]">Tolak Laporan</span> lalu klik tombol <span class="font-bold text-slate-700">Lanjutkan</span>.
                   @endif
                 </p>
               </div>
 
               <!-- State 1: Kerjakan Mandiri Terpilih -->
               <div x-show="selectedChecklist === 'sendiri'" style="display: none;">
-                <form action="{{ $isKasubag ? route('kasubag.self-execute', $report) : route('kabag.self-execute', $report) }}" method="POST"
-                      onsubmit="return confirm('Apakah Anda yakin ingin memproses laporan ini secara mandiri?')">
+                <form action="{{ $isPetugas ? route('petugas.self-execute', $report) : ($isKasubag ? route('kasubag.self-execute', $report) : route('kabag.self-execute', $report)) }}" method="POST">
                   @csrf
                   <div class="p-3.5 rounded-xl bg-[#EDE9FE] border border-[#DDD6FE] text-[#6D28D9] text-xs space-y-1 mb-4">
                     <div class="font-bold flex items-center gap-1.5">
@@ -726,7 +948,7 @@
 
               <!-- State 2: Tolak Laporan Terpilih -->
               <div x-show="selectedChecklist === 'tolak'" style="display: none;">
-                <form action="{{ $isKasubag ? route('kasubag.reject', $report) : route('kabag.reject', $report) }}" method="POST"
+                <form action="{{ $isPetugas ? route('petugas.reject', $report) : ($isKasubag ? route('kasubag.reject', $report) : route('kabag.reject', $report)) }}" method="POST" enctype="multipart/form-data"
                       onsubmit="return confirm('Apakah Anda yakin ingin menolak laporan ini?')">
                   @csrf
                   <div class="mb-3">
@@ -734,12 +956,33 @@
                       Alasan Penolakan <span class="text-rose-500">*</span>
                     </label>
                     <textarea rows="4" maxlength="500" name="rejection_reason" required
-                              placeholder="{{ $isKasubag ? 'Jelaskan alasan laporan ditolak dan dikembalikan ke KABAG...' : 'Contoh: Laporan tidak valid karena bukti foto tidak relevan atau informasi tidak lengkap...' }}"
+                              placeholder="{{ ($isKasubag || $isPetugas) ? 'Jelaskan alasan laporan ditolak dan dikembalikan ke KABAG...' : 'Contoh: Laporan tidak valid karena bukti foto tidak relevan atau informasi tidak lengkap...' }}"
                               class="w-full px-3.5 py-2.5 rounded-xl border border-rose-300 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-rose-500 focus:outline-none transition"></textarea>
                     <p class="text-[11px] text-slate-400 mt-1">
-                      {{ $isKasubag ? 'Laporan akan diarahkan kembali ke KABAG dan status laporan menjadi ditolak.' : 'Alasan penolakan akan dapat dibaca oleh pelapor pada halaman status laporannya.' }}
+                      {{ ($isKasubag || $isPetugas) ? 'Laporan akan diarahkan kembali ke KABAG dan status laporan menjadi ditolak.' : 'Alasan penolakan akan dapat dibaca oleh pelapor pada halaman status laporannya.' }}
                     </p>
                   </div>
+
+                  @if ($isPetugas)
+                    <div class="mb-4">
+                      <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                        Bukti Penolakan <span class="text-slate-400 text-[10px] font-normal normal-case">(Opsional - JPG, PNG, PDF maks 5MB)</span>
+                      </label>
+                      <div class="relative border-2 border-dashed border-rose-200 hover:border-rose-300 rounded-xl p-3 bg-rose-50/30 transition text-center">
+                        <input type="file" name="rejection_evidence" id="rejection_evidence" accept=".jpg,.jpeg,.png,.pdf"
+                               class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                               onchange="document.getElementById('rejection-evidence-filename').textContent = this.files[0] ? this.files[0].name : 'Klik untuk unggah file bukti penolakan'">
+                        <div class="flex items-center justify-center gap-2 text-rose-600">
+                          <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+                          </svg>
+                          <span id="rejection-evidence-filename" class="text-xs font-medium truncate max-w-xs text-slate-600">
+                            Klik untuk unggah file bukti penolakan
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  @endif
 
                   <div class="flex justify-center">
                     <button type="submit"
@@ -752,6 +995,116 @@
               </div>
 
             </div>
+
+          </div>
+        @elseif ($isSelfExecuting)
+          @php
+            $actionRoute = match(auth()->user()->role) {
+              'kabag' => route('kabag.complete-self', $report),
+              'kasubag' => route('kasubag.submit-verification', $report),
+              default => route('petugas.complete', $report),
+            };
+          @endphp
+          <!-- COLUMN 2: PILIH TINDAKAN (Laporan Tertunda / Terlaksana) -->
+          <div class="lg:col-span-5 bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 sm:p-6">
+
+            <h3 class="text-base font-bold text-[#0C3934]">Pilih Tindakan</h3>
+
+            <form action="{{ $actionRoute }}" method="POST" enctype="multipart/form-data"
+                  @submit="if (!selectedChecklist) { alert('Silakan pilih salah satu tindakan di atas terlebih dahulu (Laporan Tertunda atau Laporan Terlaksana).'); $event.preventDefault(); return false; }">
+              @csrf
+              <input type="hidden" name="execution_result" :value="selectedChecklist" required>
+
+              <!-- KARTU TINDAKAN -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
+
+                <!-- 1. Laporan Tertunda -->
+                <div @click="selectedChecklist = (selectedChecklist === 'tertunda' ? '' : 'tertunda')"
+                     class="rounded-xl border p-3.5 cursor-pointer transition flex items-center justify-between gap-2.5 shadow-xs hover:shadow-md"
+                     :class="selectedChecklist === 'tertunda' ? 'border-[#B91C1C] bg-[#FEE2E2] ring-2 ring-[#B91C1C]/40' : 'border-[#B91C1C] bg-[#FEE2E2] hover:bg-[#FECACA]'">
+                  <div class="flex items-center gap-2.5 min-w-0">
+                    <div class="w-10 h-10 rounded-xl bg-[#EF4444] text-white flex items-center justify-center shrink-0 shadow-xs">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    </div>
+                    <div class="min-w-0">
+                      <div class="text-xs font-bold text-[#B91C1C] leading-tight">Laporan Tertunda</div>
+                      <p class="text-[10px] sm:text-[10.5px] text-[#B91C1C] mt-0.5 leading-snug">Tugaskan kepada petugas sesuai bidang</p>
+                    </div>
+                  </div>
+                  <!-- Radio indicator -->
+                  <div class="w-4 h-4 rounded-full border-2 border-[#B91C1C] flex items-center justify-center transition shrink-0"
+                       :class="selectedChecklist === 'tertunda' ? 'bg-[#B91C1C]' : 'bg-transparent'">
+                    <span x-show="selectedChecklist === 'tertunda'" class="w-1.5 h-1.5 rounded-full bg-white"></span>
+                  </div>
+                </div>
+
+                <!-- 2. Laporan Terlaksana -->
+                <div @click="selectedChecklist = (selectedChecklist === 'terlaksana' ? '' : 'terlaksana')"
+                     class="rounded-xl border p-3.5 cursor-pointer transition flex items-center justify-between gap-2.5 shadow-xs hover:shadow-md"
+                     :class="selectedChecklist === 'terlaksana' ? 'border-[#15803D] bg-[#DCFCE7] ring-2 ring-[#15803D]/40' : 'border-[#15803D] bg-[#DCFCE7] hover:bg-[#BBF7D0]'">
+                  <div class="flex items-center gap-2.5 min-w-0">
+                    <div class="w-10 h-10 rounded-xl bg-[#22C55E] text-white flex items-center justify-center shrink-0 shadow-xs">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    </div>
+                    <div class="min-w-0">
+                      <div class="text-xs font-bold text-[#15803D] leading-tight">Laporan Terlaksana</div>
+                      <p class="text-[10px] sm:text-[10.5px] text-[#15803D] mt-0.5 leading-snug">Ambil alih penanganan laporan ini</p>
+                    </div>
+                  </div>
+                  <!-- Radio indicator -->
+                  <div class="w-4 h-4 rounded-full border-2 border-[#15803D] flex items-center justify-center transition shrink-0"
+                       :class="selectedChecklist === 'terlaksana' ? 'bg-[#15803D]' : 'bg-transparent'">
+                    <span x-show="selectedChecklist === 'terlaksana'" class="w-1.5 h-1.5 rounded-full bg-white"></span>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- Callout info -->
+              <div class="mt-5 p-3.5 rounded-xl bg-[#DBEAFE] flex items-start gap-2.5 text-[#1E40AF]">
+                <div class="w-4 h-4 rounded-full bg-[#1D4ED8] text-white flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">i</div>
+                <span class="text-[11.5px] leading-snug">Pilih salah satu tindakan di atas untuk melanjutkan proses penanganggan laporan</span>
+              </div>
+
+              <hr class="border-slate-200 my-5">
+
+              <!-- Catatan / Komentar -->
+              <label class="block text-base font-bold text-[#0C3934]">Catatan / Komentar</label>
+              <textarea rows="4" maxlength="500" name="notes"
+                        @input="notesCount = $event.target.value.length"
+                        placeholder="Tambahkan catatan atau komentar"
+                        class="mt-3 w-full px-4 py-3 rounded-xl border border-slate-200 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-[#2E978E] focus:outline-none transition"></textarea>
+              <div class="text-right text-[11px] text-slate-400 mt-1.5 pr-1" x-text="notesCount + '/500'">0/500</div>
+
+              <!-- Form Input File Bukti Laporan (Opsional) -->
+              <div class="mt-4">
+                <label class="block text-xs font-bold uppercase tracking-wider text-[#0C3934] mb-1.5">
+                  Bukti Laporan <span class="text-slate-400 text-[10px] font-normal normal-case">(Opsional - JPG, PNG, PDF maks 5MB)</span>
+                </label>
+                <div class="relative border-2 border-dashed border-slate-200 hover:border-[#2E978E] rounded-xl p-3.5 bg-slate-50/50 hover:bg-[#F0FDFA] transition text-center group cursor-pointer">
+                  <input type="file" name="evidence" id="evidence_self_execute" accept=".jpg,.jpeg,.png,.pdf"
+                         class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                         onchange="document.getElementById('evidence-self-filename').textContent = this.files[0] ? this.files[0].name : 'Klik atau seret file bukti untuk mengunggah'">
+                  <div class="flex items-center justify-center gap-2 text-slate-500 group-hover:text-[#166E65]">
+                    <svg class="w-4 h-4 shrink-0 text-[#2E978E]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+                    </svg>
+                    <span id="evidence-self-filename" class="text-xs font-medium truncate max-w-xs text-slate-600">
+                      Klik atau seret file bukti untuk mengunggah
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Tombol -->
+              <div class="flex justify-center mt-5">
+                <button type="submit"
+                        class="px-10 py-2.5 rounded-xl font-bold bg-[#166E65] hover:bg-[#0C3934] text-white text-xs sm:text-sm shadow-sm hover:shadow-md transition inline-flex items-center gap-2 cursor-pointer">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+                  <span>Lanjutkan</span>
+                </button>
+              </div>
+            </form>
 
           </div>
         @else
@@ -901,6 +1254,8 @@
               <span class="text-[11.5px] leading-snug">Informasi kontak petugas dapat digunakan untuk koordinasi terkait penanganan laporan.</span>
             </div>
 
+
+
           </div>
         @endif
 
@@ -910,7 +1265,7 @@
 
   </div>
 
-  @if (!$isKasubag)
+  @if (!$isKasubag && !$isPetugas)
   <!-- ================= POPUP MODAL DISPOSISI KE KASUBAG ================= -->
   <div x-show="showKasubagModal" style="display: none;"
        class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4"
@@ -1025,6 +1380,7 @@
   </div>
   @endif
 
+  @if (!$isPetugas)
   <!-- ================= POPUP MODAL KIRIM KE PETUGAS ================= -->
   <div x-show="showPetugasModal" style="display: none;"
        class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4"
@@ -1139,6 +1495,7 @@
 
     </div>
   </div>
+  @endif
 
 </body>
 </html>

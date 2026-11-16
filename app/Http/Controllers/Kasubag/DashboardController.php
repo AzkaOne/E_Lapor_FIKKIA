@@ -106,14 +106,26 @@ class DashboardController extends Controller
         return view('kabag.detail_Kabag', compact('report', 'subDepartments', 'kasubags', 'petugasKabag', 'petugas', 'isKasubag'));
     }
 
-    public function myReports(): View
+    public function myReports(Request $request): View
     {
-        $reports = Report::with(['user', 'evidences'])
+        $query = Report::with(['user', 'handler', 'subDepartment', 'evidences'])
             ->where('handler_id', auth()->id())
-            ->latest()
-            ->get();
+            ->where('status', 'proses');
 
-        return view('kasubag.my_reports', compact('reports'));
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('ticket_code', 'like', "%{$search}%")
+                  ->orWhereHas('user', function ($uq) use ($search) {
+                      $uq->where('name', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        $reports = $query->latest()->paginate(10)->withQueryString();
+
+        return view('petugas.laporanSaya_petugas', compact('reports'));
     }
 
     public function status(Request $request): View
@@ -178,15 +190,48 @@ class DashboardController extends Controller
         return view('kasubag.laporan_masuk', compact('reports', 'counts', 'subDepartments'));
     }
 
-    public function history(): View
+    public function history(Request $request): View
     {
         $subDeptId = auth()->user()->sub_department_id;
-        $reports = Report::with(['user', 'handler'])
-            ->where('sub_department_id', $subDeptId)
-            ->whereIn('status', ['selesai', 'ditolak'])
-            ->latest()
-            ->paginate(15);
 
-        return view('kasubag.history', compact('reports'));
+        $query = Report::with(['user', 'handler', 'subDepartment', 'evidences'])
+            ->where('sub_department_id', $subDeptId)
+            ->where('status', 'selesai');
+
+        // Filter Search
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('ticket_code', 'like', "%{$search}%")
+                  ->orWhereHas('user', function ($uq) use ($search) {
+                      $uq->where('name', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        // Filter Hasil Penanganan (terlaksana & tertunda)
+        if ($request->filled('status')) {
+            if (in_array($request->status, ['terlaksana', 'tertunda'])) {
+                $query->where('execution_result', $request->status);
+            }
+        }
+
+        // Filter Tanggal
+        if ($request->filled('date')) {
+            $query->whereDate('updated_at', $request->date);
+        }
+
+        $reports = $query->latest('updated_at')->paginate(10)->withQueryString();
+
+        $baseCount = Report::where('sub_department_id', $subDeptId)->where('status', 'selesai');
+        $counts = [
+            'total' => (clone $baseCount)->count(),
+            'terlaksana' => (clone $baseCount)->where('execution_result', 'terlaksana')->count(),
+            'tertunda' => (clone $baseCount)->where('execution_result', 'tertunda')->count(),
+            'rating' => (clone $baseCount)->whereNotNull('rating')->count(),
+        ];
+
+        return view('kasubag.riwayat_kasubag', compact('reports', 'counts'));
     }
 }

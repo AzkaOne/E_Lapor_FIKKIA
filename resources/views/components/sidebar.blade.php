@@ -16,15 +16,22 @@
             <div class="text-[10px] font-bold uppercase tracking-wider text-[rgba(153,246,228,0.7)] px-3 pb-2">Navigasi Utama</div>
 
             @if (auth()->user()->role === 'pelapor')
+                @php
+                    $isDetail = request()->routeIs('pelapor.show');
+                    $fromParam = request('from');
+                    $reportStatus = isset($report) ? $report->status : null;
+                    $isStatusActive = request()->routeIs('pelapor.status') || ($isDetail && ($fromParam === 'status' || (!$fromParam && !in_array($reportStatus, ['selesai', 'ditolak']))));
+                    $isHistoryActive = request()->routeIs('pelapor.history') || ($isDetail && ($fromParam === 'history' || (!$fromParam && in_array($reportStatus, ['selesai', 'ditolak']))));
+                @endphp
                 <a href="{{ route('pelapor.dashboard') }}" class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition {{ request()->routeIs('pelapor.dashboard') ? 'bg-[#1a5b51] text-white shadow-xs font-semibold' : 'text-[#ccfbf1] hover:bg-[#1a5b51]/60' }}">
                     <svg class="w-4 h-4 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                     <span>Buat Laporan</span>
                 </a>
-                <a href="{{ route('pelapor.status') }}" class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition {{ request()->routeIs('pelapor.status') ? 'bg-[#1a5b51] text-white shadow-xs font-semibold' : 'text-[#ccfbf1] hover:bg-[#1a5b51]/60' }}">
+                <a href="{{ route('pelapor.status') }}" class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition {{ $isStatusActive ? 'bg-[#1a5b51] text-white shadow-xs font-semibold' : 'text-[#ccfbf1] hover:bg-[#1a5b51]/60' }}">
                     <svg class="w-4 h-4 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
                     <span>Status Laporan</span>
                 </a>
-                <a href="{{ route('pelapor.history') }}" class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition {{ request()->routeIs('pelapor.history') ? 'bg-[#1a5b51] text-white shadow-xs font-semibold' : 'text-[#ccfbf1] hover:bg-[#1a5b51]/60' }}">
+                <a href="{{ route('pelapor.history') }}" class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition {{ $isHistoryActive ? 'bg-[#1a5b51] text-white shadow-xs font-semibold' : 'text-[#ccfbf1] hover:bg-[#1a5b51]/60' }}">
                     <svg class="w-4 h-4 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                     <span>Riwayat Laporan</span>
                 </a>

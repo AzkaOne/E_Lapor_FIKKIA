@@ -166,24 +166,97 @@ class DashboardController extends Controller
         return view('kabag.detail_Kabag', compact('report', 'subDepartments', 'kasubags', 'petugasKabag', 'petugas', 'isKasubag'));
     }
 
-    public function myReports(): View
+    public function myReports(Request $request): View
     {
-        $reports = Report::with(['user', 'subDepartment', 'evidences'])
+        $query = Report::with(['user', 'handler', 'subDepartment', 'evidences'])
             ->where('handler_id', auth()->id())
-            ->latest()
-            ->get();
+            ->where('status', 'proses');
 
-        return view('kabag.my_reports', compact('reports'));
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('ticket_code', 'like', "%{$search}%")
+                  ->orWhereHas('user', function ($uq) use ($search) {
+                      $uq->where('name', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        $reports = $query->latest()->paginate(10)->withQueryString();
+
+        $counts = [
+            'verifikasi' => Report::where('status', 'verifikasi_kabag')->count(),
+        ];
+
+        return view('petugas.laporanSaya_petugas', compact('reports', 'counts'));
     }
 
-    public function history(): View
+    public function history(Request $request): View
     {
-        $reports = Report::with(['user', 'subDepartment', 'handler'])
+        $query = Report::with(['user', 'subDepartment', 'handler', 'evidences'])
             ->where('type', 'pelayanan')
-            ->whereIn('status', ['selesai', 'ditolak'])
-            ->latest()
-            ->paginate(15);
+            ->where('status', 'selesai');
 
-        return view('kabag.history', compact('reports'));
+        // Filter Search
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('ticket_code', 'like', "%{$search}%")
+                  ->orWhereHas('user', function ($uq) use ($search) {
+                      $uq->where('name', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        // Filter Bidang
+        if ($request->filled('sub_department_id')) {
+            $query->where('sub_department_id', $request->sub_department_id);
+        }
+
+        // Filter Hasil (terlaksana & tertunda)
+        if ($request->filled('status')) {
+            if (in_array($request->status, ['terlaksana', 'tertunda'])) {
+                $query->where('execution_result', $request->status);
+            }
+        }
+
+        // Filter Tanggal
+        if ($request->filled('date')) {
+            $query->whereDate('updated_at', $request->date);
+        } elseif ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereDate('updated_at', '>=', $request->start_date)
+                  ->whereDate('updated_at', '<=', $request->end_date);
+        } elseif ($request->filled('start_date')) {
+            $query->whereDate('updated_at', '>=', $request->start_date);
+        }
+
+        $reports = $query->latest('updated_at')->paginate(10)->withQueryString();
+
+        $subDepartments = SubDepartment::orderBy('name')->get();
+
+        $sarprasDept = $subDepartments->first(fn($d) => str_contains(strtolower($d->name), 'sarana') || str_contains(strtolower($d->name), 'sarpras'));
+        $dekanatDept = $subDepartments->first(fn($d) => str_contains(strtolower($d->name), 'dekanat'));
+        $keuanganDept = $subDepartments->first(fn($d) => str_contains(strtolower($d->name), 'keuangan') || str_contains(strtolower($d->name), 'sdm'));
+        $akademikDept = $subDepartments->first(fn($d) => str_contains(strtolower($d->name), 'pendidikan') || str_contains(strtolower($d->name), 'kemahasiswaan') || str_contains(strtolower($d->name), 'akademik'));
+
+        $baseHistory = Report::where('type', 'pelayanan')->where('status', 'selesai');
+        $totalCount = (clone $baseHistory)->count();
+        $sarprasCount = $sarprasDept ? (clone $baseHistory)->where('sub_department_id', $sarprasDept->id)->count() : 0;
+        $dekanatCount = $dekanatDept ? (clone $baseHistory)->where('sub_department_id', $dekanatDept->id)->count() : 0;
+        $keuanganCount = $keuanganDept ? (clone $baseHistory)->where('sub_department_id', $keuanganDept->id)->count() : 0;
+        $akademikCount = $akademikDept ? (clone $baseHistory)->where('sub_department_id', $akademikDept->id)->count() : 0;
+
+        $counts = [
+            'total' => $totalCount,
+            'sarpras' => $sarprasCount,
+            'dekanat' => $dekanatCount,
+            'keuangan' => $keuanganCount,
+            'akademik' => $akademikCount,
+            'selesai' => $totalCount,
+        ];
+
+        return view('kabag.riwayat_kabag', compact('reports', 'counts', 'subDepartments'));
     }
 }

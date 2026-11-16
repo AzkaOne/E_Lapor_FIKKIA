@@ -115,7 +115,7 @@
       </section>
 
       <!-- ================= 2 MAIN CARDS: LAPORAN PELAYANAN & WHISTLEBLOWER ================= -->
-      <!-- FigCraft: Group 34 'LAPORAN PELAYANAN' & Group 90 'LAPORAN ANONIM' -->
+
       <section class="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
 
         <!-- ================= CARD 1: LAPORAN PELAYANAN ================= -->
@@ -266,38 +266,40 @@
 
       </section>
 
-      <!-- ================= TRACKING BANNER ("Lacak laporanmu") ================= -->
-      <section class="flex justify-center w-full">
-        <a href="{{ route('tracking') }}" class="w-full max-w-2xl bg-[#E9F0F8] hover:bg-[#dfeaf5] border border-slate-200/60 rounded-[14px] sm:rounded-[18px] p-4 sm:p-5 flex items-center justify-between gap-4 transition duration-200 shadow-xs hover:shadow-sm group">
+  
 
-          <div class="flex items-center gap-3.5 sm:gap-4">
-            <!-- Circular Search Icon Badge (#151) -->
-            <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-[#647C9E] flex items-center justify-center text-white shrink-0 shadow-xs group-hover:scale-105 transition-transform">
-              <svg class="w-6 h-6 sm:w-7 sm:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <section class="flex justify-center w-full">
+        <a href="{{ route('tracking') }}" class="w-full max-w-xl bg-[#E9F0F8] hover:bg-[#dfeaf5] border border-slate-200/60 rounded-xl p-3 sm:p-3.5 flex items-center justify-between gap-3 transition duration-200 shadow-xs hover:shadow-sm group">
+
+            <!-- Icon -->
+            <div class="flex items-center gap-3">
+            <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-[#647C9E] flex items-center justify-center text-white shrink-0 shadow-xs group-hover:scale-105 transition-transform">
+                <svg class="w-5 h-5 sm:w-5.5 sm:h-5.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
+                </svg>
             </div>
 
-            <!-- Text Content (#149 & #150) -->
+            <!-- Text -->
             <div class="text-left">
-              <h3 class="text-base sm:text-[17px] font-semibold text-[#043A8C] font-['Poppins',sans-serif] leading-tight">
+                <h3 class="text-sm sm:text-[15px] font-semibold text-[#043A8C] font-['Poppins',sans-serif] leading-tight">
                 Lacak laporanmu
-              </h3>
-              <p class="text-xs sm:text-[13px] text-[#647C9E] font-['Poppins',sans-serif] font-medium leading-snug mt-1">
+                </h3>
+                <p class="text-[11px] sm:text-xs text-[#647C9E] font-['Poppins',sans-serif] font-medium leading-snug mt-0.5">
                 Pantau status dan perkembangan tindak lanjut dari laporan yang telah Anda ajukan menggunakan nomor lapor.
-              </p>
+                </p>
             </div>
-          </div>
+            </div>
 
-          <!-- Arrow Action Button (#158 & #159) -->
-          <div class="w-12 sm:w-12 h-6 sm:h-11 rounded-[14px] bg-[#788DAC] group-hover:bg-[#5f7494] text-white flex items-center justify-center shrink-0 transition-colors shadow-xs">
-            <svg class="w-3 h-3 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+            <!-- Arrow -->
+            <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-[#788DAC] group-hover:bg-[#5f7494] text-white flex items-center justify-center shrink-0 transition-colors shadow-xs">
+            <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
             </svg>
-          </div>
+            </div>
 
         </a>
-      </section>
+        </section>
+
 
       <!-- ================= 4 BOTTOM FEATURE CARDS ================= -->
       <!-- FigCraft: Group 19 (1216x100, border: #CCFBF1, radius: 16px) -->

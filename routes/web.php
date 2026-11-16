@@ -37,6 +37,7 @@ Route::middleware(['auth', 'role:pelapor'])->prefix('pelapor')->name('pelapor.')
     Route::post('/laporan', [\App\Http\Controllers\Pelapor\ReportController::class, 'store'])->name('store');
     Route::get('/status', [\App\Http\Controllers\Pelapor\ReportController::class, 'status'])->name('status');
     Route::get('/riwayat', [\App\Http\Controllers\Pelapor\ReportController::class, 'history'])->name('history');
+    Route::get('/laporan/{report}', [\App\Http\Controllers\Pelapor\ReportController::class, 'show'])->name('show');
     Route::post('/laporan/{report}/rating', [\App\Http\Controllers\Pelapor\ReportController::class, 'rate'])->name('rate');
 });
 
@@ -89,9 +90,12 @@ Route::middleware(['auth', 'role:kasubag'])->prefix('kasubag')->name('kasubag.')
 // Petugas Routes
 Route::middleware(['auth', 'role:petugas'])->prefix('petugas')->name('petugas.')->group(function () {
     Route::get('/dashboard', [\App\Http\Controllers\Petugas\DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/laporan/{report}', [\App\Http\Controllers\Petugas\DashboardController::class, 'show'])->name('show');
     Route::post('/laporan/{report}/mulai', [\App\Http\Controllers\Petugas\ExecutionController::class, 'start'])->name('start');
+    Route::post('/laporan/{report}/kerjakan-sendiri', [\App\Http\Controllers\Petugas\ExecutionController::class, 'selfExecute'])->name('self-execute');
+    Route::post('/laporan/{report}/tolak', [\App\Http\Controllers\Petugas\ExecutionController::class, 'reject'])->name('reject');
     Route::post('/laporan/{report}/selesai', [\App\Http\Controllers\Petugas\ExecutionController::class, 'complete'])->name('complete');
     Route::get('/laporan-saya', [\App\Http\Controllers\Petugas\DashboardController::class, 'myReports'])->name('my-reports');
-    Route::get('/laporan-masuk', [\App\Http\Controllers\Petugas\DashboardController::class, 'myReports'])->name('laporan-masuk');
+    Route::get('/laporan-masuk', [\App\Http\Controllers\Petugas\DashboardController::class, 'laporanMasuk'])->name('laporan-masuk');
     Route::get('/riwayat', [\App\Http\Controllers\Petugas\DashboardController::class, 'history'])->name('history');
 });

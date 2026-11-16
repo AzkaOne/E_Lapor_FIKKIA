@@ -47,6 +47,17 @@ class PetugasExecutionTest extends TestCase
         $this->assertEquals('terlaksana', $report->fresh()->execution_result);
         $this->assertEquals('Kran air sudah diganti dengan unit baru.', $report->fresh()->resolution_notes);
         $this->assertCount(1, $report->evidences->where('type', 'resolution'));
+
+        // Check disposition note stores the actual comment
+        $this->assertDatabaseHas('report_dispositions', [
+            'report_id' => $report->id,
+            'notes' => 'Kran air sudah diganti dengan unit baru.',
+        ]);
+
+        // Check detail page shows the comment in Komentar tab
+        $detail = $this->actingAs($petugas)->get(route('petugas.show', $report));
+        $detail->assertStatus(200);
+        $detail->assertSee('Kran air sudah diganti dengan unit baru.');
     }
 
     public function test_petugas_cannot_execute_unassigned_report(): void

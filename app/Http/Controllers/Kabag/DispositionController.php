@@ -84,13 +84,18 @@ class DispositionController extends Controller
     public function completeSelfExecution(Request $request, Report $report): RedirectResponse
     {
         $validated = $request->validate([
+            'execution_result' => ['nullable', 'in:terlaksana,tertunda'],
             'notes' => ['nullable', 'string'],
             'evidence' => ['nullable', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'],
         ]);
 
+        $executionResult = $validated['execution_result'] ?? 'terlaksana';
         $report->status = 'selesai';
-        $report->execution_result = 'terlaksana';
+        $report->execution_result = $executionResult;
         $report->resolution_notes = $validated['notes'] ?? 'Diselesaikan langsung oleh KABAG.';
+        if ($executionResult === 'tertunda') {
+            $report->postponed_reason = $validated['notes'] ?? 'Ditunda sesuai keputusan KABAG.';
+        }
         $report->save();
 
         if ($request->hasFile('evidence')) {
@@ -103,7 +108,14 @@ class DispositionController extends Controller
             ]);
         }
 
-        return redirect()->back()->with('success', 'Laporan telah berhasil diselesaikan secara mandiri.');
+        ReportDisposition::create([
+            'report_id' => $report->id,
+            'sender_id' => auth()->id(),
+            'receiver_id' => $report->user_id,
+            'notes' => !empty($validated['notes']) ? $validated['notes'] : ('KABAG menyelesaikan pengerjaan mandiri (' . $executionResult . ').'),
+        ]);
+
+        return redirect()->route('kabag.laporan-pelayanan')->with('success', 'Laporan telah berhasil diproses secara mandiri (' . $executionResult . ').');
     }
 
     public function reject(Request $request, Report $report): RedirectResponse

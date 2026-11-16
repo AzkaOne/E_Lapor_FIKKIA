@@ -48,8 +48,6 @@
 
 
     @include('komponen.sidebar_Kabag')
-{{--
- <main class="flex-1 lg:ml-52 p-4 pt-20 sm:p-6 sm:pt-24 lg:p-7 lg:pt-24 max-w-[1400px] w-full mx-auto space-y-5"> --}}
     <main class="flex-1 p-4 sm:p-6 lg:p-7 pt-20 sm:pt-24 lg:pt-24 max-w-[1400px] w-full mx-auto space-y-6">
 
       <!-- Flash Messages -->
@@ -89,7 +87,16 @@
             <span>Laporan Pelayanan</span>
           </a>
 
-          <!-- Tab 2: Verifikasi laporan -->
+          <!-- Tab 2: Laporan Saya (Inactive) -->
+          <a href="{{ route('kabag.my-reports') }}"
+             class="flex items-center gap-2.5 pb-3.5 -mb-[1px] border-b-2 border-transparent text-slate-400 hover:text-slate-700 font-medium text-sm sm:text-base transition">
+            <svg class="w-4 h-4 sm:w-5 sm:h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+            <span>Laporan Saya</span>
+          </a>
+
+          <!-- Tab 3: Verifikasi laporan -->
           <a href="{{ route('kabag.verifikasi.index') }}"
              class="flex items-center gap-2.5 pb-3.5 -mb-[1px] border-b-2 border-transparent text-slate-400 hover:text-slate-700 font-medium text-sm sm:text-base transition">
             <svg class="w-4 h-4 sm:w-5 sm:h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -428,7 +435,7 @@
               </div>
             @endif
 
-            <!-- Right: Rows per page selector -->
+
             <div class="text-xs text-slate-500 flex items-center gap-2">
               <span>Tampilkan</span>
               <select class="px-2.5 py-1 rounded-lg border border-slate-200 text-xs font-semibold text-slate-700 bg-white focus:outline-none focus:ring-1 focus:ring-[#2E978E]">
