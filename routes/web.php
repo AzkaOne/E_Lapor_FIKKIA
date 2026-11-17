@@ -69,6 +69,8 @@ Route::middleware(['auth', 'role:kabag'])->prefix('kabag')->name('kabag.')->grou
     Route::get('/users', [\App\Http\Controllers\Kabag\UserManagementController::class, 'index'])->name('users.index');
     Route::get('/manajemen-pegawai', [\App\Http\Controllers\Kabag\UserManagementController::class, 'index'])->name('manajemen-pegawai');
     Route::post('/users', [\App\Http\Controllers\Kabag\UserManagementController::class, 'store'])->name('users.store');
+    Route::post('/users/import', [\App\Http\Controllers\Kabag\UserManagementController::class, 'import'])->name('users.import');
+    Route::get('/users/import-template', [\App\Http\Controllers\Kabag\UserManagementController::class, 'downloadTemplate'])->name('users.template');
     Route::put('/users/{user}', [\App\Http\Controllers\Kabag\UserManagementController::class, 'update'])->name('users.update');
     Route::delete('/users/{user}', [\App\Http\Controllers\Kabag\UserManagementController::class, 'destroy'])->name('users.destroy');
 });

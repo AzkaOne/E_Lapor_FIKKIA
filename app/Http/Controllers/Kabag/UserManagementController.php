@@ -134,4 +134,42 @@ class UserManagementController extends Controller
         return redirect()->route('kabag.users.index')
             ->with('success', "Akun pegawai {$userName} berhasil dihapus dari sistem.");
     }
+
+    public function import(Request $request, \App\Services\UserImportService $importService): RedirectResponse
+    {
+        $request->validate([
+            'file' => ['required', 'file', 'mimes:xlsx,xls,csv,txt', 'max:10240'],
+        ], [
+            'file.required' => 'Silakan pilih berkas Excel atau CSV terlebih dahulu.',
+            'file.mimes' => 'Format berkas harus berupa Excel (.xlsx, .xls) atau CSV (.csv).',
+            'file.max' => 'Ukuran berkas maksimal adalah 10MB.',
+        ]);
+
+        $result = $importService->import($request->file('file'));
+
+        return redirect()->route('kabag.manajemen-pegawai')
+            ->with('import_result', $result);
+    }
+
+    public function downloadTemplate(): \Symfony\Component\HttpFoundation\StreamedResponse
+    {
+        $headers = [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="template_import_pegawai.csv"',
+            'Pragma' => 'no-cache',
+            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires' => '0',
+        ];
+
+        return response()->stream(function () {
+            $handle = fopen('php://output', 'w');
+            fprintf($handle, chr(0xEF).chr(0xBB).chr(0xBF));
+
+            fputcsv($handle, ['Nama', 'Email', 'NIP', 'Role', 'Bidang', 'No_Telp', 'Jabatan', 'Password']);
+            fputcsv($handle, ['Budi Santoso, S.Kom.', 'budi.santoso@unair.ac.id', '198501012010121001', 'petugas', 'Sarana dan Prasarana', '081234567890', 'Staff Lapangan', '']);
+            fputcsv($handle, ['Siti Rahmawati, S.E.', 'siti.rahma@unair.ac.id', '198802022012012002', 'kasubag', 'Akademik', '089876543210', 'Kasubag Akademik', '']);
+
+            fclose($handle);
+        }, 200, $headers);
+    }
 }
