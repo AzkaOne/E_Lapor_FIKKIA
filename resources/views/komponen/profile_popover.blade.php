@@ -9,96 +9,93 @@
         default => 'Pelapor',
     };
     $subDeptName = $currentUser?->bidang ?? 'Semua Bidang';
+    $userPos = strtolower($currentUser?->position ?? '');
 @endphp
 
 <div id="profile_popover_container" class="relative inline-block text-left" data-component="profil_popover">
-    <!-- Trigger Button -->
+    <!-- Trigger Button: Clean circle avatar without outer pill border, name/jabatan, arrow, or green dot -->
     <button type="button" 
             id="profilePopoverTrigger" 
-            class="flex items-center gap-2.5 p-1 sm:pl-2.5 sm:pr-2 py-1 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-teal-300 group cursor-pointer"
+            class="w-8 h-8 rounded-full overflow-hidden border border-teal-300 flex items-center justify-center shrink-0 shadow-xs hover:ring-2 hover:ring-teal-200 focus:outline-none transition cursor-pointer"
             aria-expanded="false" 
             aria-haspopup="true"
             title="Profil Pengguna">
-        <div class="relative w-8 h-8 rounded-full overflow-hidden ring-2 ring-white/40 shadow-xs bg-[#0F766E] shrink-0">
-            <img id="triggerAvatarImg" 
-                 src="{{ asset('assets/' . $currentAvatar) }}" 
-                 alt="Foto Profil" 
-                 class="w-full h-full object-cover">
-            <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-400 border-2 border-[#2E978E] rounded-full"></span>
-        </div>
-
-        <div class="hidden md:flex flex-col text-left pr-1 min-w-0">
-            <span class="text-xs font-bold text-white leading-tight truncate max-w-[120px]">
-                {{ $currentUser->name ?? 'Pengguna' }}
-            </span>
-            <span class="text-[10px] text-teal-200 capitalize leading-tight truncate max-w-[120px]">
-                {{ $currentUser->position ?? ($isPelapor ? 'Pelapor' : $roleName) }}
-            </span>
-        </div>
-
-        <svg class="w-3.5 h-3.5 text-white/80 group-hover:text-white transition-transform duration-200" id="triggerChevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
-        </svg>
+        <img id="triggerAvatarImg" 
+             src="{{ asset('assets/' . $currentAvatar) }}" 
+             alt="Foto Profil" 
+             class="w-full h-full object-cover">
     </button>
 
     <!-- Popover Card Dropdown -->
     <div id="profilePopoverDropdown" 
-         class="hidden absolute right-0 top-full mt-2.5 w-[330px] sm:w-[410px] bg-white rounded-2xl shadow-2xl border border-slate-200/80 z-50 overflow-hidden text-slate-800 transition-all duration-200 origin-top-right transform scale-95 opacity-0">
+         class="hidden absolute right-0 top-full mt-2.5 w-[330px] sm:w-[390px] bg-white rounded-2xl shadow-2xl border border-slate-200/80 z-50 overflow-hidden text-slate-800 transition-all duration-200 origin-top-right transform scale-95 opacity-0">
         
-        <!-- Popover Header -->
-        <div class="bg-gradient-to-r from-[#2E978E] to-[#0A8080] p-4 text-white relative">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center gap-2">
-                    <div class="w-7 h-7 rounded-lg bg-white/20 flex items-center justify-center">
-                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                        </svg>
-                    </div>
-                    <div>
-                        <h4 class="text-xs font-bold uppercase tracking-wider text-teal-100">Profil Akun</h4>
-                        <p class="text-sm font-extrabold text-white leading-tight">{{ $currentUser->name }}</p>
-                    </div>
-                </div>
+        <!-- Popover Top Card (Centered Avatar, Name, Email as in design reference) -->
+        <div class="bg-[#F8FAFC] border-b border-slate-200/70 p-5 text-center relative">
+            <!-- Close Button -->
+            <button type="button" 
+                    id="closeProfilePopoverBtn" 
+                    class="absolute top-3 right-3 p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-200/60 transition cursor-pointer"
+                    title="Tutup">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
 
+            <!-- Centered Avatar (Click to toggle avatar choices) -->
+            <div class="relative inline-block">
                 <button type="button" 
-                        id="closeProfilePopoverBtn" 
-                        class="p-1 rounded-lg text-white/80 hover:text-white hover:bg-white/20 transition cursor-pointer"
-                        title="Tutup">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
+                        id="centerAvatarToggleBtn" 
+                        class="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden mx-auto shadow-md border-2 border-white ring-2 ring-teal-500/30 cursor-pointer transition transform hover:scale-105 group focus:outline-none"
+                        title="Klik untuk memilih foto profil">
+                    <img id="centerAvatarImg" 
+                         src="{{ asset('assets/' . $currentAvatar) }}" 
+                         alt="{{ $currentUser->name ?? 'User' }}" 
+                         class="w-full h-full object-cover">
+                    <!-- Hover overlay hint -->
+                    <div class="absolute inset-0 bg-black/35 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white">
+                        <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        <span class="text-[9px] font-bold">Ubah</span>
+                    </div>
                 </button>
             </div>
-        </div>
 
-        <!-- Form Edit Profil & Ganti Password -->
-        <form id="profilePopoverForm" action="{{ route('profile.update') }}" method="POST" class="p-4 sm:p-5 max-h-[75vh] overflow-y-auto space-y-4">
-            @csrf
-            @method('PUT')
+            <!-- Name (Centered) -->
+            <h3 id="popoverHeaderName" class="text-base sm:text-lg font-bold text-slate-800 leading-tight mt-2.5 truncate px-4">
+                {{ $currentUser->name ?? 'Pengguna' }}
+            </h3>
 
-            <!-- Avatar Selector -->
-            <div>
-                <label class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-2">
-                    Pilihan Avatar Profil
-                </label>
-                <div class="grid grid-cols-2 gap-3">
+            <!-- Email (Centered) -->
+            <p class="text-xs text-slate-500 mt-0.5 truncate px-4 font-normal">
+                {{ $currentUser->email }}
+            </p>
+
+            <!-- Clickable Avatar Choice Drawer (Hidden by default, reveals on avatar click) -->
+            <div id="avatarPickerDrawer" class="hidden mt-3.5 pt-3 border-t border-slate-200/80 animate-fadeIn">
+                <span class="block text-[10.5px] font-bold text-slate-600 uppercase tracking-wider mb-2">
+                    Pilih Foto Profil:
+                </span>
+                <div class="grid grid-cols-2 gap-2.5 max-w-[270px] mx-auto text-left">
                     <!-- Option Men -->
-                    <label class="relative flex items-center gap-3 p-2.5 rounded-xl border-2 cursor-pointer transition avatar-option-card {{ $currentAvatar === 'profil_men.webp' ? 'border-[#2E978E] bg-teal-50/50' : 'border-slate-200 hover:border-slate-300 bg-white' }}">
+                    <label class="relative flex items-center gap-2 p-2 rounded-xl border-2 cursor-pointer transition avatar-option-card {{ $currentAvatar === 'profil_men.webp' ? 'border-[#2E978E] bg-teal-50/70 shadow-xs' : 'border-slate-200 hover:border-slate-300 bg-white' }}">
                         <input type="radio" 
-                               name="avatar" 
+                               name="avatar_radio" 
                                value="profil_men.webp" 
                                class="sr-only avatar-radio" 
                                {{ $currentAvatar === 'profil_men.webp' ? 'checked' : '' }}>
                         <img src="{{ asset('assets/profil_men.webp') }}" 
                              alt="Avatar Pria" 
-                             class="w-10 h-10 rounded-full object-cover ring-2 ring-slate-100 shrink-0">
+                             class="w-8 h-8 rounded-full object-cover ring-1 ring-slate-200 shrink-0">
                         <div class="min-w-0">
-                            <span class="block text-xs font-bold text-slate-800">Pria</span>
-                            <span class="block text-[10px] text-slate-500">profil_men.webp</span>
+                            <span class="block text-xs font-bold text-slate-800 leading-tight">Pria</span>
+                            <span class="block text-[9.5px] text-slate-400">profil_men</span>
                         </div>
                         <div class="checkmark-badge ml-auto {{ $currentAvatar === 'profil_men.webp' ? '' : 'hidden' }}">
-                            <div class="w-5 h-5 rounded-full bg-[#2E978E] text-white flex items-center justify-center">
-                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="w-4 h-4 rounded-full bg-[#2E978E] text-white flex items-center justify-center">
+                                <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
                                 </svg>
                             </div>
@@ -106,22 +103,22 @@
                     </label>
 
                     <!-- Option Women -->
-                    <label class="relative flex items-center gap-3 p-2.5 rounded-xl border-2 cursor-pointer transition avatar-option-card {{ $currentAvatar === 'profil_wmn.webp' ? 'border-[#2E978E] bg-teal-50/50' : 'border-slate-200 hover:border-slate-300 bg-white' }}">
+                    <label class="relative flex items-center gap-2 p-2 rounded-xl border-2 cursor-pointer transition avatar-option-card {{ $currentAvatar === 'profil_wmn.webp' ? 'border-[#2E978E] bg-teal-50/70 shadow-xs' : 'border-slate-200 hover:border-slate-300 bg-white' }}">
                         <input type="radio" 
-                               name="avatar" 
+                               name="avatar_radio" 
                                value="profil_wmn.webp" 
                                class="sr-only avatar-radio" 
                                {{ $currentAvatar === 'profil_wmn.webp' ? 'checked' : '' }}>
                         <img src="{{ asset('assets/profil_wmn.webp') }}" 
                              alt="Avatar Wanita" 
-                             class="w-10 h-10 rounded-full object-cover ring-2 ring-slate-100 shrink-0">
+                             class="w-8 h-8 rounded-full object-cover ring-1 ring-slate-200 shrink-0">
                         <div class="min-w-0">
-                            <span class="block text-xs font-bold text-slate-800">Wanita</span>
-                            <span class="block text-[10px] text-slate-500">profil_wmn.webp</span>
+                            <span class="block text-xs font-bold text-slate-800 leading-tight">Wanita</span>
+                            <span class="block text-[9.5px] text-slate-400">profil_wmn</span>
                         </div>
                         <div class="checkmark-badge ml-auto {{ $currentAvatar === 'profil_wmn.webp' ? '' : 'hidden' }}">
-                            <div class="w-5 h-5 rounded-full bg-[#2E978E] text-white flex items-center justify-center">
-                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="w-4 h-4 rounded-full bg-[#2E978E] text-white flex items-center justify-center">
+                                <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
                                 </svg>
                             </div>
@@ -129,10 +126,19 @@
                     </label>
                 </div>
             </div>
+        </div>
 
-            <!-- Detail Information Section -->
+        <!-- Form Edit Profil & Ganti Password -->
+        <form id="profilePopoverForm" action="{{ route('profile.update') }}" method="POST" class="p-4 sm:p-5 max-h-[65vh] overflow-y-auto space-y-3.5">
+            @csrf
+            @method('PUT')
+
+            <!-- Hidden input for selected avatar -->
+            <input type="hidden" name="avatar" id="hiddenAvatarInput" value="{{ $currentAvatar }}">
+
+            <!-- Detail Information Fields -->
             <div class="space-y-3">
-                <!-- Nama (Editable) -->
+                <!-- Nama Lengkap (Editable) -->
                 <div>
                     <label for="popover_input_name" class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
                         Nama Lengkap <span class="text-rose-500">*</span>
@@ -180,17 +186,21 @@
                            class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#2E978E] focus:border-transparent bg-slate-50/50 hover:bg-white transition dirty-track-input">
                 </div>
 
-                <!-- Jabatan (Editable as requested) -->
+                <!-- Jabatan (Dropdown 3 Pilihan: Mahasiswa, Tendik, Dosen) -->
                 <div>
                     <label for="popover_input_position" class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
-                        Jabatan / Posisi
+                        Jabatan <span class="text-rose-500">*</span>
                     </label>
-                    <input type="text" 
-                           id="popover_input_position" 
-                           name="position" 
-                           value="{{ old('position', $currentUser->position) }}" 
-                           placeholder="Contoh: Mahasiswa, Dosen, Staf" 
-                           class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#2E978E] focus:border-transparent bg-slate-50/50 hover:bg-white transition dirty-track-input">
+                    <select id="popover_input_position" 
+                            name="position" 
+                            class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#2E978E] focus:border-transparent bg-slate-50/50 hover:bg-white transition dirty-track-input cursor-pointer font-medium text-slate-700">
+                        <option value="mahasiswa" {{ $userPos === 'mahasiswa' ? 'selected' : '' }}>Mahasiswa</option>
+                        <option value="tendik" {{ ($userPos === 'tendik' || str_contains($userPos, 'tenaga kependidikan')) ? 'selected' : '' }}>Tenaga Kependidikan (Tendik)</option>
+                        <option value="dosen" {{ $userPos === 'dosen' ? 'selected' : '' }}>Dosen</option>
+                        @if(!in_array($userPos, ['mahasiswa', 'tendik', 'dosen']) && !empty($currentUser->position))
+                            <option value="{{ $currentUser->position }}" selected>{{ $currentUser->position }}</option>
+                        @endif
+                    </select>
                 </div>
 
                 <!-- Additional Badges for Staff (Kabag, Kasubag, Petugas) -->
@@ -229,23 +239,23 @@
                 @endif
             </div>
 
-            <!-- Ganti Password Section -->
+            <!-- Ganti Password Section (Accordion) -->
             <div class="pt-2 border-t border-slate-100">
                 <button type="button" 
                         id="togglePasswordFieldsBtn" 
-                        class="w-full flex items-center justify-between text-left py-1 text-xs font-bold text-slate-700 hover:text-[#2E978E] transition">
+                        class="w-full flex items-center justify-between text-left py-1 text-xs font-bold text-slate-700 hover:text-[#2E978E] transition cursor-pointer">
                     <span class="flex items-center gap-1.5">
                         <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                         </svg>
                         Ubah Password Akun
                     </span>
-                    <svg id="passwordAccordionIcon" class="w-3.5 h-3.5 text-slate-400 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg id="passwordAccordionIcon" class="w-3.5 h-3.5 text-slate-400 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                     </svg>
                 </button>
 
-                <div id="passwordFieldsContainer" class="hidden mt-3 space-y-2.5 bg-slate-50 p-3 rounded-xl border border-slate-150">
+                <div id="passwordFieldsContainer" class="hidden mt-2.5 space-y-2.5 bg-slate-50 p-3 rounded-xl border border-slate-150">
                     <div>
                         <label for="popover_input_current_password" class="block text-[10.5px] font-bold text-slate-600 mb-1">
                             Password Lama
@@ -278,7 +288,7 @@
                                placeholder="Ulangi password baru" 
                                class="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#2E978E] bg-white dirty-track-input">
                     </div>
-                    <p class="text-[10px] text-slate-500 italic">* Kosongkan ketiga kolom password jika tidak ingin mengganti password.</p>
+                    <p class="text-[10px] text-slate-500 italic">* Kosongkan kolom password jika tidak ingin mengubah password.</p>
                 </div>
             </div>
 
@@ -307,8 +317,12 @@
         const trigger = document.getElementById('profilePopoverTrigger');
         const dropdown = document.getElementById('profilePopoverDropdown');
         const closeBtn = document.getElementById('closeProfilePopoverBtn');
-        const triggerChevron = document.getElementById('triggerChevron');
         const triggerAvatarImg = document.getElementById('triggerAvatarImg');
+        const centerAvatarImg = document.getElementById('centerAvatarImg');
+        const centerAvatarToggleBtn = document.getElementById('centerAvatarToggleBtn');
+        const avatarPickerDrawer = document.getElementById('avatarPickerDrawer');
+        const hiddenAvatarInput = document.getElementById('hiddenAvatarInput');
+        const popoverHeaderName = document.getElementById('popoverHeaderName');
         const saveBtn = document.getElementById('saveProfileBtn');
         const dirtyIndicator = document.getElementById('dirtyStatusIndicator');
         const form = document.getElementById('profilePopoverForm');
@@ -323,7 +337,7 @@
             avatar: "{{ $currentAvatar }}",
             name: "{{ addslashes($currentUser->name ?? '') }}",
             phone_number: "{{ addslashes($currentUser->phone_number ?? '') }}",
-            position: "{{ addslashes($currentUser->position ?? '') }}"
+            position: (document.getElementById('popover_input_position')?.value || '').trim()
         };
 
         let currentSelectedAvatar = initialValues.avatar;
@@ -335,7 +349,6 @@
                 dropdown.classList.remove('opacity-0', 'scale-95');
                 dropdown.classList.add('opacity-100', 'scale-100');
             });
-            if (triggerChevron) triggerChevron.classList.add('rotate-180');
             trigger.setAttribute('aria-expanded', 'true');
         }
 
@@ -345,7 +358,6 @@
             setTimeout(() => {
                 dropdown.classList.add('hidden');
             }, 180);
-            if (triggerChevron) triggerChevron.classList.remove('rotate-180');
             trigger.setAttribute('aria-expanded', 'false');
         }
 
@@ -366,6 +378,14 @@
             closeBtn.addEventListener('click', function (e) {
                 e.stopPropagation();
                 closePopover();
+            });
+        }
+
+        // Toggle avatar selection options on center avatar click
+        if (centerAvatarToggleBtn && avatarPickerDrawer) {
+            centerAvatarToggleBtn.addEventListener('click', function (e) {
+                e.preventDefault();
+                avatarPickerDrawer.classList.toggle('hidden');
             });
         }
 
@@ -402,24 +422,28 @@
         avatarRadios.forEach((radio) => {
             radio.addEventListener('change', function () {
                 currentSelectedAvatar = this.value;
+                if (hiddenAvatarInput) {
+                    hiddenAvatarInput.value = currentSelectedAvatar;
+                }
+
                 avatarCards.forEach((card) => {
                     const r = card.querySelector('.avatar-radio');
                     const badge = card.querySelector('.checkmark-badge');
                     if (r && r.checked) {
-                        card.classList.add('border-[#2E978E]', 'bg-teal-50/50');
+                        card.classList.add('border-[#2E978E]', 'bg-teal-50/70', 'shadow-xs');
                         card.classList.remove('border-slate-200');
                         if (badge) badge.classList.remove('hidden');
                     } else {
-                        card.classList.remove('border-[#2E978E]', 'bg-teal-50/50');
+                        card.classList.remove('border-[#2E978E]', 'bg-teal-50/70', 'shadow-xs');
                         card.classList.add('border-slate-200');
                         if (badge) badge.classList.add('hidden');
                     }
                 });
 
-                // Update trigger image preview
-                if (triggerAvatarImg) {
-                    triggerAvatarImg.src = "{{ asset('assets') }}/" + currentSelectedAvatar;
-                }
+                // Update center image and trigger icon preview
+                const newAvatarSrc = "{{ asset('assets') }}/" + currentSelectedAvatar;
+                if (triggerAvatarImg) triggerAvatarImg.src = newAvatarSrc;
+                if (centerAvatarImg) centerAvatarImg.src = newAvatarSrc;
 
                 checkDirtyState();
             });
@@ -443,6 +467,11 @@
 
             const isDirty = isAvatarChanged || isNameChanged || isPhoneChanged || isPosChanged || isPasswordChanged;
 
+            // Live update header name in popover
+            if (popoverHeaderName && currentName.length > 0) {
+                popoverHeaderName.textContent = currentName;
+            }
+
             if (isDirty) {
                 saveBtn.disabled = false;
                 saveBtn.classList.remove('bg-slate-300', 'text-slate-500', 'cursor-not-allowed', 'opacity-60');
@@ -462,7 +491,7 @@
             }
         }
 
-        // Listen for input changes across all form fields
+        // Listen for input and change events
         document.querySelectorAll('.dirty-track-input').forEach(input => {
             input.addEventListener('input', checkDirtyState);
             input.addEventListener('change', checkDirtyState);

@@ -26,6 +26,10 @@ class ProfilePopoverBladeTest extends TestCase
         $response->assertSee('1234567890');
         $response->assertSee('Mahasiswa');
         $response->assertSee('profil_popover');
+        $response->assertSee('centerAvatarToggleBtn');
+        $response->assertSee('value="mahasiswa"', false);
+        $response->assertSee('value="tendik"', false);
+        $response->assertSee('value="dosen"', false);
         $response->assertDontSee('Bidang Pegawai');
     }
 
