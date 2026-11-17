@@ -40,7 +40,7 @@
 - Input: `UploadedFile` or file path
 - Output: `array` `['saved_count' => int, 'failed_count' => int, 'failed_rows' => array, 'saved_users' => array]`
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 ```php
 // tests/Unit/UserImportServiceTest.php
@@ -107,12 +107,12 @@ class UserImportServiceTest extends TestCase
 }
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `php vendor/bin/phpunit tests/Unit/UserImportServiceTest.php`
 Expected: FAIL (Class `App\Services\UserImportService` not found)
 
-- [ ] **Step 3: Implement UserImportService**
+- [x] **Step 3: Implement UserImportService**
 
 Create `app/Services/UserImportService.php`:
 - Detect format: CSV or XLSX.
@@ -128,7 +128,7 @@ Create `app/Services/UserImportService.php`:
   - Create user with avatar default `'profil_men.webp'`.
 - Return stats.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `php vendor/bin/phpunit tests/Unit/UserImportServiceTest.php`
 Expected: PASS
@@ -146,7 +146,7 @@ Expected: PASS
 - Route: `POST /kabag/users/import` -> `kabag.users.import`
 - Route: `GET /kabag/users/import-template` -> `kabag.users.template`
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 ```php
 // tests/Feature/KabagUserImportControllerTest.php
@@ -194,12 +194,12 @@ class KabagUserImportControllerTest extends TestCase
 }
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `php vendor/bin/phpunit tests/Feature/KabagUserImportControllerTest.php`
 Expected: FAIL (route `kabag.users.import` not defined)
 
-- [ ] **Step 3: Implement controller methods and routes**
+- [x] **Step 3: Implement controller methods and routes**
 
 In `app/Http/Controllers/Kabag/UserManagementController.php`:
 - Add `import(Request $request, UserImportService $importService)`
@@ -207,7 +207,7 @@ In `app/Http/Controllers/Kabag/UserManagementController.php`:
 In `routes/web.php`:
 - Register `kabag.users.import` and `kabag.users.template`.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `php vendor/bin/phpunit tests/Feature/KabagUserImportControllerTest.php`
 Expected: PASS
@@ -231,7 +231,7 @@ Expected: PASS
   - Shows `{X} data pegawai tersimpan` and `{Y} data pegawai tidak tersimpan`
   - Expandable detail list of failed items if Y > 0
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 ```php
 // tests/Feature/KabagUserImportBladeTest.php
@@ -278,12 +278,12 @@ class KabagUserImportBladeTest extends TestCase
 }
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `php vendor/bin/phpunit tests/Feature/KabagUserImportBladeTest.php`
 Expected: FAIL (strings not found in view)
 
-- [ ] **Step 3: Update `manajemen_pegawai.blade.php`**
+- [x] **Step 3: Update `manajemen_pegawai.blade.php`**
 
 Preserve all existing user modifications in `#modal-add`!
 Add:
@@ -294,7 +294,7 @@ Add:
   - Centered modal displaying counters with styled badges (green for success, rose for failed).
   - List of failed rows with exact line number and reason.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `php vendor/bin/phpunit tests/Feature/KabagUserImportBladeTest.php`
 Expected: PASS
@@ -303,7 +303,7 @@ Expected: PASS
 
 ### Task 4: Full Suite Verification
 
-- [ ] **Step 1: Run complete test suite**
+- [x] **Step 1: Run complete test suite**
 
 Run: `php vendor/bin/phpunit`
 Expected: PASS all tests (128 existing + all new import tests)
