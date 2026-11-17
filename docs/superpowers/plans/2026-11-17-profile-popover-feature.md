@@ -41,7 +41,7 @@
 - Consumes: `users` table schema
 - Produces: `$user->avatar` attribute with default `'profil_men.webp'`
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```php
 // tests/Feature/UserAvatarModelTest.php
@@ -69,12 +69,12 @@ class UserAvatarModelTest extends TestCase
 }
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `php artisan test tests/Feature/UserAvatarModelTest.php`
 Expected: FAIL (column `avatar` does not exist)
 
-- [ ] **Step 3: Implement migration and update User model**
+- [x] **Step 3: Implement migration and update User model**
 
 Create migration `database/migrations/2026_11_17_064500_add_avatar_to_users_table.php`:
 ```php
@@ -85,7 +85,7 @@ Schema::table('users', function (Blueprint $table) {
 Add `'avatar'` to `$fillable` in `app/Models/User.php`.
 Run migration: `php artisan migrate`
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `php artisan test tests/Feature/UserAvatarModelTest.php`
 Expected: PASS
@@ -103,7 +103,7 @@ Expected: PASS
 - Consumes: Authenticated session (`auth()->user()`)
 - Produces: Route `PUT /profile` named `profile.update`
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 ```php
 // tests/Feature/ProfileUpdateTest.php
@@ -196,12 +196,12 @@ class ProfileUpdateTest extends TestCase
 }
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `php artisan test tests/Feature/ProfileUpdateTest.php`
 Expected: FAIL (route `profile.update` not defined)
 
-- [ ] **Step 3: Implement ProfileController and register route**
+- [x] **Step 3: Implement ProfileController and register route**
 
 Create `app/Http/Controllers/ProfileController.php`:
 - Validate `name`, `phone_number`, `position`, `avatar` (rule: `in:profil_men.webp,profil_wmn.webp`).
@@ -217,7 +217,7 @@ Route::put('/profile', [App\Http\Controllers\ProfileController::class, 'update']
     ->name('profile.update');
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `php artisan test tests/Feature/ProfileUpdateTest.php`
 Expected: PASS
@@ -236,7 +236,7 @@ Expected: PASS
 - Consumes: `auth()->user()`, assets `profil_men.webp`, `profil_wmn.webp`, `route('profile.update')`
 - Produces: Interactive Alpine.js popover dropdown in both headers
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 ```php
 // tests/Feature/ProfilePopoverBladeTest.php
@@ -290,12 +290,12 @@ class ProfilePopoverBladeTest extends TestCase
 }
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `php artisan test tests/Feature/ProfilePopoverBladeTest.php`
 Expected: FAIL (popover and avatar asset references missing)
 
-- [ ] **Step 3: Implement profile_popover.blade.php and update headers**
+- [x] **Step 3: Implement profile_popover.blade.php and update headers**
 
 Create `resources/views/komponen/profile_popover.blade.php`:
 - Alpine.js `x-data="profilePopover({ ... initialValues })"`
@@ -318,7 +318,7 @@ Create `resources/views/komponen/profile_popover.blade.php`:
 - Update `resources/views/komponen/header_kabag.blade.php`: include `komponen.profile_popover`.
 - Update `resources/views/komponen/header_Pelapor.blade.php`: include `komponen.profile_popover`.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `php artisan test tests/Feature/ProfilePopoverBladeTest.php`
 Expected: PASS
@@ -327,7 +327,7 @@ Expected: PASS
 
 ### Task 4: Full Test Suite Verification
 
-- [ ] **Step 1: Run complete test suite**
+- [x] **Step 1: Run complete test suite**
 
 Run: `php artisan test`
 Expected: PASS all tests (119 existing + all new tests)
