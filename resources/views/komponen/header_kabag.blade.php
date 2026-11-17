@@ -65,24 +65,10 @@
             </a>
           @endif
 
-          <!-- User Profile Badge -->
-            <div class="flex items-center gap-2 pl-2 sm:pl-3 border-l border-white/20">
-                <div class="w-8 h-8 rounded-full bg-[#0F766E] border border-teal-300 flex items-center justify-center text-white shrink-0 font-bold shadow-xs">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
-                </div>
-
-                <div class="hidden md:flex flex-col text-left">
-                    <span class="text-xs font-bold text-white leading-tight truncate max-w-[130px]">
-                        {{ auth()->user()->name ?? (auth()->check() && auth()->user()->role === 'petugas' ? 'Petugas' : (auth()->check() && auth()->user()->role === 'kasubag' ? 'Kasubag' : 'Fuad Raden, S.D., S.Mp')) }}
-                    </span>
-                    <span class="text-[10px] text-teal-200 capitalize leading-tight">
-                        {{ auth()->user()->position ?? (auth()->check() && auth()->user()->role === 'petugas' ? ('Petugas ' . (auth()->user()->subDepartment?->name ?? 'Lapangan')) : (auth()->check() && auth()->user()->role === 'kasubag' ? ('Kasubag ' . (auth()->user()->subDepartment?->name ?? 'Unit')) : 'Kepala Bagian')) }}
-                    </span>
-                </div>
-            </div>
+          <!-- User Profile Badge & Popover -->
+          <div class="pl-2 sm:pl-3 border-l border-white/20">
+              @include('komponen.profile_popover')
+          </div>
 
           <!-- Logout Form -->
         <form action="{{ route('logout') }}" method="POST" class="ml-1">

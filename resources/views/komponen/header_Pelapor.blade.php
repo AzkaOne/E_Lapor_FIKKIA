@@ -32,26 +32,14 @@
         <span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-rose-500 ring-2 "></span>
       </button>
 
-      <!-- User Profile Badge -->
+      <!-- User Profile Badge & Popover -->
       <div class="flex items-center gap-2 pl-2 sm:pl-3 border-l border-white/20">
-        <div class="w-8 h-8 rounded-full bg-[#0F766E] border border-teal-300 flex items-center justify-center text-white shrink-0 font-bold shadow-xs">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-          </svg>
-        </div>
-        <div class="hidden md:flex flex-col text-left">
-          <span class="text-xs font-bold text-white leading-tight truncate max-w-[130px]">
-            {{ auth()->user()->name }}
-          </span>
-          <span class="text-[10px] text-teal-200 capitalize leading-tight">
-            {{ auth()->user()->position ?? 'Pelapor' }}
-          </span>
-        </div>
+        @include('komponen.profile_popover')
 
         <!-- Logout Form -->
         <form action="{{ route('logout') }}" method="POST" class="ml-1">
           @csrf
-          <button type="submit" class="w-8 h-8 rounded-full bg-white/10 hover:bg-rose-500/80 hover:text-white transition flex items-center justify-center text-white/90" title="Keluar">
+          <button type="submit" class="w-8 h-8 rounded-full bg-white/10 hover:bg-rose-500/80 hover:text-white transition flex items-center justify-center text-white/90 cursor-pointer" title="Keluar">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
             </svg>
