@@ -15,9 +15,11 @@ class UserImportService
      * Parse and import users from CSV or XLSX file.
      *
      * @param UploadedFile|string $file
+     * @param int|null $forcedSubDeptId
+     * @param string|null $forcedRole
      * @return array{saved_count: int, failed_count: int, failed_rows: array, total_rows: int}
      */
-    public function import(UploadedFile|string $file): array
+    public function import(UploadedFile|string $file, ?int $forcedSubDeptId = null, ?string $forcedRole = null): array
     {
         $filePath = $file instanceof UploadedFile ? $file->getRealPath() : $file;
         $extension = strtolower(pathinfo($file instanceof UploadedFile ? $file->getClientOriginalName() : $file, PATHINFO_EXTENSION));
@@ -42,7 +44,7 @@ class UserImportService
             ];
         }
 
-        return $this->processRows($rawRows);
+        return $this->processRows($rawRows, $forcedSubDeptId, $forcedRole);
     }
 
     /**
@@ -195,7 +197,7 @@ class UserImportService
     /**
      * Process raw tabular rows into database records with validation.
      */
-    protected function processRows(array $rows): array
+    protected function processRows(array $rows, ?int $forcedSubDeptId = null, ?string $forcedRole = null): array
     {
         if (count($rows) < 2) {
             return [
@@ -336,39 +338,76 @@ class UserImportService
                 continue;
             }
 
-            // 4. Validasi Role (harus kasubag atau petugas)
-            if (empty($role) || !in_array($role, ['kasubag', 'petugas'])) {
-                $failedCount++;
-                $failedRows[] = [
-                    'row' => $rowNumber,
-                    'name' => $displayName,
-                    'reason' => "Role '{$role}' tidak valid. Hanya diperbolehkan 'kasubag' atau 'petugas'.",
-                ];
-                continue;
+            // 4. Validasi Role
+            if ($forcedRole !== null) {
+                if (!empty($role) && $role !== strtolower($forcedRole)) {
+                    $failedCount++;
+                    $failedRows[] = [
+                        'row' => $rowNumber,
+                        'name' => $displayName,
+                        'reason' => "Role tidak diizinkan. Hanya diperbolehkan role '{$forcedRole}'.",
+                    ];
+                    continue;
+                }
+                $role = $forcedRole;
+            } else {
+                if (empty($role) || !in_array($role, ['kasubag', 'petugas'])) {
+                    $failedCount++;
+                    $failedRows[] = [
+                        'row' => $rowNumber,
+                        'name' => $displayName,
+                        'reason' => "Role '{$role}' tidak valid. Hanya diperbolehkan 'kasubag' atau 'petugas'.",
+                    ];
+                    continue;
+                }
             }
 
             // 5. Validasi Bidang / Sub Department
             $subDeptId = null;
-            if (!empty($bidang) && isset($subDeptLookup[$bidang])) {
-                $subDeptId = $subDeptLookup[$bidang];
-            } else {
-                // Partial match
-                foreach ($subDeptLookup as $key => $id) {
-                    if (str_contains($bidang, $key) || str_contains($key, $bidang)) {
-                        $subDeptId = $id;
-                        break;
+            if ($forcedSubDeptId !== null) {
+                if (!empty($bidang)) {
+                    $matchedId = $subDeptLookup[$bidang] ?? null;
+                    if (!$matchedId) {
+                        foreach ($subDeptLookup as $key => $id) {
+                            if (str_contains($bidang, $key) || str_contains($key, $bidang)) {
+                                $matchedId = $id;
+                                break;
+                            }
+                        }
+                    }
+                    if ($matchedId && $matchedId !== $forcedSubDeptId) {
+                        $failedCount++;
+                        $failedRows[] = [
+                            'row' => $rowNumber,
+                            'name' => $displayName,
+                            'reason' => "Bidang tidak sesuai dengan unit kerja Anda.",
+                        ];
+                        continue;
                     }
                 }
-            }
+                $subDeptId = $forcedSubDeptId;
+            } else {
+                if (!empty($bidang) && isset($subDeptLookup[$bidang])) {
+                    $subDeptId = $subDeptLookup[$bidang];
+                } else {
+                    // Partial match
+                    foreach ($subDeptLookup as $key => $id) {
+                        if (str_contains($bidang, $key) || str_contains($key, $bidang)) {
+                            $subDeptId = $id;
+                            break;
+                        }
+                    }
+                }
 
-            if (!$subDeptId) {
-                $failedCount++;
-                $failedRows[] = [
-                    'row' => $rowNumber,
-                    'name' => $displayName,
-                    'reason' => "Bidang '{$bidang}' tidak ditemukan dalam sistem.",
-                ];
-                continue;
+                if (!$subDeptId) {
+                    $failedCount++;
+                    $failedRows[] = [
+                        'row' => $rowNumber,
+                        'name' => $displayName,
+                        'reason' => "Bidang '{$bidang}' tidak ditemukan dalam sistem.",
+                    ];
+                    continue;
+                }
             }
 
             // 6. Penentuan Password (default NIP/NIK jika kosong)

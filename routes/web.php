@@ -91,7 +91,12 @@ Route::middleware(['auth', 'role:kasubag'])->prefix('kasubag')->name('kasubag.')
 
     // Petugas Management
     Route::get('/petugas', [\App\Http\Controllers\Kasubag\UserManagementController::class, 'index'])->name('petugas.index');
+    Route::get('/manajemen-petugas', [\App\Http\Controllers\Kasubag\UserManagementController::class, 'index'])->name('manajemen-petugas');
     Route::post('/petugas', [\App\Http\Controllers\Kasubag\UserManagementController::class, 'store'])->name('petugas.store');
+    Route::post('/petugas/import', [\App\Http\Controllers\Kasubag\UserManagementController::class, 'import'])->name('petugas.import');
+    Route::get('/petugas/import-template', [\App\Http\Controllers\Kasubag\UserManagementController::class, 'downloadTemplate'])->name('petugas.template');
+    Route::put('/petugas/{user}', [\App\Http\Controllers\Kasubag\UserManagementController::class, 'update'])->name('petugas.update');
+    Route::delete('/petugas/{user}', [\App\Http\Controllers\Kasubag\UserManagementController::class, 'destroy'])->name('petugas.destroy');
 });
 
 // Petugas Routes
