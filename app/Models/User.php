@@ -24,6 +24,11 @@ class User extends Authenticatable
         'identity_number',
         'position',
         'sub_department_id',
+        'avatar',
+    ];
+
+    protected $attributes = [
+        'avatar' => 'profil_men.webp',
     ];
 
     protected $hidden = [
@@ -117,5 +122,10 @@ class User extends Authenticatable
     public function getBidangAttribute(): ?string
     {
         return $this->subDepartment?->name;
+    }
+
+    public function getAvatarUrlAttribute(): string
+    {
+        return asset('assets/' . ($this->avatar ?: 'profil_men.webp'));
     }
 }
