@@ -72,7 +72,7 @@
       <div class="mb-4 space-y-1">
         <div class="flex items-center gap-2.5">
           <span class="text-xs font-semibold text-[#115E59] font-['Inter',sans-serif]">
-            Dashboard
+            Buat Laporan
           </span>
         </div>
         <div class="flex items-center gap-2.5">
@@ -527,7 +527,7 @@
         @if ($hasSuccessModal)
           <!-- ================= KONTEN SUKSES ================= -->
           <div class="p-6 sm:p-7 text-center">
-            
+
             <!-- Animated Top Glow / Illustration Ring -->
             <div class="relative w-24 h-24 mx-auto mb-4 flex items-center justify-center">
               <!-- Pulsing outer ring -->
@@ -610,7 +610,7 @@
         @elseif ($hasErrorModal)
           <!-- ================= KONTEN GAGAL / ERROR ================= -->
           <div class="p-6 sm:p-7 text-center">
-            
+
             <!-- Animated Top Warning Ring -->
             <div class="relative w-24 h-24 mx-auto mb-4 flex items-center justify-center">
               <!-- Pulsing outer ring -->

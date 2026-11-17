@@ -111,11 +111,15 @@ class DispositionController extends Controller
         ReportDisposition::create([
             'report_id' => $report->id,
             'sender_id' => auth()->id(),
-            'receiver_id' => $report->user_id,
+            'receiver_id' => $report->user_id ?? auth()->id(),
             'notes' => !empty($validated['notes']) ? $validated['notes'] : ('KABAG menyelesaikan pengerjaan mandiri (' . $executionResult . ').'),
         ]);
 
-        return redirect()->route('kabag.laporan-pelayanan')->with('success', 'Laporan telah berhasil diproses secara mandiri (' . $executionResult . ').');
+        if ($report->type === 'whistleblowing') {
+            return redirect()->route('kabag.history')->with('success', 'Laporan whistleblowing telah berhasil diselesaikan dan masuk ke riwayat laporan.');
+        }
+
+        return redirect()->route('kabag.history')->with('success', 'Laporan telah berhasil diproses secara mandiri (' . $executionResult . ') dan masuk ke riwayat laporan.');
     }
 
     public function reject(Request $request, Report $report): RedirectResponse

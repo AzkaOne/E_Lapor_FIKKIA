@@ -76,7 +76,7 @@
       <!-- Breadcrumb -->
       <div class="mb-1">
         <span class="text-xs font-semibold text-[#115E59] font-['Inter',sans-serif]">
-          Dashboard
+          Riwayat Laporan
         </span>
       </div>
 

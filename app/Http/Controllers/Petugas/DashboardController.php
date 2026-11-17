@@ -51,12 +51,18 @@ class DashboardController extends Controller
             ->whereDate('updated_at', today())
             ->count();
 
-        $recentNotes = ReportDisposition::whereHas('report', function ($q) use ($userId) {
-                $q->where('handler_id', $userId);
+        $recentNotes = ReportDisposition::with(['sender.subDepartment', 'report'])
+            ->where(function ($q) use ($userId) {
+                $q->where('receiver_id', $userId)
+                  ->orWhere(function ($sq) use ($userId) {
+                      $sq->whereNull('receiver_id')
+                         ->whereHas('report', fn($rq) => $rq->where('handler_id', $userId))
+                         ->whereHas('sender', fn($uq) => $uq->whereIn('role', ['kabag', 'kasubag']));
+                  });
             })
+            ->where('sender_id', '!=', $userId)
             ->whereNotNull('notes')
             ->where('notes', '!=', '')
-            ->with(['report', 'sender.subDepartment'])
             ->latest()
             ->take(5)
             ->get();

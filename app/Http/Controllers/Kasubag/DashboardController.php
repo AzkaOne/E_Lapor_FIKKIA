@@ -52,14 +52,21 @@ class DashboardController extends Controller
             ->whereDate('created_at', today())
             ->count();
 
-        $recentNotes = ReportDisposition::whereHas('report', function ($q) use ($subDeptId) {
-                $q->where('sub_department_id', $subDeptId);
+        $user = auth()->user();
+        $recentNotes = ReportDisposition::with(['sender.subDepartment', 'report'])
+            ->where(function ($q) use ($user, $subDeptId) {
+                $q->where('receiver_id', $user->id)
+                  ->orWhere(function ($sq) use ($subDeptId) {
+                      $sq->whereNull('receiver_id')
+                         ->whereHas('report', fn($rq) => $rq->where('sub_department_id', $subDeptId))
+                         ->whereHas('sender', fn($uq) => $uq->where('role', 'kabag'));
+                  });
             })
+            ->where('sender_id', '!=', $user->id)
             ->whereNotNull('notes')
             ->where('notes', '!=', '')
-            ->with(['report', 'sender.subDepartment'])
             ->latest()
-            ->take(3)
+            ->take(5)
             ->get();
 
         $recentActivities = Report::where('sub_department_id', $subDeptId)
@@ -150,7 +157,10 @@ class DashboardController extends Controller
             if ($request->status === 'masuk' || $request->status === 'didisposisi') {
                 $query->whereIn('status', ['didisposisi', 'diajukan']);
             } elseif ($request->status === 'terlaksana' || $request->status === 'selesai') {
-                $query->where('status', 'selesai');
+                $query->where(function ($q) {
+                    $q->where('status', 'selesai')
+                      ->orWhere('execution_result', 'terlaksana');
+                });
             } elseif ($request->status === 'tertunda') {
                 $query->where(function ($q) {
                     $q->where('status', 'ditolak')
@@ -163,6 +173,9 @@ class DashboardController extends Controller
             } else {
                 $query->where('status', $request->status);
             }
+        } else {
+            // Default untuk Laporan Masuk: sembunyikan laporan yang sudah selesai atau diverifikasi karena sudah pindah ke Riwayat
+            $query->whereNotIn('status', ['selesai', 'verifikasi_kabag']);
         }
 
         if ($request->filled('date')) {
@@ -176,9 +189,12 @@ class DashboardController extends Controller
         $baseCount = Report::where('sub_department_id', $subDeptId);
 
         $counts = [
-            'total' => (clone $baseCount)->count(),
+            'total' => (clone $baseCount)->whereNotIn('status', ['selesai', 'verifikasi_kabag'])->count(),
             'masuk' => (clone $baseCount)->whereIn('status', ['didisposisi', 'diajukan'])->count(),
-            'terlaksana' => (clone $baseCount)->where('status', 'selesai')->count(),
+            'terlaksana' => (clone $baseCount)->where(function ($q) {
+                $q->where('status', 'selesai')
+                  ->orWhere('execution_result', 'terlaksana');
+            })->count(),
             'tertunda' => (clone $baseCount)->where(function ($q) {
                 $q->where('status', 'ditolak')
                   ->orWhere('execution_result', 'tertunda');
@@ -196,7 +212,7 @@ class DashboardController extends Controller
 
         $query = Report::with(['user', 'handler', 'subDepartment', 'evidences'])
             ->where('sub_department_id', $subDeptId)
-            ->where('status', 'selesai');
+            ->whereIn('status', ['selesai', 'verifikasi_kabag']);
 
         // Filter Search
         if ($request->filled('search')) {
@@ -212,8 +228,15 @@ class DashboardController extends Controller
 
         // Filter Hasil Penanganan (terlaksana & tertunda)
         if ($request->filled('status')) {
-            if (in_array($request->status, ['terlaksana', 'tertunda'])) {
-                $query->where('execution_result', $request->status);
+            if ($request->status === 'terlaksana') {
+                $query->where(function ($q) {
+                    $q->where('execution_result', 'terlaksana')
+                      ->orWhere(function ($sq) {
+                          $sq->where('status', 'selesai')->whereNull('execution_result');
+                      });
+                });
+            } elseif ($request->status === 'tertunda') {
+                $query->where('execution_result', 'tertunda');
             }
         }
 
@@ -224,10 +247,15 @@ class DashboardController extends Controller
 
         $reports = $query->latest('updated_at')->paginate(10)->withQueryString();
 
-        $baseCount = Report::where('sub_department_id', $subDeptId)->where('status', 'selesai');
+        $baseCount = Report::where('sub_department_id', $subDeptId)->whereIn('status', ['selesai', 'verifikasi_kabag']);
         $counts = [
             'total' => (clone $baseCount)->count(),
-            'terlaksana' => (clone $baseCount)->where('execution_result', 'terlaksana')->count(),
+            'terlaksana' => (clone $baseCount)->where(function ($q) {
+                $q->where('execution_result', 'terlaksana')
+                  ->orWhere(function ($sq) {
+                      $sq->where('status', 'selesai')->whereNull('execution_result');
+                  });
+            })->count(),
             'tertunda' => (clone $baseCount)->where('execution_result', 'tertunda')->count(),
             'rating' => (clone $baseCount)->whereNotNull('rating')->count(),
         ];

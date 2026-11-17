@@ -121,14 +121,16 @@
             </select>
           </div>
 
-          <!-- Filter Hasil Penanganan -->
-          <div class="w-full sm:w-36 shrink-0">
+          <!-- Filter Hasil Penanganan & Kategori -->
+          <div class="w-full sm:w-40 shrink-0">
             <select name="status" onchange="this.form.submit()"
                     class="w-full px-2.5 py-2 rounded-xl border border-slate-200 bg-white text-xs text-slate-700 font-medium focus:ring-2 focus:ring-[#2E978E] focus:border-[#2E978E] focus:outline-none transition cursor-pointer"
-                    title="Filter Berdasarkan Hasil Penanganan">
+                    title="Filter Berdasarkan Hasil atau Kategori Penanganan">
               <option value="">Semua Hasil</option>
               <option value="terlaksana" {{ request('status') === 'terlaksana' ? 'selected' : '' }}>Terlaksana</option>
               <option value="tertunda" {{ request('status') === 'tertunda' ? 'selected' : '' }}>Tertunda</option>
+              <option value="pelayanan" {{ request('status') === 'pelayanan' ? 'selected' : '' }}>Pelayanan</option>
+              <option value="whistleblowing" {{ request('status') === 'whistleblowing' ? 'selected' : '' }}>Whistleblowing</option>
             </select>
           </div>
 
@@ -262,18 +264,23 @@
                       <div class="font-bold text-slate-900 text-[13px] leading-snug line-clamp-1">
                         {{ $report->title }}
                       </div>
-                      <div class="text-[10.5px] text-slate-400 mt-0.5 font-medium">
-                        ID Laporan: {{ $report->ticket_code }}
+                      <div class="text-[10.5px] text-slate-400 mt-0.5 font-medium flex items-center gap-1.5">
+                        <span>ID Laporan: {{ $report->ticket_code }}</span>
+                        @if ($report->type === 'whistleblowing')
+                          <span class="inline-flex items-center px-1.5 py-0.2 rounded text-[9.5px] font-bold bg-[#ECFDF5] text-[#059669] border border-[#A7F3D0]">
+                            Whistleblowing
+                          </span>
+                        @endif
                       </div>
                     </td>
 
                     <!-- Pelapor -->
                     <td class="py-4 px-3.5">
                       <div class="font-semibold text-slate-900 text-xs">
-                        {{ $report->user?->name ?? 'Anonim' }}
+                        {{ $report->type === 'whistleblowing' ? '------' : ($report->user?->name ?? 'Anonim') }}
                       </div>
                       <div class="text-[10.5px] text-slate-500 capitalize">
-                        {{ $report->user?->position ?? 'Mahasiswa' }}
+                        {{ $report->type === 'whistleblowing' ? '------' : ($report->user?->position ?? 'Mahasiswa') }}
                       </div>
                     </td>
 

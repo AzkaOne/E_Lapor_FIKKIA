@@ -231,4 +231,66 @@ class KabagLaporanPelayananTest extends TestCase
         $response->assertDontSee('title="Filter Berdasarkan Status Laporan"', false);
         $response->assertDontSee('title="Filter Berdasarkan Tanggal"', false);
     }
+
+    public function test_kabag_laporan_pelayanan_excludes_self_executed_and_completed_reports(): void
+    {
+        $kabag = User::factory()->create(['role' => 'kabag']);
+        $sarpras = SubDepartment::create(['name' => 'Sarana Prasarana', 'code' => 'SARPRAS']);
+
+        // 1. Incoming report: appears in laporan-pelayanan
+        $reportIncoming = Report::create([
+            'ticket_code' => 'LP-EXCL-01',
+            'title' => 'Laporan Menunggu Disposisi',
+            'description' => 'Belum ditangani',
+            'type' => 'pelayanan',
+            'sub_department_id' => $sarpras->id,
+            'campus_location' => 'sobo',
+            'status' => 'diajukan',
+        ]);
+
+        // 2. Report self-executed by Kabag: in Laporan Saya, must NOT appear in laporan-pelayanan
+        $reportSelfExecuted = Report::create([
+            'ticket_code' => 'LP-EXCL-02',
+            'title' => 'Laporan Dikerjakan Mandiri Kabag',
+            'description' => 'Sedang dikerjakan',
+            'type' => 'pelayanan',
+            'sub_department_id' => $sarpras->id,
+            'campus_location' => 'mojo',
+            'status' => 'proses',
+            'handler_id' => $kabag->id,
+        ]);
+
+        // 3. Completed report: in Riwayat, must NOT appear in laporan-pelayanan
+        $reportCompleted = Report::create([
+            'ticket_code' => 'LP-EXCL-03',
+            'title' => 'Laporan Sudah Selesai Tuntas',
+            'description' => 'Selesai ditangani',
+            'type' => 'pelayanan',
+            'sub_department_id' => $sarpras->id,
+            'campus_location' => 'giri',
+            'status' => 'selesai',
+            'resolution_notes' => 'Tuntas.',
+        ]);
+
+        // Access laporan-pelayanan
+        $response = $this->actingAs($kabag)->get(route('kabag.laporan-pelayanan'));
+        $response->assertStatus(200);
+
+        // Incoming report is seen
+        $response->assertSee('LP-EXCL-01');
+
+        // Self-executed and completed reports are NOT seen
+        $response->assertDontSee('LP-EXCL-02');
+        $response->assertDontSee('LP-EXCL-03');
+
+        // Self-executed report appears in Laporan Saya
+        $responseSaya = $this->actingAs($kabag)->get(route('kabag.my-reports'));
+        $responseSaya->assertSee('LP-EXCL-02');
+        $responseSaya->assertDontSee('LP-EXCL-01');
+        $responseSaya->assertDontSee('LP-EXCL-03');
+
+        // Completed report appears in Riwayat
+        $responseHistory = $this->actingAs($kabag)->get(route('kabag.history'));
+        $responseHistory->assertSee('LP-EXCL-03');
+    }
 }

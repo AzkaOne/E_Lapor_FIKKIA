@@ -119,13 +119,14 @@ class ReportLifecycleAndQueueTest extends TestCase
         $this->actingAs($kasubag)->post("/kasubag/laporan/{$report->id}/kirim-verifikasi", [
             'execution_result' => 'tertunda',
             'notes' => 'Menunggu part impor.',
-        ])->assertRedirect(route('kasubag.laporan-masuk'));
+        ])->assertRedirect(route('kasubag.history'));
 
-        // Moves back to Laporan Masuk, GONE from Laporan Saya, NOT in Riwayat yet
+        // Moves to Riwayat Kasubag, GONE from Laporan Saya, GONE from Laporan Masuk
         $this->assertEquals('verifikasi_kabag', $report->fresh()->status);
         $this->actingAs($kasubag)->get(route('kasubag.my-reports'))->assertDontSee('LP-FLOW-KSB-01');
-        $this->actingAs($kasubag)->get(route('kasubag.laporan-masuk'))->assertSee('LP-FLOW-KSB-01');
-        $this->actingAs($kasubag)->get(route('kasubag.history'))->assertDontSee('LP-FLOW-KSB-01');
+        $this->actingAs($kasubag)->get(route('kasubag.laporan-masuk'))->assertDontSee('LP-FLOW-KSB-01');
+        $this->actingAs($kasubag)->get(route('kasubag.history'))->assertSee('LP-FLOW-KSB-01');
+        $this->actingAs($kasubag)->get(route('kasubag.history'))->assertSee('Tertunda');
 
         // 4. Kabag verifies report as selesai
         $this->actingAs($kabag)->post("/kabag/verifikasi/{$report->id}/approve", [
@@ -155,27 +156,30 @@ class ReportLifecycleAndQueueTest extends TestCase
             'status' => 'diajukan',
         ]);
 
-        // 1. Initial State: NOT in Laporan Saya, NOT in Riwayat
+        // 1. Initial State: Present in Laporan Pelayanan, NOT in Laporan Saya, NOT in Riwayat
+        $this->actingAs($kabag)->get(route('kabag.laporan-pelayanan'))->assertSee('LP-FLOW-KBG-01');
         $this->actingAs($kabag)->get(route('kabag.my-reports'))->assertDontSee('LP-FLOW-KBG-01');
         $this->actingAs($kabag)->get(route('kabag.history'))->assertDontSee('LP-FLOW-KBG-01');
 
         // 2. Kabag chooses "Kerjakan Mandiri"
         $this->actingAs($kabag)->post("/kabag/laporan/{$report->id}/kerjakan-sendiri");
 
-        // Now in Laporan Saya
+        // Now in Laporan Saya, and GONE from Laporan Pelayanan!
         $this->assertEquals('proses', $report->fresh()->status);
         $this->assertEquals($kabag->id, $report->fresh()->handler_id);
         $this->actingAs($kabag)->get(route('kabag.my-reports'))->assertSee('LP-FLOW-KBG-01');
+        $this->actingAs($kabag)->get(route('kabag.laporan-pelayanan'))->assertDontSee('LP-FLOW-KBG-01');
 
         // 3. Kabag finishes self-execution
         $this->actingAs($kabag)->post("/kabag/laporan/{$report->id}/selesai-mandiri", [
             'execution_result' => 'terlaksana',
             'notes' => 'Diselesaikan langsung oleh Kabag.',
-        ])->assertRedirect(route('kabag.laporan-pelayanan'));
+        ])->assertRedirect(route('kabag.history'));
 
-        // Status is selesai -> GONE from Laporan Saya, present in Riwayat Kabag!
+        // Status is selesai -> GONE from Laporan Saya and Laporan Pelayanan, present in Riwayat Kabag!
         $this->assertEquals('selesai', $report->fresh()->status);
         $this->actingAs($kabag)->get(route('kabag.my-reports'))->assertDontSee('LP-FLOW-KBG-01');
+        $this->actingAs($kabag)->get(route('kabag.laporan-pelayanan'))->assertDontSee('LP-FLOW-KBG-01');
         $this->actingAs($kabag)->get(route('kabag.history'))->assertSee('LP-FLOW-KBG-01');
     }
 }

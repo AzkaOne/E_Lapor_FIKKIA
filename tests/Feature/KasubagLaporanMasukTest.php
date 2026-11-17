@@ -63,12 +63,18 @@ class KasubagLaporanMasukTest extends TestCase
         $response->assertSee('Laporan Revisi');
         $response->assertSee('LP-TEST-1');
         $response->assertSee('LP-TEST-2');
-        $response->assertSee('LP-TEST-3');
+        $response->assertDontSee('LP-TEST-3');
+
+        // Check riwayat has the completed report
+        $responseHistory = $this->actingAs($kasubag)->get('/kasubag/riwayat');
+        $responseHistory->assertStatus(200);
+        $responseHistory->assertSee('LP-TEST-3');
 
         // Check alias /kasubag/laporan-masuk
         $responseAlias = $this->actingAs($kasubag)->get('/kasubag/laporan-masuk');
         $responseAlias->assertStatus(200);
         $responseAlias->assertSee('Total Laporan');
+        $responseAlias->assertDontSee('LP-TEST-3');
     }
 
     public function test_kasubag_laporan_masuk_filtering_by_status(): void

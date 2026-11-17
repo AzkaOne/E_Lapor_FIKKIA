@@ -20,7 +20,14 @@ class PublicController extends Controller
         $notFound = false;
 
         if ($ticketCode !== '') {
-            $report = Report::with(['subDepartment', 'evidences'])
+            $report = Report::with([
+                'subDepartment',
+                'handler',
+                'user',
+                'dispositions.sender',
+                'dispositions.receiver',
+                'evidences.uploader',
+            ])
                 ->where('ticket_code', $ticketCode)
                 ->first();
 

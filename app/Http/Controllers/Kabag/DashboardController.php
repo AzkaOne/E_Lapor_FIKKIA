@@ -12,7 +12,7 @@ use Illuminate\View\View;
 
 class DashboardController extends Controller
 {
-    public function index(Request $request): View
+    public function index(Request $request)
     {
         $query = Report::with(['user', 'subDepartment', 'handler'])
             ->where('type', 'pelayanan');
@@ -46,6 +46,18 @@ class DashboardController extends Controller
             ->pluck('count', 'sub_department_id')
             ->toArray();
 
+        $sarprasDept = $subDepartments->first(fn($d) => str_contains(strtolower($d->name), 'sarana') || str_contains(strtolower($d->name), 'sarpras'));
+        $dekanatDept = $subDepartments->first(fn($d) => str_contains(strtolower($d->name), 'dekanat'));
+        $keuanganDept = $subDepartments->first(fn($d) => str_contains(strtolower($d->name), 'keuangan') || str_contains(strtolower($d->name), 'sdm'));
+        $akademikDept = $subDepartments->first(fn($d) => str_contains(strtolower($d->name), 'pendidikan') || str_contains(strtolower($d->name), 'kemahasiswaan') || str_contains(strtolower($d->name), 'akademik'));
+
+        $pendidikanCount = $akademikDept ? ($subDeptCounts[$akademikDept->id] ?? 0) : 0;
+        $keuanganCount = $keuanganDept ? ($subDeptCounts[$keuanganDept->id] ?? 0) : 0;
+        $sarprasCount = $sarprasDept ? ($subDeptCounts[$sarprasDept->id] ?? 0) : 0;
+        $dekanatCount = $dekanatDept ? ($subDeptCounts[$dekanatDept->id] ?? 0) : 0;
+        $wbCount = (int) ($counts['whistleblowing'] ?? 0);
+        $chartTotal = $pendidikanCount + $keuanganCount + $sarprasCount + $dekanatCount + $wbCount;
+
         // Whistleblower reports for right list
         $whistleblowerReports = Report::where('type', 'whistleblowing')
             ->with('subDepartment')
@@ -53,19 +65,81 @@ class DashboardController extends Controller
             ->take(6)
             ->get();
 
-        // Recent notes / comments
+        // Recent notes / comments ONLY received by Kabag
+        $userId = auth()->id();
         $recentNotes = ReportDisposition::with(['sender.subDepartment', 'report'])
+            ->where(function ($q) use ($userId) {
+                $q->where('receiver_id', $userId)
+                  ->orWhereHas('receiver', fn($rq) => $rq->where('role', 'kabag'))
+                  ->orWhere(function ($sq) {
+                      $sq->whereNull('receiver_id')
+                         ->whereHas('sender', fn($uq) => $uq->whereIn('role', ['kasubag', 'petugas']));
+                  });
+            })
+            ->where('sender_id', '!=', $userId)
             ->whereNotNull('notes')
             ->where('notes', '!=', '')
             ->latest()
-            ->take(4)
+            ->take(5)
             ->get();
+
+        if ($request->ajax() || $request->wantsJson() || $request->has('realtime')) {
+            $tableHtml = view('kabag.partials.dashboard_table_rows', compact('reports'))->render();
+
+            return response()->json([
+                'counts' => [
+                    'total' => $counts['total'],
+                    'diajukan' => $counts['diajukan'],
+                    'didisposisi' => $counts['didisposisi'],
+                    'proses' => $counts['proses'],
+                    'dalam_penanganan' => $counts['proses'] + $counts['didisposisi'],
+                    'verifikasi' => $counts['verifikasi'],
+                    'selesai' => $counts['selesai'],
+                    'whistleblowing' => $counts['whistleblowing'],
+                ],
+                'distribution' => [
+                    'pendidikan' => $pendidikanCount,
+                    'keuangan' => $keuanganCount,
+                    'sarpras' => $sarprasCount,
+                    'sdm' => $dekanatCount,
+                    'whistleblowing' => $wbCount,
+                    'total' => $chartTotal,
+                ],
+                'recent_notes' => $recentNotes->map(function ($note) {
+                    return [
+                        'id' => $note->id,
+                        'sender_name' => $note->sender?->name ?? 'Kasubag / Petugas',
+                        'sender_initial' => strtoupper(substr($note->sender?->name ?? 'P', 0, 1)),
+                        'sender_unit' => $note->sender?->subDepartment?->name ?? ($note->sender?->role === 'kasubag' ? 'KASUBAG' : ($note->sender?->role === 'petugas' ? 'Petugas' : 'Sub Bagian')),
+                        'time_formatted' => $note->created_at->format('d M • H:i'),
+                        'report_title' => $note->report?->title ?? 'Tindak Lanjut',
+                        'notes' => $note->notes,
+                    ];
+                }),
+                'whistleblower_reports' => $whistleblowerReports->map(function ($wb) {
+                    return [
+                        'id' => $wb->id,
+                        'title' => $wb->title,
+                        'unit_badge' => $wb->subDepartment?->name ? (str_contains($wb->subDepartment->name, 'Sarana') ? 'Sarpras' : (str_contains($wb->subDepartment->name, 'Pendidikan') ? 'Akademik' : (str_contains($wb->subDepartment->name, 'SDM') ? 'SDM' : 'Dekanat'))) : 'Umum',
+                        'time_ago' => $wb->created_at->diffForHumans(),
+                        'url' => route('kabag.whistleblowing'),
+                    ];
+                }),
+                'table_html' => $tableHtml,
+            ]);
+        }
 
         return view('kabag.Dashboard_Kabag', compact(
             'reports',
             'counts',
             'subDepartments',
             'subDeptCounts',
+            'pendidikanCount',
+            'keuanganCount',
+            'sarprasCount',
+            'dekanatCount',
+            'wbCount',
+            'chartTotal',
             'whistleblowerReports',
             'recentNotes'
         ));
@@ -74,7 +148,13 @@ class DashboardController extends Controller
     public function laporanPelayanan(Request $request): View
     {
         $query = Report::with(['user', 'subDepartment', 'handler'])
-            ->where('type', 'pelayanan');
+            ->where('type', 'pelayanan')
+            ->where('status', '!=', 'selesai')
+            ->where(function ($q) {
+                $q->where('status', '!=', 'proses')
+                  ->orWhere('handler_id', '!=', auth()->id())
+                  ->orWhereNull('handler_id');
+            });
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -117,11 +197,19 @@ class DashboardController extends Controller
         $keuanganDept = $subDepartments->first(fn($d) => str_contains(strtolower($d->name), 'keuangan') || str_contains(strtolower($d->name), 'sdm'));
         $akademikDept = $subDepartments->first(fn($d) => str_contains(strtolower($d->name), 'pendidikan') || str_contains(strtolower($d->name), 'kemahasiswaan') || str_contains(strtolower($d->name), 'akademik'));
 
-        $totalCount = Report::where('type', 'pelayanan')->count();
-        $sarprasCount = $sarprasDept ? Report::where('type', 'pelayanan')->where('sub_department_id', $sarprasDept->id)->count() : 0;
-        $dekanatCount = $dekanatDept ? Report::where('type', 'pelayanan')->where('sub_department_id', $dekanatDept->id)->count() : 0;
-        $keuanganCount = $keuanganDept ? Report::where('type', 'pelayanan')->where('sub_department_id', $keuanganDept->id)->count() : 0;
-        $akademikCount = $akademikDept ? Report::where('type', 'pelayanan')->where('sub_department_id', $akademikDept->id)->count() : 0;
+        $basePelayanan = Report::where('type', 'pelayanan')
+            ->where('status', '!=', 'selesai')
+            ->where(function ($q) {
+                $q->where('status', '!=', 'proses')
+                  ->orWhere('handler_id', '!=', auth()->id())
+                  ->orWhereNull('handler_id');
+            });
+
+        $totalCount = (clone $basePelayanan)->count();
+        $sarprasCount = $sarprasDept ? (clone $basePelayanan)->where('sub_department_id', $sarprasDept->id)->count() : 0;
+        $dekanatCount = $dekanatDept ? (clone $basePelayanan)->where('sub_department_id', $dekanatDept->id)->count() : 0;
+        $keuanganCount = $keuanganDept ? (clone $basePelayanan)->where('sub_department_id', $keuanganDept->id)->count() : 0;
+        $akademikCount = $akademikDept ? (clone $basePelayanan)->where('sub_department_id', $akademikDept->id)->count() : 0;
 
         $counts = [
             'total' => $totalCount,
@@ -130,6 +218,7 @@ class DashboardController extends Controller
             'keuangan' => $keuanganCount,
             'akademik' => $akademikCount,
             'verifikasi' => Report::where('type', 'pelayanan')->where('status', 'verifikasi_kabag')->count(),
+            'saya' => Report::where('type', 'pelayanan')->where('status', 'proses')->where('handler_id', auth()->id())->count(),
         ];
 
         return view('kabag.laporan_pelayanan', compact('reports', 'counts', 'subDepartments'));
@@ -195,7 +284,7 @@ class DashboardController extends Controller
     public function history(Request $request): View
     {
         $query = Report::with(['user', 'subDepartment', 'handler', 'evidences'])
-            ->where('type', 'pelayanan')
+            ->whereIn('type', ['pelayanan', 'whistleblowing'])
             ->where('status', 'selesai');
 
         // Filter Search
@@ -204,6 +293,7 @@ class DashboardController extends Controller
             $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
                   ->orWhere('ticket_code', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%")
                   ->orWhereHas('user', function ($uq) use ($search) {
                       $uq->where('name', 'like', "%{$search}%");
                   });
@@ -215,11 +305,17 @@ class DashboardController extends Controller
             $query->where('sub_department_id', $request->sub_department_id);
         }
 
-        // Filter Hasil (terlaksana & tertunda)
+        // Filter Hasil Penanganan & Kategori Laporan (Pelayanan / Whistleblowing)
         if ($request->filled('status')) {
             if (in_array($request->status, ['terlaksana', 'tertunda'])) {
                 $query->where('execution_result', $request->status);
+            } elseif (in_array($request->status, ['pelayanan', 'whistleblowing'])) {
+                $query->where('type', $request->status);
             }
+        }
+
+        if ($request->filled('type') && in_array($request->type, ['pelayanan', 'whistleblowing'])) {
+            $query->where('type', $request->type);
         }
 
         // Filter Tanggal
@@ -241,7 +337,7 @@ class DashboardController extends Controller
         $keuanganDept = $subDepartments->first(fn($d) => str_contains(strtolower($d->name), 'keuangan') || str_contains(strtolower($d->name), 'sdm'));
         $akademikDept = $subDepartments->first(fn($d) => str_contains(strtolower($d->name), 'pendidikan') || str_contains(strtolower($d->name), 'kemahasiswaan') || str_contains(strtolower($d->name), 'akademik'));
 
-        $baseHistory = Report::where('type', 'pelayanan')->where('status', 'selesai');
+        $baseHistory = Report::whereIn('type', ['pelayanan', 'whistleblowing'])->where('status', 'selesai');
         $totalCount = (clone $baseHistory)->count();
         $sarprasCount = $sarprasDept ? (clone $baseHistory)->where('sub_department_id', $sarprasDept->id)->count() : 0;
         $dekanatCount = $dekanatDept ? (clone $baseHistory)->where('sub_department_id', $dekanatDept->id)->count() : 0;

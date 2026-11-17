@@ -118,7 +118,7 @@
 
         <!-- 2. Laporan Pelayanan -->
         <a href="{{ route('kabag.laporan-pelayanan') }}"
-           class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-[13px] transition {{ (request()->routeIs('kabag.laporan-pelayanan*') || request()->routeIs('kabag.my-reports*') || request()->routeIs('kabag.verifikasi*')) ? 'bg-[#166E65] text-white font-bold shadow-xs' : 'text-white/90 hover:bg-white/10 hover:text-white font-medium' }}">
+           class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-[13px] transition {{ ((request()->routeIs('kabag.laporan-pelayanan*') || request()->routeIs('kabag.my-reports*') || request()->routeIs('kabag.verifikasi*') || request()->routeIs('kabag.show')) && (!isset($report) || $report->type !== 'whistleblowing')) ? 'bg-[#166E65] text-white font-bold shadow-xs' : 'text-white/90 hover:bg-white/10 hover:text-white font-medium' }}">
           <svg class="w-4 h-4 shrink-0 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
           </svg>
@@ -127,20 +127,20 @@
 
         <!-- 3. Laporan Whistleblower -->
         <a href="{{ route('kabag.whistleblowing') }}"
-           class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-[13px] transition {{ request()->routeIs('kabag.whistleblowing*') ? 'bg-[#166E65] text-white font-bold shadow-xs' : 'text-white/90 hover:bg-white/10 hover:text-white font-medium' }}">
+           class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-[13px] transition {{ (request()->routeIs('kabag.whistleblowing*') || (request()->routeIs('kabag.show') && isset($report) && $report->type === 'whistleblowing')) ? 'bg-[#166E65] text-white font-bold shadow-xs' : 'text-white/90 hover:bg-white/10 hover:text-white font-medium' }}">
           <svg class="w-4 h-4 shrink-0 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
           </svg>
           <span class="truncate">Laporan Whistleblower</span>
         </a>
 
-        <!-- 4. Manajemen Kasubag -->
+        <!-- 4. Manajemen Pegawai -->
         <a href="{{ route('kabag.users.index') }}"
-           class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-[13px] transition {{ request()->routeIs('kabag.users.*') ? 'bg-[#166E65] text-white font-bold shadow-xs' : 'text-white/90 hover:bg-white/10 hover:text-white font-medium' }}">
+           class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-[13px] transition {{ (request()->routeIs('kabag.users.*') || request()->routeIs('kabag.manajemen-pegawai')) ? 'bg-[#166E65] text-white font-bold shadow-xs' : 'text-white/90 hover:bg-white/10 hover:text-white font-medium' }}">
           <svg class="w-4 h-4 shrink-0 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
           </svg>
-          <span class="truncate">Manajemen Kasubag</span>
+          <span class="truncate">Manajemen Pegawai</span>
         </a>
 
         <!-- 5. Riwayat Laporan -->

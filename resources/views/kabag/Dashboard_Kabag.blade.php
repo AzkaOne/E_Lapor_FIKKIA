@@ -107,14 +107,20 @@
           </div>
 
           @php
-            // Calculate dynamic counts for donut chart
-            $pendidikanCount = $subDeptCounts[68] ?? 42;
-            $keuanganCount = $subDeptCounts[67] ?? 28;
-            $sarprasCount = $subDeptCounts[66] ?? 24;
-            $sdmCount = $subDeptCounts[65] ?? 15;
-            $wbCount = $counts['whistleblowing'] ?? 15;
-            $chartTotal = $pendidikanCount + $keuanganCount + $sarprasCount + $sdmCount + $wbCount;
-            if ($chartTotal <= 0) { $chartTotal = 124; }
+            $circumference = 2 * 3.14159 * 38; // ~238.76
+            $cTotal = $chartTotal ?? 0;
+
+            $pAkademik = $cTotal > 0 ? ($pendidikanCount / $cTotal) * $circumference : 0;
+            $pKeuangan = $cTotal > 0 ? ($keuanganCount / $cTotal) * $circumference : 0;
+            $pSarpras = $cTotal > 0 ? ($sarprasCount / $cTotal) * $circumference : 0;
+            $pSDM = $cTotal > 0 ? ($dekanatCount / $cTotal) * $circumference : 0;
+            $pWB = $cTotal > 0 ? ($wbCount / $cTotal) * $circumference : 0;
+
+            $offset1 = 0;
+            $offset2 = $offset1 - $pAkademik;
+            $offset3 = $offset2 - $pKeuangan;
+            $offset4 = $offset3 - $pSarpras;
+            $offset5 = $offset4 - $pSDM;
           @endphp
 
           <div class="flex flex-col sm:flex-row lg:flex-row items-center justify-center gap-5 my-auto py-3">
@@ -124,43 +130,28 @@
                 <!-- Background track -->
                 <circle cx="50" cy="50" r="38" fill="none" stroke="#F1F5F9" stroke-width="20" />
 
-                @php
-                  $circumference = 2 * 3.14159 * 38; // ~238.76
-                  $pAkademik = ($pendidikanCount / $chartTotal) * $circumference;
-                  $pKeuangan = ($keuanganCount / $chartTotal) * $circumference;
-                  $pSarpras = ($sarprasCount / $chartTotal) * $circumference;
-                  $pSDM = ($sdmCount / $chartTotal) * $circumference;
-                  $pWB = ($wbCount / $chartTotal) * $circumference;
-
-                  $offset1 = 0;
-                  $offset2 = $offset1 - $pAkademik;
-                  $offset3 = $offset2 - $pKeuangan;
-                  $offset4 = $offset3 - $pSarpras;
-                  $offset5 = $offset4 - $pSDM;
-                @endphp
-
                 <!-- Akademik segment -->
-                <circle cx="50" cy="50" r="38" fill="none" stroke="#256E62" stroke-width="20"
+                <circle id="circle-pendidikan" cx="50" cy="50" r="38" fill="none" stroke="#256E62" stroke-width="20"
                         stroke-dasharray="{{ $pAkademik }} {{ $circumference - $pAkademik }}"
                         stroke-dashoffset="{{ $offset1 }}" class="transition-all duration-700" />
 
                 <!-- Keuangan segment -->
-                <circle cx="50" cy="50" r="38" fill="none" stroke="#3B82F6" stroke-width="20"
+                <circle id="circle-keuangan" cx="50" cy="50" r="38" fill="none" stroke="#3B82F6" stroke-width="20"
                         stroke-dasharray="{{ $pKeuangan }} {{ $circumference - $pKeuangan }}"
                         stroke-dashoffset="{{ $offset2 }}" class="transition-all duration-700" />
 
                 <!-- Sarpras segment -->
-                <circle cx="50" cy="50" r="38" fill="none" stroke="#F59E0B" stroke-width="20"
+                <circle id="circle-sarpras" cx="50" cy="50" r="38" fill="none" stroke="#F59E0B" stroke-width="20"
                         stroke-dasharray="{{ $pSarpras }} {{ $circumference - $pSarpras }}"
                         stroke-dashoffset="{{ $offset3 }}" class="transition-all duration-700" />
 
-                <!-- SDM segment -->
-                <circle cx="50" cy="50" r="38" fill="none" stroke="#A855F7" stroke-width="20"
+                <!-- SDM / Dekanat segment -->
+                <circle id="circle-sdm" cx="50" cy="50" r="38" fill="none" stroke="#A855F7" stroke-width="20"
                         stroke-dasharray="{{ $pSDM }} {{ $circumference - $pSDM }}"
                         stroke-dashoffset="{{ $offset4 }}" class="transition-all duration-700" />
 
                 <!-- Whistleblowing segment -->
-                <circle cx="50" cy="50" r="38" fill="none" stroke="#94A3B8" stroke-width="20"
+                <circle id="circle-wb" cx="50" cy="50" r="38" fill="none" stroke="#94A3B8" stroke-width="20"
                         stroke-dasharray="{{ $pWB }} {{ $circumference - $pWB }}"
                         stroke-dashoffset="{{ $offset5 }}" class="transition-all duration-700" />
               </svg>
@@ -168,8 +159,8 @@
               <!-- Center Total Text -->
               <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
                 <span class="text-[10px] font-medium text-slate-400 uppercase tracking-wider">Total</span>
-                <span class="text-xl sm:text-2xl font-extrabold text-slate-800 leading-tight">
-                  {{ ($counts['total'] ?? 0) > 0 ? $counts['total'] : 124 }}
+                <span id="chart-total-count" class="text-xl sm:text-2xl font-extrabold text-slate-800 leading-tight">
+                  {{ $cTotal }}
                 </span>
               </div>
             </div>
@@ -179,23 +170,23 @@
 
             <span class="w-3 h-3 rounded-full bg-[#256E62]"></span>
             <span>Pendidikan & Kemahasiswaan</span>
-            <span class="font-bold text-slate-900 text-right">{{ $pendidikanCount }}</span>
+            <span id="count-pendidikan" class="font-bold text-slate-900 text-right">{{ $pendidikanCount }}</span>
 
             <span class="w-3 h-3 rounded-full bg-[#3B82F6]"></span>
             <span>Keuangan & SDM</span>
-            <span class="font-bold text-slate-900 text-right">{{ $keuanganCount }}</span>
+            <span id="count-keuangan" class="font-bold text-slate-900 text-right">{{ $keuanganCount }}</span>
 
             <span class="w-3 h-3 rounded-full bg-[#F59E0B]"></span>
             <span>Sarana Prasarana</span>
-            <span class="font-bold text-slate-900 text-right">{{ $sarprasCount }}</span>
+            <span id="count-sarpras" class="font-bold text-slate-900 text-right">{{ $sarprasCount }}</span>
 
             <span class="w-3 h-3 rounded-full bg-[#A855F7]"></span>
             <span>Dekanat</span>
-            <span class="font-bold text-slate-900 text-right">{{ $sdmCount }}</span>
+            <span id="count-sdm" class="font-bold text-slate-900 text-right">{{ $dekanatCount }}</span>
 
             <span class="w-3 h-3 rounded-full bg-[#94A3B8]"></span>
             <span>Whistleblowing</span>
-            <span class="font-bold text-slate-900 text-right">{{ $wbCount }}</span>
+            <span id="count-wb" class="font-bold text-slate-900 text-right">{{ $wbCount }}</span>
 
             </div>
           </div>
@@ -216,7 +207,7 @@
             <div class="min-w-0">
               <div class="text-xs font-medium text-slate-500 leading-tight">Perlu penanganan</div>
               <div class="text-2xl font-bold text-slate-900 mt-0.5 leading-tight">
-                {{ ($counts['diajukan'] ?? 0) > 0 ? $counts['diajukan'] : 0 }}
+                <span id="stat-perlu-penanganan">{{ $counts['diajukan'] ?? 0 }}</span>
               </div>
             </div>
           </div>
@@ -231,7 +222,7 @@
             <div class="min-w-0">
               <div class="text-xs font-medium text-slate-500 leading-tight">Dalam Penanganan</div>
               <div class="text-2xl font-bold text-slate-900 mt-0.5 leading-tight">
-                {{ ($counts['proses'] ?? 0) + ($counts['didisposisi'] ?? 0) > 0 ? ($counts['proses'] + $counts['didisposisi']) : 48 }}
+                <span id="stat-dalam-penanganan">{{ ($counts['proses'] ?? 0) + ($counts['didisposisi'] ?? 0) }}</span>
               </div>
             </div>
           </div>
@@ -246,7 +237,7 @@
             <div class="min-w-0">
               <div class="text-xs font-medium text-slate-500 leading-tight">Menunggu Verifikasi</div>
               <div class="text-2xl font-bold text-slate-900 mt-0.5 leading-tight">
-                {{ ($counts['verifikasi'] ?? 0) > 0 ? $counts['verifikasi'] : 0 }}
+                <span id="stat-menunggu-verifikasi">{{ $counts['verifikasi'] ?? 0 }}</span>
               </div>
             </div>
           </div>
@@ -263,16 +254,16 @@
           </div>
 
           <!-- Notes List -->
-          <div class="space-y-3.5 my-2.5 overflow-y-auto max-h-[220px] custom-scroll pr-1">
+          <div id="notes-list-container" class="space-y-3.5 my-2.5 overflow-y-auto max-h-[220px] custom-scroll pr-1">
             @forelse ($recentNotes ?? [] as $note)
               <div class="space-y-1.5">
                 <div class="flex items-center gap-2.5">
                   <div class="w-8 h-8 rounded-full bg-[#CCFBF1] text-[#0D9488] flex items-center justify-center font-bold text-xs shrink-0">
-                    {{ strtoupper(substr($note->sender?->name ?? 'F', 0, 1)) }}
+                    {{ strtoupper(substr($note->sender?->name ?? 'P', 0, 1)) }}
                   </div>
                   <div class="min-w-0">
-                    <div class="text-xs font-semibold text-slate-900 truncate">{{ $note->sender?->name ?? 'Kasubag' }}</div>
-                    <div class="text-[10px] text-slate-400">{{ $note->sender?->subDepartment?->name ?? 'Sub Bagian' }}</div>
+                    <div class="text-xs font-semibold text-slate-900 truncate">{{ $note->sender?->name ?? 'Pengirim' }}</div>
+                    <div class="text-[10px] text-slate-400">{{ $note->sender?->subDepartment?->name ?? ($note->sender?->role === 'kasubag' ? 'KASUBAG' : ($note->sender?->role === 'petugas' ? 'Petugas' : 'Sub Bagian')) }}</div>
                   </div>
                   <span class="text-[10px] text-slate-400 ml-auto shrink-0">{{ $note->created_at->format('d M • H:i') }}</span>
                 </div>
@@ -282,12 +273,12 @@
                 </div>
               </div>
             @empty
-         <div class="py-8 text-center text-slate-400">
+              <div class="py-8 text-center text-slate-400">
                 <svg class="w-8 h-8 text-slate-300 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                 </svg>
-                <p class="text-xs font-semibold text-slate-600">Belum ada catatan atau komentar</p>
-                <p class="text-[11px] text-slate-400 mt-0.5">Catatan disposisi dan penyelesaian laporan akan muncul di sini.</p>
+                <p class="text-xs font-semibold text-slate-600">Tidak ada data</p>
+                <p class="text-[11px] text-slate-400 mt-0.5">Belum ada catatan atau komentar yang diterima.</p>
               </div>
             @endforelse
           </div>
@@ -364,91 +355,8 @@
                   <th class="py-3 px-3 text-right">Aksi</th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-slate-100">
-                @forelse ($reports as $index => $report)
-                  <tr class="hover:bg-slate-50/70 transition">
-                    <td class="py-3.5 px-3 text-center font-bold text-slate-700">
-                      {{ $reports->firstItem() ? $reports->firstItem() + $index : $index + 1 }}
-                    </td>
-                    <td class="py-3.5 px-3">
-                      <div class="font-bold text-slate-800 text-[13px] leading-snug line-clamp-1">{{ $report->title }}</div>
-                      <div class="text-[10.5px] text-slate-400 mt-0.5">Tiket: {{ $report->ticket_code }} • Kampus {{ $report->campus_location }}</div>
-                    </td>
-                    <td class="py-3.5 px-3">
-                      <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-[#EFF6FF] text-[#1D4ED8] border border-[#DBEAFE]">
-                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
-                        <span>{{ $report->subDepartment?->name ? (str_contains($report->subDepartment->name, 'Sarana') ? 'Sarpras' : (str_contains($report->subDepartment->name, 'Pendidikan') ? 'Akademik' : (str_contains($report->subDepartment->name, 'SDM') ? 'Keuangan & SDM' : 'Dekanat'))) : 'Dekanat' }}</span>
-                      </span>
-                    </td>
-                    <td class="py-3.5 px-3 text-slate-600">
-                      <div class="font-medium text-[11.5px]">{{ $report->created_at->format('d M Y') }}</div>
-                      <div class="text-[10px] text-slate-400">{{ $report->created_at->format('H:i') }}</div>
-                    </td>
-                    <td class="py-3.5 px-3">
-                      @if ($report->status === 'diajukan')
-                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[#FFFBEB] text-[#D97706] border border-[#FDE68A]">
-                          <span class="w-1.5 h-1.5 rounded-full bg-[#F59E0B]"></span>
-                          <span>Diajukan</span>
-                        </span>
-                      @elseif (in_array($report->status, ['proses', 'didisposisi', 'diterima']))
-                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[#EFF6FF] text-[#2563EB] border border-[#BFDBFE]">
-                          <span class="w-1.5 h-1.5 rounded-full bg-[#3B82F6]"></span>
-                          <span>Dalam Proses</span>
-                        </span>
-                      @elseif ($report->status === 'verifikasi_kabag')
-                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[#F5F3FF] text-[#7C3AED] border border-[#DDD6FE]">
-                          <span class="w-1.5 h-1.5 rounded-full bg-[#8B5CF6]"></span>
-                          <span>Verifikasi</span>
-                        </span>
-                      @elseif ($report->status === 'selesai')
-                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[#ECFDF5] text-[#059669] border border-[#A7F3D0]">
-                          <span class="w-1.5 h-1.5 rounded-full bg-[#10B981]"></span>
-                          <span>Selesai</span>
-                        </span>
-                      @else
-                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200">
-                          <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
-                          <span>Ditolak</span>
-                        </span>
-                      @endif
-                    </td>
-                    <td class="py-3.5 px-3 text-right">
-                      <a href="{{ route('kabag.show', $report) }}"
-                         class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl border border-[#0D9488] text-[#0D9488] hover:bg-[#0D9488] hover:text-white transition font-bold text-xs shadow-xs">
-                        <span>Lihat Detail</span>
-                      </a>
-                    </td>
-                  </tr>
-                @empty
-                <tr>
-                    <td colspan="7" class="py-14 px-4 text-center">
-                      <div class="flex flex-col items-center justify-center max-w-sm mx-auto">
-                        <div class="w-14 h-14 rounded-2xl bg-[#CCFBF1]/60 border border-[#99F6E4] flex items-center justify-center text-[#0a8080] mb-3 shadow-xs">
-                          <svg class="w-7 h-7 text-[#0a8080]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                          </svg>
-                        </div>
-                        <h4 class="text-sm font-bold text-slate-800">Laporan Tidak Ditemukan</h4>
-                        <p class="text-xs text-slate-500 mt-1 leading-relaxed">
-                          @if (request()->hasAny(['search', 'sub_department_id', 'status', 'date', 'start_date', 'end_date']))
-                            Tidak ada data laporan yang cocok dengan filter yang Anda tentukan. Silakan ubah filter atau klik tombol reset di bawah.
-                          @else
-                            Saat ini belum ada data laporan pelayanan yang masuk ke dalam sistem.
-                          @endif
-                        </p>
-                        @if (request()->hasAny(['search', 'sub_department_id', 'status', 'date', 'start_date', 'end_date']))
-                          <a href="{{ route('kabag.laporan-pelayanan') }}"
-                             class="mt-4 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#0a8080] hover:bg-[#086666] text-white text-xs font-semibold transition shadow-xs">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                            </svg>
-                            <span>Reset Semua Filter</span>
-                          </a>
-                        @endif
-                      </div>
-                    </td>
-                </tr>
-                @endforelse
+              <tbody id="reports-table-body" class="divide-y divide-slate-100">
+                @include('kabag.partials.dashboard_table_rows', ['reports' => $reports])
               </tbody>
             </table>
           </div>
@@ -477,7 +385,7 @@
           </div>
 
           <!-- Whistleblower Items List -->
-          <div class="divide-y divide-slate-100">
+          <div id="whistleblower-list-container" class="divide-y divide-slate-100">
             @forelse ($whistleblowerReports as $wb)
               <a href="{{ route('kabag.whistleblowing') }}" class="py-3 flex items-center justify-between gap-3 hover:bg-slate-50/70 -mx-2 px-2 rounded-xl transition group">
                 <div class="flex items-center gap-3 min-w-0">
@@ -490,7 +398,7 @@
                     <div class="font-semibold text-slate-900 text-xs truncate">{{ $wb->title }}</div>
                     <div class="flex items-center gap-2 mt-0.5">
                       <span class="px-2 py-0.5 rounded-md bg-[#EFF6FF] text-[#1D4ED8] text-[9.5px] font-semibold">
-                        {{ $wb->subDepartment?->name ? (str_contains($wb->subDepartment->name, 'Sarana') ? 'Sarpras' : (str_contains($wb->subDepartment->name, 'Pendidikan') ? 'Akademik' : 'Umum')) : 'Umum' }}
+                        {{ $wb->subDepartment?->name ? (str_contains($wb->subDepartment->name, 'Sarana') ? 'Sarpras' : (str_contains($wb->subDepartment->name, 'Pendidikan') ? 'Akademik' : (str_contains($wb->subDepartment->name, 'SDM') ? 'SDM' : 'Dekanat'))) : 'Umum' }}
                       </span>
                       <span class="text-[10px] text-slate-400">{{ $wb->created_at->diffForHumans() }}</span>
                     </div>
@@ -501,88 +409,216 @@
                 </svg>
               </a>
             @empty
-              <!-- FigCraft Sample WB Items -->
-              <a href="{{ route('kabag.whistleblowing') }}" class="py-3 flex items-center justify-between gap-3 hover:bg-slate-50/70 -mx-2 px-2 rounded-xl transition group">
-                <div class="flex items-center gap-3 min-w-0">
-                  <div class="w-9 h-9 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center shrink-0 group-hover:bg-[#CCFBF1] group-hover:text-[#0D9488] transition">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
-                  </div>
-                  <div class="min-w-0">
-                    <div class="font-semibold text-slate-900 text-xs truncate">Pelecehan petugas</div>
-                    <div class="flex items-center gap-2 mt-0.5">
-                      <span class="px-2 py-0.5 rounded-md bg-[#EFF6FF] text-[#1D4ED8] text-[9.5px] font-semibold">Sarpras</span>
-                      <span class="text-[10px] text-slate-400">2 jam yang lalu</span>
-                    </div>
-                  </div>
-                </div>
-                <svg class="w-4 h-4 text-slate-300 group-hover:text-[#0D9488] shrink-0 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
-              </a>
-
-              <a href="{{ route('kabag.whistleblowing') }}" class="py-3 flex items-center justify-between gap-3 hover:bg-slate-50/70 -mx-2 px-2 rounded-xl transition group">
-                <div class="flex items-center gap-3 min-w-0">
-                  <div class="w-9 h-9 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center shrink-0 group-hover:bg-[#CCFBF1] group-hover:text-[#0D9488] transition">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
-                  </div>
-                  <div class="min-w-0">
-                    <div class="font-semibold text-slate-900 text-xs truncate">Petugas tidak disiplin</div>
-                    <div class="flex items-center gap-2 mt-0.5">
-                      <span class="px-2 py-0.5 rounded-md bg-[#EFF6FF] text-[#1D4ED8] text-[9.5px] font-semibold">Sarpras</span>
-                      <span class="text-[10px] text-slate-400">2 jam yang lalu</span>
-                    </div>
-                  </div>
-                </div>
-                <svg class="w-4 h-4 text-slate-300 group-hover:text-[#0D9488] shrink-0 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
-              </a>
-
-              <a href="{{ route('kabag.whistleblowing') }}" class="py-3 flex items-center justify-between gap-3 hover:bg-slate-50/70 -mx-2 px-2 rounded-xl transition group">
-                <div class="flex items-center gap-3 min-w-0">
-                  <div class="w-9 h-9 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center shrink-0 group-hover:bg-[#CCFBF1] group-hover:text-[#0D9488] transition">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
-                  </div>
-                  <div class="min-w-0">
-                    <div class="font-semibold text-slate-900 text-xs truncate">Kerusakan AC di Ruang kelas 3.2</div>
-                    <div class="flex items-center gap-2 mt-0.5">
-                      <span class="px-2 py-0.5 rounded-md bg-[#EFF6FF] text-[#1D4ED8] text-[9.5px] font-semibold">Sarpras</span>
-                      <span class="text-[10px] text-slate-400">2 jam yang lalu</span>
-                    </div>
-                  </div>
-                </div>
-                <svg class="w-4 h-4 text-slate-300 group-hover:text-[#0D9488] shrink-0 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
-              </a>
-
-              <a href="{{ route('kabag.whistleblowing') }}" class="py-3 flex items-center justify-between gap-3 hover:bg-slate-50/70 -mx-2 px-2 rounded-xl transition group">
-                <div class="flex items-center gap-3 min-w-0">
-                  <div class="w-9 h-9 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center shrink-0 group-hover:bg-[#CCFBF1] group-hover:text-[#0D9488] transition">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
-                  </div>
-                  <div class="min-w-0">
-                    <div class="font-semibold text-slate-900 text-xs truncate">Kerusakan AC di Ruang kelas 3.2</div>
-                    <div class="flex items-center gap-2 mt-0.5">
-                      <span class="px-2 py-0.5 rounded-md bg-[#EFF6FF] text-[#1D4ED8] text-[9.5px] font-semibold">Sarpras</span>
-                      <span class="text-[10px] text-slate-400">2 jam yang lalu</span>
-                    </div>
-                  </div>
-                </div>
-                <svg class="w-4 h-4 text-slate-300 group-hover:text-[#0D9488] shrink-0 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
-              </a>
-
-              <a href="{{ route('kabag.whistleblowing') }}" class="py-3 flex items-center justify-between gap-3 hover:bg-slate-50/70 -mx-2 px-2 rounded-xl transition group">
-                <div class="flex items-center gap-3 min-w-0">
-                  <div class="w-9 h-9 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center shrink-0 group-hover:bg-[#CCFBF1] group-hover:text-[#0D9488] transition">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
-                  </div>
-                  <div class="min-w-0">
-                    <div class="font-semibold text-slate-900 text-xs truncate">Kerusakan AC di Ruang kelas 3.2</div>
-                    <div class="flex items-center gap-2 mt-0.5">
-                      <span class="px-2 py-0.5 rounded-md bg-[#EFF6FF] text-[#1D4ED8] text-[9.5px] font-semibold">Sarpras</span>
-                      <span class="text-[10px] text-slate-400">2 jam yang lalu</span>
-                    </div>
-                  </div>
-                </div>
-                <svg class="w-4 h-4 text-slate-300 group-hover:text-[#0D9488] shrink-0 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
-              </a>
+              <div class="py-8 text-center text-slate-400">
+                <svg class="w-8 h-8 text-slate-300 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                <p class="text-xs font-semibold text-slate-600">Tidak ada data</p>
+                <p class="text-[11px] text-slate-400 mt-0.5">Belum ada laporan whistleblower yang masuk.</p>
+              </div>
             @endforelse
           </div>
+
+        </div>
+
+      </div>
+
+    </main>
+
+  </div>
+
+  <script>
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    async function fetchDashboardRealtime() {
+      try {
+        const response = await fetch("{{ route('kabag.dashboard') }}?realtime=1", {
+          headers: {
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+          }
+        });
+
+        if (!response.ok) return;
+        const data = await response.json();
+
+        // 1. Update Stat Cards
+        const statPerlu = document.getElementById('stat-perlu-penanganan');
+        if (statPerlu) statPerlu.textContent = data.counts.diajukan ?? 0;
+
+        const statProses = document.getElementById('stat-dalam-penanganan');
+        if (statProses) statProses.textContent = data.counts.dalam_penanganan ?? 0;
+
+        const statVerif = document.getElementById('stat-menunggu-verifikasi');
+        if (statVerif) statVerif.textContent = data.counts.verifikasi ?? 0;
+
+        // 2. Update Total Center Text & Legend
+        const chartTotalEl = document.getElementById('chart-total-count');
+        if (chartTotalEl) chartTotalEl.textContent = data.distribution.total ?? 0;
+
+        const elPend = document.getElementById('count-pendidikan');
+        if (elPend) elPend.textContent = data.distribution.pendidikan ?? 0;
+
+        const elKeu = document.getElementById('count-keuangan');
+        if (elKeu) elKeu.textContent = data.distribution.keuangan ?? 0;
+
+        const elSar = document.getElementById('count-sarpras');
+        if (elSar) elSar.textContent = data.distribution.sarpras ?? 0;
+
+        const elSdm = document.getElementById('count-sdm');
+        if (elSdm) elSdm.textContent = data.distribution.sdm ?? 0;
+
+        const elWb = document.getElementById('count-wb');
+        if (elWb) elWb.textContent = data.distribution.whistleblowing ?? 0;
+
+        // 3. Update Donut Chart SVG Segments
+        const circumference = 2 * Math.PI * 38; // ~238.76
+        const total = data.distribution.total ?? 0;
+
+        const circlePendidikan = document.getElementById('circle-pendidikan');
+        const circleKeuangan = document.getElementById('circle-keuangan');
+        const circleSarpras = document.getElementById('circle-sarpras');
+        const circleSDM = document.getElementById('circle-sdm');
+        const circleWB = document.getElementById('circle-wb');
+
+        if (total <= 0) {
+          if (circlePendidikan) circlePendidikan.setAttribute('stroke-dasharray', `0 ${circumference}`);
+          if (circleKeuangan) circleKeuangan.setAttribute('stroke-dasharray', `0 ${circumference}`);
+          if (circleSarpras) circleSarpras.setAttribute('stroke-dasharray', `0 ${circumference}`);
+          if (circleSDM) circleSDM.setAttribute('stroke-dasharray', `0 ${circumference}`);
+          if (circleWB) circleWB.setAttribute('stroke-dasharray', `0 ${circumference}`);
+        } else {
+          const pPend = (data.distribution.pendidikan / total) * circumference;
+          const pKeu = (data.distribution.keuangan / total) * circumference;
+          const pSar = (data.distribution.sarpras / total) * circumference;
+          const pSdm = (data.distribution.sdm / total) * circumference;
+          const pWb = (data.distribution.whistleblowing / total) * circumference;
+
+          const off1 = 0;
+          const off2 = off1 - pPend;
+          const off3 = off2 - pKeu;
+          const off4 = off3 - pSar;
+          const off5 = off4 - pSdm;
+
+          if (circlePendidikan) {
+            circlePendidikan.setAttribute('stroke-dasharray', `${pPend} ${circumference - pPend}`);
+            circlePendidikan.setAttribute('stroke-dashoffset', off1);
+          }
+          if (circleKeuangan) {
+            circleKeuangan.setAttribute('stroke-dasharray', `${pKeu} ${circumference - pKeu}`);
+            circleKeuangan.setAttribute('stroke-dashoffset', off2);
+          }
+          if (circleSarpras) {
+            circleSarpras.setAttribute('stroke-dasharray', `${pSar} ${circumference - pSar}`);
+            circleSarpras.setAttribute('stroke-dashoffset', off3);
+          }
+          if (circleSDM) {
+            circleSDM.setAttribute('stroke-dasharray', `${pSdm} ${circumference - pSdm}`);
+            circleSDM.setAttribute('stroke-dashoffset', off4);
+          }
+          if (circleWB) {
+            circleWB.setAttribute('stroke-dasharray', `${pWb} ${circumference - pWb}`);
+            circleWB.setAttribute('stroke-dashoffset', off5);
+          }
+        }
+
+        // 4. Update Catatan / Komentar
+        const notesContainer = document.getElementById('notes-list-container');
+        if (notesContainer && data.recent_notes) {
+          if (data.recent_notes.length === 0) {
+            notesContainer.innerHTML = `
+              <div class="py-8 text-center text-slate-400">
+                <svg class="w-8 h-8 text-slate-300 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                </svg>
+                <p class="text-xs font-semibold text-slate-600">Tidak ada data</p>
+                <p class="text-[11px] text-slate-400 mt-0.5">Belum ada catatan atau komentar yang diterima.</p>
+              </div>
+            `;
+          } else {
+            notesContainer.innerHTML = data.recent_notes.map(note => `
+              <div class="space-y-1.5">
+                <div class="flex items-center gap-2.5">
+                  <div class="w-8 h-8 rounded-full bg-[#CCFBF1] text-[#0D9488] flex items-center justify-center font-bold text-xs shrink-0">
+                    ${escapeHtml(note.sender_initial)}
+                  </div>
+                  <div class="min-w-0">
+                    <div class="text-xs font-semibold text-slate-900 truncate">${escapeHtml(note.sender_name)}</div>
+                    <div class="text-[10px] text-slate-400">${escapeHtml(note.sender_unit)}</div>
+                  </div>
+                  <span class="text-[10px] text-slate-400 ml-auto shrink-0">${escapeHtml(note.time_formatted)}</span>
+                </div>
+                <div class="bg-[#F8FAFC] border border-slate-100 rounded-xl p-2.5 text-xs text-slate-600">
+                  <div class="font-semibold text-slate-900 mb-0.5 line-clamp-1">${escapeHtml(note.report_title)}</div>
+                  <p class="text-[11px] text-slate-500 line-clamp-2">${escapeHtml(note.notes)}</p>
+                </div>
+              </div>
+            `).join('');
+          }
+        }
+
+        // 5. Update Whistleblower List
+        const wbContainer = document.getElementById('whistleblower-list-container');
+        if (wbContainer && data.whistleblower_reports) {
+          if (data.whistleblower_reports.length === 0) {
+            wbContainer.innerHTML = `
+              <div class="py-8 text-center text-slate-400">
+                <svg class="w-8 h-8 text-slate-300 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                <p class="text-xs font-semibold text-slate-600">Tidak ada data</p>
+                <p class="text-[11px] text-slate-400 mt-0.5">Belum ada laporan whistleblower yang masuk.</p>
+              </div>
+            `;
+          } else {
+            wbContainer.innerHTML = data.whistleblower_reports.map(wb => `
+              <a href="${wb.url}" class="py-3 flex items-center justify-between gap-3 hover:bg-slate-50/70 -mx-2 px-2 rounded-xl transition group">
+                <div class="flex items-center gap-3 min-w-0">
+                  <div class="w-9 h-9 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center shrink-0 group-hover:bg-[#CCFBF1] group-hover:text-[#0D9488] transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                  </div>
+                  <div class="min-w-0">
+                    <div class="font-semibold text-slate-900 text-xs truncate">${escapeHtml(wb.title)}</div>
+                    <div class="flex items-center gap-2 mt-0.5">
+                      <span class="px-2 py-0.5 rounded-md bg-[#EFF6FF] text-[#1D4ED8] text-[9.5px] font-semibold">${escapeHtml(wb.unit_badge)}</span>
+                      <span class="text-[10px] text-slate-400">${escapeHtml(wb.time_ago)}</span>
+                    </div>
+                  </div>
+                </div>
+                <svg class="w-4 h-4 text-slate-300 group-hover:text-[#0D9488] shrink-0 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+              </a>
+            `).join('');
+          }
+        }
+
+        // 6. Update Table Rows (if user is not actively on a custom search/filter url)
+        const params = new URLSearchParams(window.location.search);
+        if (!params.has('sub_department_id') && !params.has('status') && !params.has('page') && data.table_html) {
+          const tableBody = document.getElementById('reports-table-body');
+          if (tableBody) {
+            tableBody.innerHTML = data.table_html;
+          }
+        }
+      } catch (err) {
+        // Silent catch for background polling
+      }
+    }
+
+    // Poll every 5 seconds
+    setInterval(fetchDashboardRealtime, 5000);
+  </script>
 
         </div>
 

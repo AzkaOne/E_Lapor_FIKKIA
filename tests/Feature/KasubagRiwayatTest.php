@@ -98,9 +98,10 @@ class KasubagRiwayatTest extends TestCase
         $response->assertStatus(200);
         $response->assertViewIs('kasubag.riwayat_kasubag');
 
-        // Should see completed reports belonging to this Kasubag's unit
+        // Should see completed and verification reports belonging to this Kasubag's unit
         $response->assertSee('Perbaikan Lampu Lab Gigi Selesai');
         $response->assertSee('Penggantian Pintu Ruang 101 Ditunda');
+        $response->assertSee('Laporan Menunggu Verifikasi Kabag');
         $response->assertSee('LP-KSB-SELESAI-TL');
         $response->assertSee('LP-KSB-SELESAI-TT');
         $response->assertSee('Terlaksana');
@@ -113,8 +114,7 @@ class KasubagRiwayatTest extends TestCase
         $response->assertSee('Tanggal Selesai');
         $response->assertSee('Total Selesai');
 
-        // Should NOT see uncompleted, rejected, or other unit reports
-        $response->assertDontSee('Laporan Menunggu Verifikasi Kabag');
+        // Should NOT see uncompleted (in-progress/new), rejected, or other unit reports
         $response->assertDontSee('Laporan Sedang Dikerjakan Petugas');
         $response->assertDontSee('Laporan Ditolak');
         $response->assertDontSee('Laporan Akademik Selesai');

@@ -67,4 +67,73 @@ class WhistleblowingTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('Kode tiket tidak ditemukan');
     }
+
+    public function test_tracking_renders_comprehensive_information_process_evidences_and_header_auth(): void
+    {
+        $dept = SubDepartment::create(['name' => 'Sarana & Prasarana', 'code' => 'SARPRAS']);
+        $officer = \App\Models\User::factory()->create(['role' => 'petugas', 'name' => 'Budi Santoso']);
+        $kabag = \App\Models\User::factory()->create(['role' => 'kabag', 'name' => 'Dr. Bambang']);
+
+        $report = Report::create([
+            'type' => 'pelayanan',
+            'ticket_code' => 'LP-2026-DETAIL',
+            'campus_location' => 'mojo',
+            'sub_department_id' => $dept->id,
+            'handler_id' => $officer->id,
+            'title' => 'Kerusakan AC Ruang Kuliah 301',
+            'description' => 'AC di ruang 301 mati total dan bocor air sejak kemarin pagi.',
+            'status' => 'proses',
+            'resolution_notes' => 'Petugas telah mengganti kompresor AC dan membersihkan filter.',
+        ]);
+
+        \App\Models\ReportEvidence::create([
+            'report_id' => $report->id,
+            'file_path' => 'evidences/pelapor_rusak.jpg',
+            'type' => 'initial',
+        ]);
+
+        \App\Models\ReportEvidence::create([
+            'report_id' => $report->id,
+            'file_path' => 'evidences/petugas_selesai.jpg',
+            'type' => 'resolution',
+        ]);
+
+        \App\Models\ReportDisposition::create([
+            'report_id' => $report->id,
+            'sender_id' => $kabag->id,
+            'receiver_id' => $officer->id,
+            'notes' => 'Segera cek dan perbaiki hari ini juga.',
+        ]);
+
+        $response = $this->get('/tracking?ticket_code=LP-2026-DETAIL');
+
+        $response->assertStatus(200);
+
+        // Header Auth check
+        $response->assertSee('Fakultas Ilmu Kesehatan');
+        $response->assertSee('unair_header_logo.png');
+
+        // Information check
+        $response->assertSee('LP-2026-DETAIL');
+        $response->assertSee('Kerusakan AC Ruang Kuliah 301');
+        $response->assertSee('AC di ruang 301 mati total dan bocor air');
+        $response->assertSee('Kampus Mojo');
+        $response->assertSee('Sarana & Prasarana');
+        $response->assertSee('Budi Santoso');
+
+        // Process Timeline check
+        $response->assertSee('Alur Penanganan Laporan');
+        $response->assertSee('Laporan Diajukan');
+
+        // Evidence check (Pelapor and Petugas)
+        $response->assertSee('pelapor_rusak.jpg');
+        $response->assertSee('petugas_selesai.jpg');
+        $response->assertSee('Bukti Awal dari Pelapor');
+        $response->assertSee('Bukti Pengerjaan dari Petugas');
+
+        // Notes and Dispositions check
+        $response->assertSee('Petugas telah mengganti kompresor AC');
+        $response->assertSee('Segera cek dan perbaiki hari ini juga.');
+        $response->assertSee('Dr. Bambang');
+    }
 }

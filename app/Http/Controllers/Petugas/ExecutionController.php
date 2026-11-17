@@ -142,10 +142,12 @@ class ExecutionController extends Controller
             ]);
         }
 
+        $kabag = User::where('role', 'kabag')->first();
+
         ReportDisposition::create([
             'report_id' => $report->id,
             'sender_id' => auth()->id(),
-            'receiver_id' => null,
+            'receiver_id' => $kabag?->id,
             'notes' => !empty($validated['notes']) ? $validated['notes'] : ('Petugas telah menyelesaikan pekerjaan (' . $validated['execution_result'] . ') dan meneruskan laporan ke KABAG untuk verifikasi akhir.'),
         ]);
 

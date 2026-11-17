@@ -359,11 +359,13 @@ class KabagDetailActionsTest extends TestCase
             'notes' => 'Menunggu suku cadang engsel pintu.',
             'evidence' => $evidenceFile,
         ]);
-        $postResponse->assertRedirect(route('kasubag.laporan-masuk'));
+        $postResponse->assertRedirect(route('kasubag.history'));
 
-        // Report has moved back to Laporan Masuk and is gone from Laporan Saya
+        // Report has moved to Riwayat and is gone from Laporan Masuk and Laporan Saya
         $this->actingAs($kasubag)->get(route('kasubag.my-reports'))->assertDontSee('LP-KASUBAG-SELF');
-        $this->actingAs($kasubag)->get(route('kasubag.laporan-masuk'))->assertSee('LP-KASUBAG-SELF');
+        $this->actingAs($kasubag)->get(route('kasubag.laporan-masuk'))->assertDontSee('LP-KASUBAG-SELF');
+        $this->actingAs($kasubag)->get(route('kasubag.history'))->assertSee('LP-KASUBAG-SELF');
+        $this->actingAs($kasubag)->get(route('kasubag.history'))->assertSee('Tertunda');
 
         // Check database
         $this->assertEquals('verifikasi_kabag', $report->fresh()->status);

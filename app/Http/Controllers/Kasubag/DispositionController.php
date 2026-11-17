@@ -56,6 +56,8 @@ class DispositionController extends Controller
             'notes' => ['required', 'string'],
         ]);
 
+        $kabag = User::where('role', 'kabag')->first();
+
         $report->status = 'diajukan';
         $report->handler_id = null;
         $report->save();
@@ -63,7 +65,7 @@ class DispositionController extends Controller
         ReportDisposition::create([
             'report_id' => $report->id,
             'sender_id' => auth()->id(),
-            'receiver_id' => null,
+            'receiver_id' => $kabag?->id,
             'notes' => $validated['notes'],
         ]);
 
@@ -147,14 +149,16 @@ class DispositionController extends Controller
             ]);
         }
 
+        $kabag = User::where('role', 'kabag')->first();
+
         ReportDisposition::create([
             'report_id' => $report->id,
             'sender_id' => auth()->id(),
-            'receiver_id' => null,
+            'receiver_id' => $kabag?->id,
             'notes' => !empty($validated['notes']) ? $validated['notes'] : ('Kasubag telah menyelesaikan pengerjaan mandiri (' . $validated['execution_result'] . ') dan meneruskan ke KABAG untuk verifikasi akhir.'),
         ]);
 
-        return redirect()->route('kasubag.laporan-masuk')
+        return redirect()->route('kasubag.history')
             ->with('success', 'Pengerjaan laporan berhasil dikirim ke KABAG untuk tahap verifikasi.');
     }
 }

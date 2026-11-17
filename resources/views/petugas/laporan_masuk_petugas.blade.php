@@ -290,7 +290,17 @@
 
                     <!-- Status -->
                     <td class="py-4 px-3.5 whitespace-nowrap">
-                      @if ($report->status === 'diajukan' || $report->status === 'didisposisi' || $report->status === 'diterima')
+                      @if ($report->execution_result === 'terlaksana' || $report->status === 'selesai')
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[#ECFDF5] text-[#059669] border border-[#A7F3D0]">
+                          <span class="w-1.5 h-1.5 rounded-full bg-[#10B981]"></span>
+                          <span>Terlaksana</span>
+                        </span>
+                      @elseif ($report->execution_result === 'tertunda')
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[#FEF2F2] text-[#B91C1C] border border-[#FECACA]">
+                          <span class="w-1.5 h-1.5 rounded-full bg-[#EF4444]"></span>
+                          <span>Tertunda</span>
+                        </span>
+                      @elseif ($report->status === 'diajukan' || $report->status === 'didisposisi' || $report->status === 'diterima')
                         <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[#FFFBEB] text-[#D97706] border border-[#FDE68A]">
                           <span class="w-1.5 h-1.5 rounded-full bg-[#F59E0B]"></span>
                           <span>{{ $report->status === 'diterima' ? 'Menunggu Mulai' : 'Laporan Masuk' }}</span>
@@ -305,15 +315,10 @@
                           <span class="w-1.5 h-1.5 rounded-full bg-[#8B5CF6]"></span>
                           <span>Verifikasi Kabag</span>
                         </span>
-                      @elseif ($report->status === 'selesai')
-                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[#ECFDF5] text-[#059669] border border-[#A7F3D0]">
-                          <span class="w-1.5 h-1.5 rounded-full bg-[#10B981]"></span>
-                          <span>Terlaksana</span>
-                        </span>
                       @else
                         <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200">
                           <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
-                          <span>Tertunda</span>
+                          <span>{{ ucfirst($report->status) }}</span>
                         </span>
                       @endif
                     </td>

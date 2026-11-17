@@ -174,7 +174,11 @@
 
       <!-- ================= BREADCRUMB ================= -->
       <nav class="flex items-center gap-2 text-xs sm:text-sm text-slate-500 font-medium">
-        <a href="{{ $isPetugas ? route('petugas.laporan-masuk') : ($isKasubag ? route('kasubag.status') : route('kabag.laporan-pelayanan')) }}" class="hover:text-[#2E978E] transition">Laporan Masuk</a>
+        @if ($report->type === 'whistleblowing')
+          <a href="{{ route('kabag.whistleblowing') }}" class="hover:text-[#2E978E] transition">Whistleblowing</a>
+        @else
+          <a href="{{ $isPetugas ? route('petugas.laporan-masuk') : ($isKasubag ? route('kasubag.status') : route('kabag.laporan-pelayanan')) }}" class="hover:text-[#2E978E] transition">Laporan Masuk</a>
+        @endif
         <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
         </svg>
@@ -222,7 +226,7 @@
                 {{ $report->title }}
               </h2>
               <div class="flex items-center gap-2 text-xs text-slate-500 mt-1">
-                <span class="font-medium text-slate-600">Laporan Pelayanan</span>
+                <span class="font-medium text-slate-600">{{ $report->type === 'whistleblowing' ? 'Whistleblowing' : 'Laporan Pelayanan' }}</span>
                 <span>•</span>
                 <span class="font-mono font-semibold text-slate-500">ID: {{ $report->ticket_code }}</span>
               </div>
@@ -240,8 +244,8 @@
               </div>
               <div class="min-w-0">
                 <div class="text-[11px] text-slate-400 font-medium">Pelapor</div>
-                <div class="font-bold text-slate-800 truncate">{{ $report->user?->name ?? 'Ahmad Fauzi' }}</div>
-                <div class="text-[10px] text-slate-500 capitalize">{{ $report->user?->position ?? 'Mahasiswa' }}</div>
+                <div class="font-bold text-slate-800 truncate">{{ $report->type === 'whistleblowing' ? '------' : ($report->user?->name ?? 'Ahmad Fauzi') }}</div>
+                <div class="text-[10px] text-slate-500 capitalize">{{ $report->type === 'whistleblowing' ? '------' : ($report->user?->position ?? 'Mahasiswa') }}</div>
               </div>
             </div>
 
@@ -585,26 +589,26 @@
                 </div>
                 <div class="min-w-0">
                 <div class="text-xs font-bold text-[#0C3934] leading-tight">Data Pelapor</div>
-                <div class="text-[11px] text-slate-700 truncate">{{ $report->user?->name ?? '-' }}</div>
+                <div class="text-[11px] text-slate-700 truncate">{{ $report->type === 'whistleblowing' ? '------' : ($report->user?->name ?? '-') }}</div>
                 </div>
             </div>
 
             <dl class="mt-3 space-y-2.5">
                 <div>
                 <dt class="text-xs font-bold text-[#0C3934]">NIM</dt>
-                <dd class="text-[11px] text-slate-700">{{ $report->user?->identity_number ?? '-' }}</dd>
+                <dd class="text-[11px] text-slate-700">{{ $report->type === 'whistleblowing' ? '------' : ($report->user?->identity_number ?? '-') }}</dd>
                 </div>
                 <div>
                 <dt class="text-xs font-bold text-[#0C3934]">Jabatan</dt>
-                <dd class="text-[11px] text-slate-700 capitalize">{{ $report->user?->position ?? '-' }}</dd>
+                <dd class="text-[11px] text-slate-700 capitalize">{{ $report->type === 'whistleblowing' ? '------' : ($report->user?->position ?? '-') }}</dd>
                 </div>
                 <div>
                 <dt class="text-xs font-bold text-[#0C3934]">No Telpone</dt>
-                <dd class="text-[11px] text-slate-700">{{ $report->user?->phone ?? '-' }}</dd>
+                <dd class="text-[11px] text-slate-700">{{ $report->type === 'whistleblowing' ? '------' : ($report->user?->phone ?? '-') }}</dd>
                 </div>
                 <div>
                 <dt class="text-xs font-bold text-[#0C3934]">Email</dt>
-                <dd class="text-[11px] text-slate-700 break-all">{{ $report->user?->email ?? '-' }}</dd>
+                <dd class="text-[11px] text-slate-700 break-all">{{ $report->type === 'whistleblowing' ? '------' : ($report->user?->email ?? '-') }}</dd>
                 </div>
                 <div class="flex items-end justify-between gap-2">
                 <div class="min-w-0">
@@ -817,10 +821,9 @@
             </div>
 
             <!-- KARTU TINDAKAN -->
-            {{-- <div class="grid grid-cols-1 {{ $isKasubag ? 'sm:grid-cols-3' : 'sm:grid-cols-2' }} gap-3 mt-4"> --}}
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
 
-              @if (!$isKasubag && !$isPetugas)
+              @if (!$isKasubag && !$isPetugas && $report->type !== 'whistleblowing')
                 <!-- 1. Disposisi ke Kasubag (Buka Popup Kasubag & Bidangnya) -->
                 <div @click="showKasubagModal = true"
                      class="rounded-xl border border-[#10B981] bg-[#ECFDF5] hover:bg-[#D1FAE5] p-3.5 cursor-pointer transition flex items-center justify-between gap-2.5 shadow-xs hover:shadow-md hover:scale-[1.01] group">
@@ -839,7 +842,7 @@
                 </div>
               @endif
 
-              @if (!$isPetugas)
+              @if (!$isPetugas && $report->type !== 'whistleblowing')
               <!-- 2. Kirim ke Petugas (Buka Popup Petugas & Bidangnya) -->
               <div @click="showPetugasModal = true"
                    class="rounded-xl border border-[#0369A1] bg-[#DBEAFE] hover:bg-[#BFDBFE] p-3.5 cursor-pointer transition flex items-center justify-between gap-2.5 shadow-xs hover:shadow-md hover:scale-[1.01] group">
@@ -912,7 +915,9 @@
               <!-- State 0: Belum Memilih Checklist -->
               <div x-show="selectedChecklist === ''" class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 text-center">
                 <p class="text-xs text-slate-500 font-medium">
-                  @if ($isPetugas)
+                  @if ($report->type === 'whistleblowing')
+                    Pilih menu checklist <span class="font-bold text-[#6D28D9]">Kerjakan Mandiri</span> untuk menangani langsung pengaduan ini, atau <span class="font-bold text-[#B91C1C]">Tolak Laporan</span> jika laporan tidak relevan.
+                  @elseif ($isPetugas)
                     Pilih menu checklist <span class="font-bold text-[#6D28D9]">Kerjakan Mandiri</span> untuk mulai menangani laporan di lapangan, atau <span class="font-bold text-[#B91C1C]">Tolak Laporan</span> jika ada ketidaksesuaian untuk dikembalikan ke KABAG.
                   @elseif ($isKasubag)
                     Pilih <span class="font-bold text-[#0369A1]">Kirim ke Petugas</span> untuk membuka popup pemilihan nama dan bidangnya, atau klik checklist <span class="font-bold text-[#6D28D9]">Kerjakan Mandiri</span> / <span class="font-bold text-[#B91C1C]">Tolak Laporan</span> lalu klik tombol <span class="font-bold text-slate-700">Lanjutkan</span>.
@@ -1005,74 +1010,84 @@
               default => route('petugas.complete', $report),
             };
           @endphp
-          <!-- COLUMN 2: PILIH TINDAKAN (Laporan Tertunda / Terlaksana) -->
+          {{-- COLUMN 2: PILIH TINDAKAN --}}
           <div class="lg:col-span-5 bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 sm:p-6">
 
             <h3 class="text-base font-bold text-[#0C3934]">Pilih Tindakan</h3>
 
             <form action="{{ $actionRoute }}" method="POST" enctype="multipart/form-data"
-                  @submit="if (!selectedChecklist) { alert('Silakan pilih salah satu tindakan di atas terlebih dahulu (Laporan Tertunda atau Laporan Terlaksana).'); $event.preventDefault(); return false; }">
+                  @if ($report->type !== 'whistleblowing')
+                    @submit="if (!selectedChecklist) { alert('Silakan pilih salah satu tindakan di atas terlebih dahulu (Laporan Tertunda atau Laporan Terlaksana).'); $event.preventDefault(); return false; }"
+                  @endif>
               @csrf
-              <input type="hidden" name="execution_result" :value="selectedChecklist" required>
 
-              <!-- KARTU TINDAKAN -->
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
+              @if ($report->type === 'whistleblowing')
+                <input type="hidden" name="execution_result" value="terlaksana">
+              @else
+                <input type="hidden" name="execution_result" :value="selectedChecklist" required>
 
-                <!-- 1. Laporan Tertunda -->
-                <div @click="selectedChecklist = (selectedChecklist === 'tertunda' ? '' : 'tertunda')"
-                     class="rounded-xl border p-3.5 cursor-pointer transition flex items-center justify-between gap-2.5 shadow-xs hover:shadow-md"
-                     :class="selectedChecklist === 'tertunda' ? 'border-[#B91C1C] bg-[#FEE2E2] ring-2 ring-[#B91C1C]/40' : 'border-[#B91C1C] bg-[#FEE2E2] hover:bg-[#FECACA]'">
-                  <div class="flex items-center gap-2.5 min-w-0">
-                    <div class="w-10 h-10 rounded-xl bg-[#EF4444] text-white flex items-center justify-center shrink-0 shadow-xs">
-                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                <!-- KARTU TINDAKAN -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
+
+                  <!-- 1. Laporan Tertunda -->
+                  <div @click="selectedChecklist = (selectedChecklist === 'tertunda' ? '' : 'tertunda')"
+                       class="rounded-xl border p-3.5 cursor-pointer transition flex items-center justify-between gap-2.5 shadow-xs hover:shadow-md"
+                       :class="selectedChecklist === 'tertunda' ? 'border-[#B91C1C] bg-[#FEE2E2] ring-2 ring-[#B91C1C]/40' : 'border-[#B91C1C] bg-[#FEE2E2] hover:bg-[#FECACA]'">
+                    <div class="flex items-center gap-2.5 min-w-0">
+                      <div class="w-10 h-10 rounded-xl bg-[#EF4444] text-white flex items-center justify-center shrink-0 shadow-xs">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                      </div>
+                      <div class="min-w-0">
+                        <div class="text-xs font-bold text-[#B91C1C] leading-tight">Laporan Tertunda</div>
+                        <p class="text-[10px] sm:text-[10.5px] text-[#B91C1C] mt-0.5 leading-snug">Tugaskan kepada petugas sesuai bidang</p>
+                      </div>
                     </div>
-                    <div class="min-w-0">
-                      <div class="text-xs font-bold text-[#B91C1C] leading-tight">Laporan Tertunda</div>
-                      <p class="text-[10px] sm:text-[10.5px] text-[#B91C1C] mt-0.5 leading-snug">Tugaskan kepada petugas sesuai bidang</p>
+                    <!-- Radio indicator -->
+                    <div class="w-4 h-4 rounded-full border-2 border-[#B91C1C] flex items-center justify-center transition shrink-0"
+                         :class="selectedChecklist === 'tertunda' ? 'bg-[#B91C1C]' : 'bg-transparent'">
+                      <span x-show="selectedChecklist === 'tertunda'" class="w-1.5 h-1.5 rounded-full bg-white"></span>
                     </div>
                   </div>
-                  <!-- Radio indicator -->
-                  <div class="w-4 h-4 rounded-full border-2 border-[#B91C1C] flex items-center justify-center transition shrink-0"
-                       :class="selectedChecklist === 'tertunda' ? 'bg-[#B91C1C]' : 'bg-transparent'">
-                    <span x-show="selectedChecklist === 'tertunda'" class="w-1.5 h-1.5 rounded-full bg-white"></span>
+
+                  <!-- 2. Laporan Terlaksana -->
+                  <div @click="selectedChecklist = (selectedChecklist === 'terlaksana' ? '' : 'terlaksana')"
+                       class="rounded-xl border p-3.5 cursor-pointer transition flex items-center justify-between gap-2.5 shadow-xs hover:shadow-md"
+                       :class="selectedChecklist === 'terlaksana' ? 'border-[#15803D] bg-[#DCFCE7] ring-2 ring-[#15803D]/40' : 'border-[#15803D] bg-[#DCFCE7] hover:bg-[#BBF7D0]'">
+                    <div class="flex items-center gap-2.5 min-w-0">
+                      <div class="w-10 h-10 rounded-xl bg-[#22C55E] text-white flex items-center justify-center shrink-0 shadow-xs">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                      </div>
+                      <div class="min-w-0">
+                        <div class="text-xs font-bold text-[#15803D] leading-tight">Laporan Terlaksana</div>
+                        <p class="text-[10px] sm:text-[10.5px] text-[#15803D] mt-0.5 leading-snug">Ambil alih penanganan laporan ini</p>
+                      </div>
+                    </div>
+                    <!-- Radio indicator -->
+                    <div class="w-4 h-4 rounded-full border-2 border-[#15803D] flex items-center justify-center transition shrink-0"
+                         :class="selectedChecklist === 'terlaksana' ? 'bg-[#15803D]' : 'bg-transparent'">
+                      <span x-show="selectedChecklist === 'terlaksana'" class="w-1.5 h-1.5 rounded-full bg-white"></span>
+                    </div>
                   </div>
+
                 </div>
 
-                <!-- 2. Laporan Terlaksana -->
-                <div @click="selectedChecklist = (selectedChecklist === 'terlaksana' ? '' : 'terlaksana')"
-                     class="rounded-xl border p-3.5 cursor-pointer transition flex items-center justify-between gap-2.5 shadow-xs hover:shadow-md"
-                     :class="selectedChecklist === 'terlaksana' ? 'border-[#15803D] bg-[#DCFCE7] ring-2 ring-[#15803D]/40' : 'border-[#15803D] bg-[#DCFCE7] hover:bg-[#BBF7D0]'">
-                  <div class="flex items-center gap-2.5 min-w-0">
-                    <div class="w-10 h-10 rounded-xl bg-[#22C55E] text-white flex items-center justify-center shrink-0 shadow-xs">
-                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                    </div>
-                    <div class="min-w-0">
-                      <div class="text-xs font-bold text-[#15803D] leading-tight">Laporan Terlaksana</div>
-                      <p class="text-[10px] sm:text-[10.5px] text-[#15803D] mt-0.5 leading-snug">Ambil alih penanganan laporan ini</p>
-                    </div>
-                  </div>
-                  <!-- Radio indicator -->
-                  <div class="w-4 h-4 rounded-full border-2 border-[#15803D] flex items-center justify-center transition shrink-0"
-                       :class="selectedChecklist === 'terlaksana' ? 'bg-[#15803D]' : 'bg-transparent'">
-                    <span x-show="selectedChecklist === 'terlaksana'" class="w-1.5 h-1.5 rounded-full bg-white"></span>
-                  </div>
+                <!-- Callout info -->
+                <div class="mt-5 p-3.5 rounded-xl bg-[#DBEAFE] flex items-start gap-2.5 text-[#1E40AF]">
+                  <div class="w-4 h-4 rounded-full bg-[#1D4ED8] text-white flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">i</div>
+                  <span class="text-[11.5px] leading-snug">Pilih salah satu tindakan di atas untuk melanjutkan proses penanganggan laporan</span>
                 </div>
 
-              </div>
-
-              <!-- Callout info -->
-              <div class="mt-5 p-3.5 rounded-xl bg-[#DBEAFE] flex items-start gap-2.5 text-[#1E40AF]">
-                <div class="w-4 h-4 rounded-full bg-[#1D4ED8] text-white flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">i</div>
-                <span class="text-[11.5px] leading-snug">Pilih salah satu tindakan di atas untuk melanjutkan proses penanganggan laporan</span>
-              </div>
-
-              <hr class="border-slate-200 my-5">
+                <hr class="border-slate-200 my-5">
+              @endif
 
               <!-- Catatan / Komentar -->
-              <label class="block text-base font-bold text-[#0C3934]">Catatan / Komentar</label>
-              <textarea rows="4" maxlength="500" name="notes"
+              <label class="block text-base font-bold text-[#0C3934]">
+                {{ $report->type === 'whistleblowing' ? 'Deskripsi Hasil Pengerjaan / Tindak Lanjut' : 'Catatan / Komentar' }}
+                @if ($report->type === 'whistleblowing') <span class="text-rose-500">*</span> @endif
+              </label>
+              <textarea rows="4" maxlength="500" name="notes" {{ $report->type === 'whistleblowing' ? 'required' : '' }}
                         @input="notesCount = $event.target.value.length"
-                        placeholder="Tambahkan catatan atau komentar"
+                        placeholder="{{ $report->type === 'whistleblowing' ? 'Tuliskan deskripsi hasil tindak lanjut pimpinan atau kesimpulan investigasi...' : 'Tambahkan catatan atau komentar' }}"
                         class="mt-3 w-full px-4 py-3 rounded-xl border border-slate-200 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-[#2E978E] focus:outline-none transition"></textarea>
               <div class="text-right text-[11px] text-slate-400 mt-1.5 pr-1" x-text="notesCount + '/500'">0/500</div>
 
@@ -1101,7 +1116,7 @@
                 <button type="submit"
                         class="px-10 py-2.5 rounded-xl font-bold bg-[#166E65] hover:bg-[#0C3934] text-white text-xs sm:text-sm shadow-sm hover:shadow-md transition inline-flex items-center gap-2 cursor-pointer">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
-                  <span>Lanjutkan</span>
+                  <span>{{ $report->type === 'whistleblowing' ? 'Selesaikan Laporan' : 'Lanjutkan' }}</span>
                 </button>
               </div>
             </form>
@@ -1265,7 +1280,7 @@
 
   </div>
 
-  @if (!$isKasubag && !$isPetugas)
+  @if (!$isKasubag && !$isPetugas && $report->type !== 'whistleblowing')
   <!-- ================= POPUP MODAL DISPOSISI KE KASUBAG ================= -->
   <div x-show="showKasubagModal" style="display: none;"
        class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4"
@@ -1380,7 +1395,7 @@
   </div>
   @endif
 
-  @if (!$isPetugas)
+  @if (!$isPetugas && $report->type !== 'whistleblowing')
   <!-- ================= POPUP MODAL KIRIM KE PETUGAS ================= -->
   <div x-show="showPetugasModal" style="display: none;"
        class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4"

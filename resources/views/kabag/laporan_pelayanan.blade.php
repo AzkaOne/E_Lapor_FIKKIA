@@ -94,6 +94,11 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
             </svg>
             <span>Laporan Saya</span>
+            @if (($counts['saya'] ?? 0) > 0)
+              <span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#CCFBF1] text-[#0A8080]">
+                {{ $counts['saya'] }}
+              </span>
+            @endif
           </a>
 
           <!-- Tab 3: Verifikasi laporan -->
@@ -338,7 +343,17 @@
 
                     <!-- Status -->
                     <td class="py-4 px-3.5">
-                      @if ($report->status === 'diajukan')
+                      @if ($report->execution_result === 'terlaksana' || $report->status === 'selesai')
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[#ECFDF5] text-[#059669] border border-[#A7F3D0]">
+                          <span class="w-1.5 h-1.5 rounded-full bg-[#10B981]"></span>
+                          <span>Terlaksana</span>
+                        </span>
+                      @elseif ($report->execution_result === 'tertunda')
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[#FEF2F2] text-[#B91C1C] border border-[#FECACA]">
+                          <span class="w-1.5 h-1.5 rounded-full bg-[#EF4444]"></span>
+                          <span>Tertunda</span>
+                        </span>
+                      @elseif ($report->status === 'diajukan')
                         <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[#FFFBEB] text-[#D97706] border border-[#FDE68A]">
                           <span class="w-1.5 h-1.5 rounded-full bg-[#F59E0B]"></span>
                           <span>Diajukan</span>
@@ -352,11 +367,6 @@
                         <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[#FAF5FF] text-[#7E22CE] border border-[#F3E8FF]">
                           <span class="w-1.5 h-1.5 rounded-full bg-[#8B5CF6]"></span>
                           <span>Verifikasi</span>
-                        </span>
-                      @elseif ($report->status === 'selesai')
-                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[#ECFDF5] text-[#059669] border border-[#A7F3D0]">
-                          <span class="w-1.5 h-1.5 rounded-full bg-[#10B981]"></span>
-                          <span>Selesai</span>
                         </span>
                       @else
                         <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200">

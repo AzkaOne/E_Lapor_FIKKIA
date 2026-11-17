@@ -65,7 +65,10 @@ Route::middleware(['auth', 'role:kabag'])->prefix('kabag')->name('kabag.')->grou
 
     // User Management (Kasubag & Petugas)
     Route::get('/users', [\App\Http\Controllers\Kabag\UserManagementController::class, 'index'])->name('users.index');
+    Route::get('/manajemen-pegawai', [\App\Http\Controllers\Kabag\UserManagementController::class, 'index'])->name('manajemen-pegawai');
     Route::post('/users', [\App\Http\Controllers\Kabag\UserManagementController::class, 'store'])->name('users.store');
+    Route::put('/users/{user}', [\App\Http\Controllers\Kabag\UserManagementController::class, 'update'])->name('users.update');
+    Route::delete('/users/{user}', [\App\Http\Controllers\Kabag\UserManagementController::class, 'destroy'])->name('users.destroy');
 });
 
 // Kasubag Routes
