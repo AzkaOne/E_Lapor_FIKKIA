@@ -1,5 +1,5 @@
 
-<header class="w-full bg-[#2E978E] text-white py-2 sm:py-2.5 lg:py-2 px-4 sm:px-8 lg:px-12 flex items-center justify-between gap-4 shadow-sm z-30 relative shrink-0">
+<header class="{{ ($isFixed ?? false) ? 'fixed top-0 left-0 w-full z-50 h-14 sm:h-16 lg:h-[72px]' : 'relative' }} bg-[#2E978E] text-white py-2 sm:py-2.5 lg:py-2 px-4 sm:px-8 lg:px-12 flex items-center justify-between gap-4 shadow-sm shrink-0">
 
   <div class="flex items-center gap-3 sm:gap-5">
     <a href="{{ route('home') }}" class="flex items-center gap-3 sm:gap-4 hover:opacity-95 transition" title="Kembali ke Beranda">

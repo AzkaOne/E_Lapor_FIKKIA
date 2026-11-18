@@ -77,165 +77,78 @@
       x-data="{ showModal: {{ session('ticket_code') ? 'true' : 'false' }}, copied: false, showHelpModal: false, activeFileName: '' }">
 
   <!-- ================= TOP HEADER BAR ================= -->
-  @include('komponen.header_auth')
+  @include('komponen.header_auth', ['isFixed' => true])
 
   <!-- ================= MAIN ================= -->
-  <div class="flex-1 w-full max-w-[1536px] mx-auto flex flex-col lg:flex-row items-stretch">
+  <div class="pt-14 sm:pt-16 lg:pt-[72px] flex-1 w-full max-w-[1536px] mx-auto flex flex-col lg:flex-row items-stretch">
 
     <!-- ================= ASIDE SIDEBAR ================= -->
-    {{-- <aside class="w-full lg:w-72 xl:w-80 bg-[#2E978E] text-white shrink-0 p-5 sm:p-6 lg:p-7 flex flex-col justify-between relative overflow-hidden shadow-md">
+    <aside class="w-full lg:w-64 xl:w-72 lg:sticky lg:top-[72px] lg:h-[calc(100vh-72px)] lg:self-start
+                bg-[#2E978E] text-white shrink-0 p-4 sm:p-5 flex flex-col justify-between relative overflow-hidden shadow-md z-30">
 
-      <!-- Top Section: Navigation & Identity Info -->
-      <div class="space-y-6 relative z-10">
+    <!-- Top Section -->
+    <div class="space-y-4 relative z-10">
+
         <!-- Back to Home Link -->
-        <a href="{{ route('home') }}" class="inline-flex items-center gap-2 text-xs sm:text-[13px] font-semibold text-white/90 hover:text-white transition group py-1">
-          <span class="p-1.5 rounded-lg bg-white/10 group-hover:bg-white/20 transition">
-            <svg class="w-4 h-4 transition-transform group-hover:-translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        <a href="{{ route('home') }}" class="inline-flex items-center gap-2 text-[11px] sm:text-xs font-semibold text-white/90 hover:text-white transition group py-0.5">
+        <span class="p-1 rounded-lg bg-white/10 group-hover:bg-white/20 transition">
+            <svg class="w-3.5 h-3.5 transition-transform group-hover:-translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
-          </span>
-          <span>Kembali ke beranda</span>
+        </span>
+        <span>Kembali ke beranda</span>
         </a>
 
         <!-- Title & Subtitle -->
-        <div class="space-y-2 pt-1">
-          <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#166E65] text-[#A7F3D0] text-[11px] font-bold tracking-wide">
-            <span class="w-1.5 h-1.5 rounded-full bg-[#34D399]"></span>
+        <div class="space-y-1.5">
+        <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/15 border border-white/25 text-white text-[10px] font-bold tracking-wide">
+            <span class="w-1.5 h-1.5 rounded-full bg-white"></span>
             <span>Kanal Whistleblowing</span>
-          </div>
-          <h2 class="text-2xl sm:text-[26px] font-extrabold text-white font-['Plus_Jakarta_Sans',sans-serif] tracking-tight leading-snug">
+        </div>
+        <h2 class="text-xl lg:text-[22px] font-extrabold text-white font-['Plus_Jakarta_Sans',sans-serif] tracking-tight leading-snug">
             Laporan Anonim
-          </h2>
-          <p class="text-xs sm:text-[13px] text-[#D1FAE4]/90 font-['Inter',sans-serif] leading-relaxed">
+        </h2>
+        <p class="text-[11px] sm:text-xs text-white/85 font-['Inter',sans-serif] leading-relaxed">
             Sampaikan aspirasi, keluhan, atau informasi penting secara anonim. Kami akan menjaganya dengan kerahasiaan.
-          </p>
+        </p>
         </div>
 
         <!-- Privacy & Security Highlights -->
-        <div class="pt-2 border-t border-white/10 space-y-3 text-xs text-white/85">
-          <div class="flex items-start gap-2.5">
-            <div class="w-5 h-5 rounded-full bg-[#166E65] text-[#34D399] flex items-center justify-center shrink-0 mt-0.5">
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
-              </svg>
+        <div class="pt-3 border-t border-white/15 space-y-2.5 text-[11px] sm:text-xs text-white/90">
+        @foreach ([
+            '100% Bebas dari kewajiban login akun',
+            'Identitas dan data IP tidak dicatat di sistem',
+            'Diteruskan langsung ke pimpinan Dekanat / KABAG',
+            'Pelacakan progres mandiri melalui Kode Tiket unik',
+        ] as $point)
+            <div class="flex items-start gap-2">
+            <div class="w-4 h-4 rounded-full bg-white/20 border border-white/30 text-white flex items-center justify-center shrink-0 mt-px">
+                <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+                </svg>
             </div>
-            <span>100% Bebas dari kewajiban login akun</span>
-          </div>
-
-          <div class="flex items-start gap-2.5">
-            <div class="w-5 h-5 rounded-full bg-[#166E65] text-[#34D399] flex items-center justify-center shrink-0 mt-0.5">
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
-              </svg>
+            <span class="leading-snug">{{ $point }}</span>
             </div>
-            <span>Identitas dan data IP tidak dicatat di sistem</span>
-          </div>
-
-          <div class="flex items-start gap-2.5">
-            <div class="w-5 h-5 rounded-full bg-[#166E65] text-[#34D399] flex items-center justify-center shrink-0 mt-0.5">
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-            <span>Diteruskan langsung ke pimpinan Dekanat / KABAG</span>
-          </div>
-
-          <div class="flex items-start gap-2.5">
-            <div class="w-5 h-5 rounded-full bg-[#166E65] text-[#34D399] flex items-center justify-center shrink-0 mt-0.5">
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-            <span>Pelacakan progres mandiri melalui Kode Tiket unik</span>
-          </div>
+        @endforeach
         </div>
-      </div>
+    </div>
 
-      <!-- Bottom Graphic & Slogan -->
-      <div class="mt-8 pt-6 border-t border-white/10 relative z-10">
-        <div class="relative rounded-2xl overflow-hidden bg-white/5 border border-white/10 p-4">
-          <div class="absolute inset-0 opacity-15 pointer-events-none">
+    <!-- Bottom Graphic & Slogan (disembunyikan otomatis jika tinggi layar < 700px) -->
+    <div class="mt-4 pt-4 border-t border-white/15 relative z-10 [@media(max-height:700px)]:hidden">
+        <div class="relative rounded-xl overflow-hidden bg-white/10 border border-white/15 p-3">
+        <div class="absolute inset-0 opacity-15 pointer-events-none">
             <img src="{{ asset('assets/gedung_kampus.png') }}" alt="Silhouette Kampus" class="w-full h-full object-cover">
-          </div>
-          <div class="relative z-10 space-y-1 text-center sm:text-left">
-            <p class="text-sm font-extrabold text-white font-['Plus_Jakarta_Sans',sans-serif] leading-tight">
-              Suara Anda<br class="hidden sm:inline"> Membantu Perubahan
-            </p>
-            <p class="text-[11px] text-[#A7F3D0] leading-snug">
-              E-Lapor FIKKIA UNAIR
-            </p>
-          </div>
         </div>
-      </div>
-
-    </aside> --}}
-    <!-- ================= ASIDE SIDEBAR ================= -->
-<aside class="w-full lg:w-64 xl:w-72 lg:sticky lg:top-0 lg:h-screen lg:self-start lg:overflow-y-auto custom-scroll
-              bg-[#2E978E] text-white shrink-0 p-4 sm:p-5 flex flex-col justify-between relative overflow-hidden shadow-md">
-
-  <!-- Top Section -->
-  <div class="space-y-4 relative z-10">
-
-    <!-- Back to Home Link -->
-    <a href="{{ route('home') }}" class="inline-flex items-center gap-2 text-[11px] sm:text-xs font-semibold text-white/90 hover:text-white transition group py-0.5">
-      <span class="p-1 rounded-lg bg-white/10 group-hover:bg-white/20 transition">
-        <svg class="w-3.5 h-3.5 transition-transform group-hover:-translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-        </svg>
-      </span>
-      <span>Kembali ke beranda</span>
-    </a>
-
-    <!-- Title & Subtitle -->
-    <div class="space-y-1.5">
-      <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/15 border border-white/25 text-white text-[10px] font-bold tracking-wide">
-        <span class="w-1.5 h-1.5 rounded-full bg-white"></span>
-        <span>Kanal Whistleblowing</span>
-      </div>
-      <h2 class="text-xl lg:text-[22px] font-extrabold text-white font-['Plus_Jakarta_Sans',sans-serif] tracking-tight leading-snug">
-        Laporan Anonim
-      </h2>
-      <p class="text-[11px] sm:text-xs text-white/85 font-['Inter',sans-serif] leading-relaxed">
-        Sampaikan aspirasi, keluhan, atau informasi penting secara anonim. Kami akan menjaganya dengan kerahasiaan.
-      </p>
-    </div>
-
-    <!-- Privacy & Security Highlights -->
-    <div class="pt-3 border-t border-white/15 space-y-2.5 text-[11px] sm:text-xs text-white/90">
-      @foreach ([
-        '100% Bebas dari kewajiban login akun',
-        'Identitas dan data IP tidak dicatat di sistem',
-        'Diteruskan langsung ke pimpinan Dekanat / KABAG',
-        'Pelacakan progres mandiri melalui Kode Tiket unik',
-      ] as $point)
-        <div class="flex items-start gap-2">
-          <div class="w-4 h-4 rounded-full bg-white/20 border border-white/30 text-white flex items-center justify-center shrink-0 mt-px">
-            <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
-            </svg>
-          </div>
-          <span class="leading-snug">{{ $point }}</span>
+        <div class="relative z-10 space-y-0.5 text-center sm:text-left">
+            <p class="text-xs sm:text-[13px] font-extrabold text-white font-['Plus_Jakarta_Sans',sans-serif] leading-tight">
+            Suara Anda<br class="hidden sm:inline"> Membantu Perubahan
+            </p>
+            <p class="text-[10px] text-white/80 leading-snug">E-Lapor FIKKIA UNAIR</p>
         </div>
-      @endforeach
+        </div>
     </div>
-  </div>
 
-  <!-- Bottom Graphic & Slogan (disembunyikan otomatis jika tinggi layar < 700px) -->
-  <div class="mt-4 pt-4 border-t border-white/15 relative z-10 [@media(max-height:700px)]:hidden">
-    <div class="relative rounded-xl overflow-hidden bg-white/10 border border-white/15 p-3">
-      <div class="absolute inset-0 opacity-15 pointer-events-none">
-        <img src="{{ asset('assets/gedung_kampus.png') }}" alt="Silhouette Kampus" class="w-full h-full object-cover">
-      </div>
-      <div class="relative z-10 space-y-0.5 text-center sm:text-left">
-        <p class="text-xs sm:text-[13px] font-extrabold text-white font-['Plus_Jakarta_Sans',sans-serif] leading-tight">
-          Suara Anda<br class="hidden sm:inline"> Membantu Perubahan
-        </p>
-        <p class="text-[10px] text-white/80 leading-snug">E-Lapor FIKKIA UNAIR</p>
-      </div>
-    </div>
-  </div>
-
-</aside>
+    </aside>
 
     <!-- ================= MAIN WORKSPACE ================= -->
     <main class="flex-1 p-4 sm:p-6 lg:p-8 space-y-5">
