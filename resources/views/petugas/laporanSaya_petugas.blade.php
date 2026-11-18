@@ -22,6 +22,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Laporan Saya - Panel {{ strtoupper($userRole) }} E-Lapor FIKKIA UNAIR</title>
+
+  @include('komponen.favicon')
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {

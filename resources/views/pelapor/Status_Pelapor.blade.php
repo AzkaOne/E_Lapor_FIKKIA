@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Status Laporan - E-LAPOR FIKKIA</title>
 
+  @include('komponen.favicon')
+
   <!-- Google Fonts: Plus Jakarta Sans, Poppins, Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -340,7 +342,7 @@
           </div>
         @else
           <!-- Responsive Table Container -->
-          <div class="overflow-x-auto custom-scroll">
+          <div class="h-[480px] overflow-auto custom-scroll">
             <table class="w-full text-left border-collapse min-w-[880px]">
               <thead>
                 <tr class="bg-[#F8FAFC] border-b border-slate-200/90 text-slate-600 font-['Plus_Jakarta_Sans',sans-serif] text-xs font-bold">

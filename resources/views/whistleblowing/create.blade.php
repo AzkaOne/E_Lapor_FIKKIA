@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Laporan Anonim (Whistleblowing) - E-Lapor FIKKIA UNAIR</title>
 
+  @include('komponen.favicon')
+
   <!-- Google Fonts: Plus Jakarta Sans, Poppins, Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
