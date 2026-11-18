@@ -92,7 +92,7 @@
       </div>
 
       <!-- Success & Error Notifications -->
-      @if (session('success'))
+      @if (session('success') && !session('profile_updated'))
         <div class="mb-4 p-3 rounded-xl bg-[#ECFDF5] border border-[#A7F3D0] text-[#064E3B] text-xs font-medium flex items-center gap-2.5 shadow-xs">
           <svg class="w-4 h-4 text-[#059669] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
@@ -435,8 +435,9 @@
 
   <!-- ================= POPUP STATUS MODAL (Tengah Layar) ================= -->
   @php
-    $hasSuccessModal = session('success');
-    $hasErrorModal = session('error') || $errors->any();
+    $hasReportErrors = $errors->hasAny(['title', 'category', 'sub_department_id', 'description', 'evidence_files', 'evidence_files.*']);
+    $hasSuccessModal = session('success') && (session('ticket_code') || session('report_title')) && !session('profile_updated');
+    $hasErrorModal = (session('error') || $hasReportErrors) && !session('profile_updated');
     $showModalOnLoad = $hasSuccessModal || $hasErrorModal;
   @endphp
 
@@ -720,7 +721,7 @@
               </div>
             </div>
             <h3 id="modalStatusTitle" class="text-xl sm:text-2xl font-black text-[#0C3934] font-['Plus_Jakarta_Sans',sans-serif] tracking-tight">
-              Laporan Berhasil Terkirim!
+              ${data.heading || 'Laporan Pengaduan Berhasil Dikirim'}
             </h3>
             <p class="text-xs sm:text-[13px] text-slate-600 font-['Inter',sans-serif] mt-2 leading-relaxed">
               ${message}

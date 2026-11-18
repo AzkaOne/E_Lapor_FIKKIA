@@ -328,10 +328,10 @@
                     <!-- Laporan Selesai -->
                     <td class="py-3.5 px-3.5 whitespace-nowrap">
                       @if ($report->status === 'selesai' && $report->updated_at)
-                        <div class="text-[#059669] font-bold text-[11.5px]">
+                        <div class="text-[#334155] font-bold text-[11.5px]">
                           {{ $report->updated_at->translatedFormat('d M Y') }}
                         </div>
-                        <div class="text-[10.5px] text-[#10B981]">
+                        <div class="text-[10.5px] text-[#94A3B8]">
                           {{ $report->updated_at->format('H:i') }} WIB
                         </div>
                       @elseif ($report->updated_at)
