@@ -447,19 +447,26 @@
                       </span>
                     </td>
 
-                    <!-- Penanganan (Workflow Trail) -->
+                    <!-- Penanganan (Petugas Penangan) -->
                     <td class="py-3.5 px-3.5 whitespace-nowrap">
-                      <div class="flex items-center gap-1 text-[11px] text-[#475569] font-medium">
-                        <span class="px-1.5 py-0.5 rounded bg-slate-100 text-slate-700">Kabag</span>
-                        <svg class="w-2.5 h-2.5 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 17L17 7M17 7H9M17 7v8" />
-                        </svg>
-                        <span class="px-1.5 py-0.5 rounded bg-slate-100 text-slate-700">Kasubag {{ $shortDept }}</span>
-                        <svg class="w-2.5 h-2.5 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 17L17 7M17 7H9M17 7v8" />
-                        </svg>
-                        <span class="px-1.5 py-0.5 rounded bg-slate-100 text-slate-700">Petugas</span>
-                      </div>
+                      @if ($report->handler)
+                        <div class="flex items-center gap-2">
+                          <div class="w-6 h-6 rounded-full bg-[#CCFBF1] text-[#0D9488] flex items-center justify-center font-bold text-[10.5px] shrink-0">
+                            {{ strtoupper(substr($report->handler->name, 0, 1)) }}
+                          </div>
+                          <div class="min-w-0">
+                            <span class="font-bold text-slate-800 text-[12px] block truncate max-w-[150px]">
+                              {{ $report->handler->name }}
+                            </span>
+                            <span class="text-[10px] text-slate-400 block leading-tight">Petugas Lapangan</span>
+                          </div>
+                        </div>
+                      @else
+                        <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-medium bg-slate-100 text-slate-500">
+                          <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                          <span>Menunggu Penugasan</span>
+                        </span>
+                      @endif
                     </td>
 
                     <!-- Aksi -->

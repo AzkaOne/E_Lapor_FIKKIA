@@ -250,14 +250,15 @@
         @else
           <!-- Responsive Table Container -->
           <div class="overflow-x-auto custom-scroll">
-            <table class="w-full text-left border-collapse min-w-[760px]">
+            <table class="w-full text-left border-collapse min-w-[860px]">
               <thead>
                 <tr class="bg-[#F8FAFC] border-b border-slate-200/90 text-slate-600 font-['Plus_Jakarta_Sans',sans-serif] text-xs font-bold">
                   <th scope="col" class="py-3 px-3.5 text-center w-12">No</th>
-                  <th scope="col" class="py-3 px-3.5 min-w-[220px]">Judul Laporan</th>
-                  <th scope="col" class="py-3 px-3.5 w-36">Bidang</th>
+                  <th scope="col" class="py-3 px-3.5 min-w-[200px]">Judul Laporan</th>
+                  <th scope="col" class="py-3 px-3.5 w-32">Bidang</th>
                   <th scope="col" class="py-3 px-3.5 w-36">Tanggal Laporan</th>
-                  <th scope="col" class="py-3 px-3.5 w-56">Penanganan</th>
+                  <th scope="col" class="py-3 px-3.5 w-36">Laporan Selesai</th>
+                  <th scope="col" class="py-3 px-3.5 min-w-[160px]">Penanganan</th>
                   <th scope="col" class="py-3 px-3.5 text-center w-28">Aksi</th>
                 </tr>
               </thead>
@@ -324,19 +325,47 @@
                       </div>
                     </td>
 
-                    <!-- Penanganan (Workflow Trail) -->
+                    <!-- Laporan Selesai -->
                     <td class="py-3.5 px-3.5 whitespace-nowrap">
-                      <div class="flex items-center gap-1 text-[11px] text-[#475569] font-medium">
-                        <span class="px-1.5 py-0.5 rounded bg-slate-100 text-slate-700">Kabag</span>
-                        <svg class="w-2.5 h-2.5 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 17L17 7M17 7H9M17 7v8" />
-                        </svg>
-                        <span class="px-1.5 py-0.5 rounded bg-slate-100 text-slate-700">Kasubag {{ $shortDept }}</span>
-                        <svg class="w-2.5 h-2.5 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 17L17 7M17 7H9M17 7v8" />
-                        </svg>
-                        <span class="px-1.5 py-0.5 rounded bg-slate-100 text-slate-700">Petugas</span>
-                      </div>
+                      @if ($report->status === 'selesai' && $report->updated_at)
+                        <div class="text-[#059669] font-bold text-[11.5px]">
+                          {{ $report->updated_at->translatedFormat('d M Y') }}
+                        </div>
+                        <div class="text-[10.5px] text-[#10B981]">
+                          {{ $report->updated_at->format('H:i') }} WIB
+                        </div>
+                      @elseif ($report->updated_at)
+                        <div class="text-slate-600 font-medium text-[11.5px]">
+                          {{ $report->updated_at->translatedFormat('d M Y') }}
+                        </div>
+                        <div class="text-[10.5px] text-slate-400">
+                          {{ $report->updated_at->format('H:i') }} WIB
+                        </div>
+                      @else
+                        <span class="text-slate-400 text-xs">-</span>
+                      @endif
+                    </td>
+
+                    <!-- Penanganan (Petugas Penangan) -->
+                    <td class="py-3.5 px-3.5 whitespace-nowrap">
+                      @if ($report->handler)
+                        <div class="flex items-center gap-2">
+                          <div class="w-6 h-6 rounded-full bg-[#CCFBF1] text-[#0D9488] flex items-center justify-center font-bold text-[10.5px] shrink-0">
+                            {{ strtoupper(substr($report->handler->name, 0, 1)) }}
+                          </div>
+                          <div class="min-w-0">
+                            <span class="font-bold text-slate-800 text-[12px] block truncate max-w-[150px]">
+                              {{ $report->handler->name }}
+                            </span>
+                            <span class="text-[10px] text-slate-400 block leading-tight">Petugas Lapangan</span>
+                          </div>
+                        </div>
+                      @else
+                        <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-medium bg-slate-100 text-slate-500">
+                          <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                          <span>Menunggu Penugasan</span>
+                        </span>
+                      @endif
                     </td>
 
                     <!-- Aksi -->

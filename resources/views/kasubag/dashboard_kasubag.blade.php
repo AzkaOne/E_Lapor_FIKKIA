@@ -77,7 +77,7 @@
       @endif
 
       <!-- ================= GREETING & TITLE ================= -->
-      <div class="space-y-1">
+      <div class="space-y-1 mt-2">
         <!-- Tag / Badge Pill -->
         <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#CCFBF1] text-[#0C3934] text-xs font-semibold shadow-xs">
           <span class="w-2 h-2 rounded-full bg-[#0D9488]"></span>
@@ -87,7 +87,7 @@
         <div class="pt-1">
           <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400">SELAMAT DATANG,</div>
           <h2 class="text-xl sm:text-2xl lg:text-[26px] font-extrabold text-[#0C3934] tracking-tight leading-snug">
-            {{ Auth::user()->name }}
+          Bapak/Ibu  {{ Auth::user()->name }}
           </h2>
           <p class="text-xs sm:text-sm text-slate-500 mt-0.5">
             Berikut adalah ringkasan laporan terbaru di E-Lapor UNAIR untuk sub bagian {{ Auth::user()->subDepartment?->name ?? 'Anda' }}.

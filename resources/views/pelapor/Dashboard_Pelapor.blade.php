@@ -411,74 +411,18 @@
             </div>
           </div>
 
-          <!-- Card 3: Statistik Laporan (Compact Chart) -->
-          <div class="bg-white rounded-2xl p-4 border border-[#E2E8F0] shadow-sm space-y-3">
-            <!-- Header -->
-            <div class="flex items-center justify-between gap-2">
-              <div class="flex items-center gap-1.5">
-                <div class="w-5 h-5 rounded-full border-2 border-[#0D9488] flex items-center justify-center">
-                  <div class="w-2 h-2 rounded-full bg-[#0D9488]"></div>
-                </div>
-                <div>
-                  <h3 class="text-xs sm:text-[13px] font-bold text-[#0E3B43] font-['Poppins',sans-serif] leading-tight">
-                    Statistik laporan
-                  </h3>
-                  <p class="text-[9.5px] text-[#64748B] font-['Inter',sans-serif]">
-                    Jumlah laporan berdasarkan kategori
-                  </p>
-                </div>
-              </div>
-
-              <!-- Badge 30 Hari Terakhir -->
-              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md border border-[#14B8A6] text-[#0F766E] text-[9.5px] font-semibold font-['Poppins',sans-serif] bg-white">
-                <span>30 Hari</span>
-                <svg class="w-2.5 h-2.5 text-[#0F766E]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-              </span>
-            </div>
-
-            <!-- Bar Chart Visualization -->
-            <div class="pt-1">
-              <div class="relative h-28 flex items-end justify-between px-3 pb-1 border-b border-[#E2E8F0]">
-                <!-- Grid Lines -->
-                <div class="absolute inset-0 flex flex-col justify-between pointer-events-none opacity-30">
-                  <div class="border-b border-[#E2E8F0] w-full"></div>
-                  <div class="border-b border-[#E2E8F0] w-full"></div>
-                  <div class="border-b border-[#E2E8F0] w-full"></div>
-                  <div class="border-b border-[#E2E8F0] w-full"></div>
-                </div>
-
-                <!-- Bar 1: Sarana Prasarana -->
-                <div class="relative z-10 flex flex-col items-center gap-1 w-10 group cursor-pointer" title="Sarana Prasarana">
-                  <div class="w-6 sm:w-7 bg-[#0D9488] group-hover:bg-[#0a8080] rounded-t-sm transition-all duration-300" style="height: 75px;"></div>
-                </div>
-
-                <!-- Bar 2: Keuangan & SDM -->
-                <div class="relative z-10 flex flex-col items-center gap-1 w-10 group cursor-pointer" title="Keuangan & SDM">
-                  <div class="w-6 sm:w-7 bg-[#0D9488] group-hover:bg-[#0a8080] rounded-t-sm transition-all duration-300" style="height: 25px;"></div>
-                </div>
-
-                <!-- Bar 3: Pendidikan & Kemahasiswaan -->
-                <div class="relative z-10 flex flex-col items-center gap-1 w-10 group cursor-pointer" title="Pendidikan & Kemahasiswaan">
-                  <div class="w-6 sm:w-7 bg-[#0D9488] group-hover:bg-[#0a8080] rounded-t-sm transition-all duration-300" style="height: 50px;"></div>
-                </div>
-
-                <!-- Bar 4: Kepala Bagian -->
-                <div class="relative z-10 flex flex-col items-center gap-1 w-10 group cursor-pointer" title="Kepala Bagian">
-                  <div class="w-6 sm:w-7 bg-[#0D9488] group-hover:bg-[#0a8080] rounded-t-sm transition-all duration-300" style="height: 60px;"></div>
-                </div>
-              </div>
-
-              <!-- Bar Labels X-Axis -->
-              <div class="grid grid-cols-4 gap-1 text-center pt-1.5 text-[8.5px] sm:text-[9.5px] font-semibold text-[#0E3B43] font-['Poppins',sans-serif] leading-tight">
-                <div>Sarana<br>Prasarana</div>
-                <div>Keuangan<br>& SDM</div>
-                <div>Pendidikan<br>& Ormawa</div>
-                <div>Kepala<br>Bagian</div>
+         <!-- Card 3: Inspiring Quote Card -->
+          <div class="rounded-2xl p-4 sm:p-5 bg-gradient-to-br from-[#ECFBF7] to-[#DCF5EE] border border-[#99F6E4] shadow-2xs relative overflow-hidden">
+            <span class="text-3xl font-serif text-[#095D52]/20 absolute top-2 right-4 select-none pointer-events-none">“</span>
+            <div class="space-y-2 relative z-10">
+              <p class="text-xs text-[#064A41] leading-relaxed font-medium">
+                “Dengan melaporkan, anda turut berkontribusi dalam menciptakan lingkungan kampus yang lebih baik”
+              </p>
+              <div class="flex items-center gap-2 pt-1 border-t border-[#99F6E4]/50">
+                <div class="w-3.5 h-[1.5px] bg-[#095D52]"></div>
+                <span class="text-[11px] font-bold text-[#095D52] tracking-wide">E-Lapor FIKKIA</span>
               </div>
             </div>
-
           </div>
 
         </div>

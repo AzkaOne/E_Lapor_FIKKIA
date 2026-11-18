@@ -255,25 +255,24 @@
           </p>
         </div>
 
-        <!-- Right: Butuh Bantuan? Card -->
-        <div class="bg-white rounded-2xl p-3.5 sm:p-4 border border-[#E2E8F0] shadow-2xs flex items-center gap-3 sm:max-w-xs shrink-0">
-          <div class="w-12 h-12 rounded-xl bg-[#F0FCFA] border border-[#CCFBF1] p-1.5 shrink-0 flex items-center justify-center">
+      <div class="bg-white rounded-2xl border border-slate-200/90 p-3.5 sm:p-4 shadow-xs flex items-center gap-3.5 shrink-0 max-w-md w-full lg:w-auto">
+          <div class="w-12 h-12 sm:w-14 sm:h-14 shrink-0 flex items-center justify-center">
             <img src="{{ asset('assets/help_illustration.png') }}" alt="Butuh Bantuan" class="w-full h-full object-contain">
           </div>
-          <div class="space-y-1 min-w-0">
-            <h3 class="text-xs sm:text-[13px] font-bold text-[#0D3B43] leading-tight">
+          <div class="space-y-1 flex-1">
+            <h3 class="font-['Poppins',sans-serif] text-xs sm:text-sm font-semibold text-[#0E3B43] leading-snug">
               Butuh Bantuan?
             </h3>
-            <p class="text-[10.5px] text-[#64748B] leading-tight line-clamp-2">
-              Jika mengalami kendala, silakan hubungi bagian informasi.
+            <p class="text-[11px] text-[#64748B] font-['Inter',sans-serif] leading-tight">
+              Jika Anda mengalami kendala saat membuat laporan, silakan hubungi bagian layanan informasi UNAIR.
             </p>
-            <div>
-              <button type="button" @click="showHelpModal = true" class="inline-flex items-center gap-1 text-[11px] font-bold text-[#0F766E] hover:text-[#0C3834] transition">
+            <div class="pt-1">
+              <a href="https://wa.me/6281234567890" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[#0F766E] hover:bg-[#0c5c56] text-white text-[11px] font-semibold shadow-xs transition">
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                 </svg>
                 <span>Hubungi Kami</span>
-              </button>
+              </a>
             </div>
           </div>
         </div>

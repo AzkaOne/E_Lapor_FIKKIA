@@ -88,7 +88,7 @@
         <div class="pt-1">
           <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400">SELAMAT DATANG,</div>
           <h2 class="text-xl sm:text-2xl lg:text-[26px] font-extrabold text-[#0C3934] tracking-tight leading-snug">
-            Bapak/Ibu Kepala Bagian
+            Bapak/Ibu {{ Auth::user()->name }}
           </h2>
           <p class="text-xs sm:text-sm text-slate-500 mt-0.5">
             Berikut adalah ringkasan laporan terbaru di E-Lapor UNAIR.

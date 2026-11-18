@@ -501,3 +501,44 @@
         checkDirtyState();
     })();
 </script>
+
+<!-- ================= POPUP MODAL PROFIL BERHASIL DIEDIT ================= -->
+@if (session('profile_updated') || session('success') === 'Profil berhasil diperbarui.')
+<div id="modal-profile-success" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs transition-opacity duration-300">
+    <div class="bg-white rounded-2xl sm:rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-100 text-center space-y-4 transform transition-transform duration-300 scale-100">
+        <!-- Success Icon -->
+        <div class="w-14 h-14 rounded-2xl bg-[#ECFDF5] border border-[#A7F3D0] text-[#059669] flex items-center justify-center mx-auto shadow-xs">
+            <svg class="w-7 h-7 text-[#059669]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+            </svg>
+        </div>
+
+        <div>
+            <h4 class="text-base font-bold text-slate-900">Profil Berhasil Diedit</h4>
+            <p class="text-xs text-slate-500 mt-1 leading-relaxed">
+                Perubahan data profil Anda telah berhasil disimpan ke sistem.
+            </p>
+        </div>
+
+        <div>
+            <button type="button" 
+                    id="closeProfileSuccessModalBtn"
+                    onclick="closeProfileSuccessModal()" 
+                    class="w-full py-2.5 px-4 rounded-xl bg-[#0A8080] hover:bg-[#086666] text-white text-xs font-bold shadow-xs transition cursor-pointer">
+                Tutup
+            </button>
+        </div>
+    </div>
+</div>
+<script>
+    function closeProfileSuccessModal() {
+        const modal = document.getElementById('modal-profile-success');
+        if (modal) {
+            modal.style.opacity = '0';
+            setTimeout(() => modal.remove(), 250);
+        }
+    }
+    // Auto-close after 4 seconds
+    setTimeout(closeProfileSuccessModal, 4000);
+</script>
+@endif

@@ -87,7 +87,7 @@ class ReportController extends Controller
         $menungguCount = (clone $countsQuery)->where('status', 'diajukan')->count();
 
         // Table Query
-        $query = Report::with(['subDepartment', 'evidences', 'dispositions.sender', 'dispositions.receiver'])
+        $query = Report::with(['handler', 'subDepartment', 'evidences', 'dispositions.sender', 'dispositions.receiver'])
             ->where('user_id', $userId);
 
         if ($request->filled('status')) {
@@ -141,7 +141,7 @@ class ReportController extends Controller
 
     public function history(Request $request): View
     {
-        $query = Report::with(['subDepartment', 'evidences', 'dispositions.sender', 'dispositions.receiver'])
+        $query = Report::with(['handler', 'subDepartment', 'evidences', 'dispositions.sender', 'dispositions.receiver'])
             ->where('user_id', auth()->id())
             ->whereIn('status', ['selesai', 'ditolak']);
 

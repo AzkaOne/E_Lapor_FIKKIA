@@ -255,7 +255,7 @@
 
         <!-- ================= TABLE SECTION ================= -->
         <div class="border border-slate-200/90 rounded-2xl overflow-hidden shadow-xs">
-          <div class="overflow-x-auto custom-scroll">
+          <div class="h-[480px] overflow-auto custom-scroll">
             <table class="w-full text-left text-xs min-w-[760px]">
               <thead class="bg-[#F8FAFC] border-b border-slate-200 text-slate-800 font-bold uppercase text-[11px] tracking-wide">
                 <tr>

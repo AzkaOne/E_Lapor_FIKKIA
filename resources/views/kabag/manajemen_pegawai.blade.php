@@ -247,7 +247,7 @@
 
         <!-- ================= TABLE SECTION ================= -->
         <div class="border border-slate-200/90 rounded-2xl overflow-hidden shadow-xs">
-          <div class="overflow-x-auto custom-scroll">
+          <div class="h-[480px] overflow-auto custom-scroll">
             <table class="w-full text-left text-xs min-w-[850px]">
               <thead class="bg-[#F8FAFC] border-b border-slate-200 text-slate-800 font-bold uppercase text-[11px] tracking-wide">
                 <tr>
@@ -747,10 +747,10 @@
                             Pilih Berkas Excel / CSV <span class="text-red-500">*</span>
                         </label>
 
-                        <div id="dropzone-box" 
+                        <div id="dropzone-box"
                             onclick="document.getElementById('import-excel-file').click()"
                             class="border-2 border-dashed border-teal-300 rounded-2xl p-6 text-center bg-teal-50/20 hover:bg-teal-50/50 hover:border-teal-400 transition cursor-pointer relative">
-                            
+
                             <input type="file" id="import-excel-file" name="file" accept=".xlsx,.xls,.csv" required
                                 class="hidden" onchange="handleImportFileSelect(this)">
 
@@ -1187,7 +1187,7 @@
   @endphp
   <div id="modal-import-result" class="fixed inset-0 z-50 overflow-y-auto bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-5 animate-scaleUp">
-      
+
       <!-- Top Icon -->
       <div class="text-center">
         @if($failedCount === 0 && $savedCount > 0)

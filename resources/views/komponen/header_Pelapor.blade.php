@@ -35,6 +35,15 @@
       <!-- User Profile Badge & Popover -->
       <div class="flex items-center gap-2 pl-2 sm:pl-3 border-l border-white/20">
         @include('komponen.profile_popover')
+                <div class="hidden md:flex flex-col text-left">
+                    <span class="text-xs font-bold text-white leading-tight truncate max-w-[130px]">
+                        {{ auth()->user()->name ?? 'Pengguna' }}
+                    </span>
+
+                    <span class="text-[10px] text-white/70 capitalize leading-tight">
+                        {{ auth()->user()->position ?? 'Pegawai' }}
+                    </span>
+                </div>
 
         <!-- Logout Form -->
         <form action="{{ route('logout') }}" method="POST" class="ml-1">
