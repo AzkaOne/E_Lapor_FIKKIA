@@ -211,14 +211,56 @@ class DashboardController extends Controller
         return view('petugas.laporanSaya_petugas', compact('reports'));
     }
 
-    public function history(): View
+    public function history(Request $request): View
     {
-        $reports = Report::with(['user', 'subDepartment'])
-            ->where('handler_id', auth()->id())
-            ->where('status', 'selesai')
-            ->latest()
-            ->paginate(15);
+        $userId = auth()->id();
 
-        return view('petugas.history', compact('reports'));
+        $query = Report::with(['user', 'handler', 'subDepartment', 'evidences'])
+            ->where('handler_id', $userId)
+            ->where('status', 'selesai');
+
+        // Filter Search
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('ticket_code', 'like', "%{$search}%")
+                  ->orWhereHas('user', function ($uq) use ($search) {
+                      $uq->where('name', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        // Filter Hasil Penanganan (terlaksana & tertunda)
+        if ($request->filled('status')) {
+            if ($request->status === 'terlaksana') {
+                $query->where(function ($q) {
+                    $q->where('execution_result', 'terlaksana')
+                      ->orWhereNull('execution_result');
+                });
+            } elseif ($request->status === 'tertunda') {
+                $query->where('execution_result', 'tertunda');
+            }
+        }
+
+        // Filter Tanggal
+        if ($request->filled('date')) {
+            $query->whereDate('updated_at', $request->date);
+        }
+
+        $reports = $query->latest('updated_at')->paginate(10)->withQueryString();
+
+        $baseCount = Report::where('handler_id', $userId)->where('status', 'selesai');
+        $counts = [
+            'total' => (clone $baseCount)->count(),
+            'terlaksana' => (clone $baseCount)->where(function ($q) {
+                $q->where('execution_result', 'terlaksana')
+                  ->orWhereNull('execution_result');
+            })->count(),
+            'tertunda' => (clone $baseCount)->where('execution_result', 'tertunda')->count(),
+            'rating' => (clone $baseCount)->whereNotNull('rating')->count(),
+        ];
+
+        return view('petugas.riwayat_petugas', compact('reports', 'counts'));
     }
 }
