@@ -329,12 +329,11 @@
                     class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white text-slate-700 font-medium focus:ring-2 focus:ring-[#2E978E] focus:outline-none">
               <option value="">Semua Status</option>
               <option value="diajukan" {{ request('status') === 'diajukan' ? 'selected' : '' }}>Diajukan</option>
-              <option value="didisposisi" {{ request('status') === 'didisposisi' ? 'selected' : '' }}>Didisposisi</option>
-              <option value="diterima" {{ request('status') === 'diterima' ? 'selected' : '' }}>Diterima</option>
               <option value="proses" {{ request('status') === 'proses' ? 'selected' : '' }}>Proses</option>
               <option value="verifikasi_kabag" {{ request('status') === 'verifikasi_kabag' ? 'selected' : '' }}>Verifikasi</option>
-              <option value="selesai" {{ request('status') === 'selesai' ? 'selected' : '' }}>Selesai</option>
               <option value="ditolak" {{ request('status') === 'ditolak' ? 'selected' : '' }}>Ditolak</option>
+              <option value="tertunda" {{ request('status') === 'tertunda' ? 'selected' : '' }}>Tertunda</option>
+              <option value="terlaksana" {{ request('status') === 'terlaksana' ? 'selected' : '' }}>Terlaksana</option>
             </select>
 
             @if (request()->hasAny(['sub_department_id', 'status']))

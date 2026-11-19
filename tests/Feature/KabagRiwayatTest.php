@@ -81,11 +81,13 @@ class KabagRiwayatTest extends TestCase
         $response->assertStatus(200);
         $response->assertViewIs('kabag.riwayat_kabag');
 
-        // Should see completed reports
+        // Should see completed reports and rejected reports
         $response->assertSee('Perbaikan Lampu Taman Selesai');
         $response->assertSee('Pengadaan Meja Sidang Selesai Ditunda');
+        $response->assertSee('Laporan Ditolak Sistem');
         $response->assertSee('Terlaksana');
         $response->assertSee('Tertunda');
+        $response->assertSee('Ditolak');
         $response->assertSee('Lihat Detail');
 
         // Verify updated table structure and removals
@@ -98,24 +100,237 @@ class KabagRiwayatTest extends TestCase
         $response->assertDontSee('Kampus Mojo');
         $response->assertDontSee('Pelaksana:');
 
-        // Should NOT see uncompleted or rejected reports
+        // Should NOT see active queue reports
         $response->assertDontSee('Laporan Masih Menunggu Verifikasi');
         $response->assertDontSee('Laporan Masih Dikerjakan');
-        $response->assertDontSee('Laporan Ditolak Sistem');
 
         // Test search filter
         $resSearch = $this->actingAs($kabag)->get('/kabag/riwayat?search=Lampu');
         $resSearch->assertSee('Perbaikan Lampu Taman Selesai');
         $resSearch->assertDontSee('Pengadaan Meja Sidang Selesai Ditunda');
+        $resSearch->assertDontSee('Laporan Ditolak Sistem');
 
         // Test status terlaksana filter
         $resFilterTl = $this->actingAs($kabag)->get('/kabag/riwayat?status=terlaksana');
         $resFilterTl->assertSee('Perbaikan Lampu Taman Selesai');
         $resFilterTl->assertDontSee('Pengadaan Meja Sidang Selesai Ditunda');
+        $resFilterTl->assertDontSee('Laporan Ditolak Sistem');
 
         // Test status tertunda filter
         $resFilterTt = $this->actingAs($kabag)->get('/kabag/riwayat?status=tertunda');
         $resFilterTt->assertSee('Pengadaan Meja Sidang Selesai Ditunda');
         $resFilterTt->assertDontSee('Perbaikan Lampu Taman Selesai');
+        $resFilterTt->assertDontSee('Laporan Ditolak Sistem');
+
+        // Test status ditolak filter
+        $resFilterDitolak = $this->actingAs($kabag)->get('/kabag/riwayat?status=ditolak');
+        $resFilterDitolak->assertSee('Laporan Ditolak Sistem');
+        $resFilterDitolak->assertDontSee('Perbaikan Lampu Taman Selesai');
+        $resFilterDitolak->assertDontSee('Pengadaan Meja Sidang Selesai Ditunda');
+    }
+
+    public function test_sidebar_highlights_riwayat_when_navigating_to_detail_from_riwayat_kabag(): void
+    {
+        $kabag = User::factory()->create(['role' => 'kabag']);
+        $sarpras = SubDepartment::create(['name' => 'Sarpras & Logistik', 'code' => 'SARPRAS']);
+
+        // 1. Report in riwayat (status = selesai)
+        $reportSelesai = Report::create([
+            'ticket_code' => 'LP-SELESAI-01',
+            'title' => 'Laporan Selesai Riwayat',
+            'description' => 'Telah selesai',
+            'type' => 'pelayanan',
+            'sub_department_id' => $sarpras->id,
+            'campus_location' => 'mojo',
+            'status' => 'selesai',
+            'execution_result' => 'terlaksana',
+        ]);
+
+        // 2. Report in riwayat (status = ditolak)
+        $reportDitolak = Report::create([
+            'ticket_code' => 'LP-DITOLAK-01',
+            'title' => 'Laporan Ditolak Riwayat',
+            'description' => 'Telah ditolak',
+            'type' => 'pelayanan',
+            'sub_department_id' => $sarpras->id,
+            'campus_location' => 'sobo',
+            'status' => 'ditolak',
+        ]);
+
+        // 3. Active report (status = diajukan)
+        $reportActive = Report::create([
+            'ticket_code' => 'LP-AKTIF-01',
+            'title' => 'Laporan Aktif Pelayanan',
+            'description' => 'Sedang diajukan',
+            'type' => 'pelayanan',
+            'sub_department_id' => $sarpras->id,
+            'campus_location' => 'giri',
+            'status' => 'diajukan',
+        ]);
+
+        // When visiting active report from pelayanan
+        $responseActive = $this->actingAs($kabag)->get(route('kabag.show', $reportActive));
+        $responseActive->assertStatus(200);
+        // Laporan Pelayanan is active in sidebar
+        $this->assertMatchesRegularExpression(
+            '/href="[^"]*laporan-pelayanan"[^>]*class="[^"]*bg-\[#166E65\]/',
+            $responseActive->getContent()
+        );
+        // Riwayat is inactive in sidebar
+        $this->assertDoesNotMatchRegularExpression(
+            '/href="[^"]*riwayat"[^>]*class="[^"]*bg-\[#166E65\]/',
+            $responseActive->getContent()
+        );
+
+        // When visiting finished report from riwayat with from=history
+        $responseSelesai = $this->actingAs($kabag)->get(route('kabag.show', ['report' => $reportSelesai, 'from' => 'history']));
+        $responseSelesai->assertStatus(200);
+        // Riwayat is active in sidebar
+        $this->assertMatchesRegularExpression(
+            '/href="[^"]*riwayat"[^>]*class="[^"]*bg-\[#166E65\]/',
+            $responseSelesai->getContent()
+        );
+        // Laporan Pelayanan is inactive in sidebar
+        $this->assertDoesNotMatchRegularExpression(
+            '/href="[^"]*laporan-pelayanan"[^>]*class="[^"]*bg-\[#166E65\]/',
+            $responseSelesai->getContent()
+        );
+
+        // When visiting rejected report from riwayat
+        $responseDitolak = $this->actingAs($kabag)->get(route('kabag.show', ['report' => $reportDitolak, 'from' => 'history']));
+        $responseDitolak->assertStatus(200);
+        // Riwayat is active in sidebar
+        $this->assertMatchesRegularExpression(
+            '/href="[^"]*riwayat"[^>]*class="[^"]*bg-\[#166E65\]/',
+            $responseDitolak->getContent()
+        );
+        // Laporan Pelayanan is inactive in sidebar
+        $this->assertDoesNotMatchRegularExpression(
+            '/href="[^"]*laporan-pelayanan"[^>]*class="[^"]*bg-\[#166E65\]/',
+            $responseDitolak->getContent()
+        );
+    }
+
+    public function test_kabag_dashboard_prioritizes_box_reports_by_diajukan_proses_ditolak_tertunda_terlaksana(): void
+    {
+        $kabag = User::factory()->create(['role' => 'kabag']);
+        $sarpras = SubDepartment::create(['name' => 'Sarpras & Logistik', 'code' => 'SARPRAS']);
+
+        // Create reports in arbitrary order
+        $rTerlaksana = Report::create([
+            'ticket_code' => 'TK-PRIO-05',
+            'title' => 'Laporan Prioritas 5 Terlaksana',
+            'description' => 'Desc 5',
+            'type' => 'pelayanan',
+            'sub_department_id' => $sarpras->id,
+            'campus_location' => 'mojo',
+            'status' => 'selesai',
+            'execution_result' => 'terlaksana',
+            'created_at' => now()->subMinutes(1),
+        ]);
+
+        $rDitolak = Report::create([
+            'ticket_code' => 'TK-PRIO-03',
+            'title' => 'Laporan Prioritas 3 Ditolak',
+            'description' => 'Desc 3',
+            'type' => 'pelayanan',
+            'sub_department_id' => $sarpras->id,
+            'campus_location' => 'mojo',
+            'status' => 'ditolak',
+            'created_at' => now()->subMinutes(2),
+        ]);
+
+        $rDiajukan = Report::create([
+            'ticket_code' => 'TK-PRIO-01',
+            'title' => 'Laporan Prioritas 1 Diajukan',
+            'description' => 'Desc 1',
+            'type' => 'pelayanan',
+            'sub_department_id' => $sarpras->id,
+            'campus_location' => 'mojo',
+            'status' => 'diajukan',
+            'created_at' => now()->subMinutes(5),
+        ]);
+
+        $rTertunda = Report::create([
+            'ticket_code' => 'TK-PRIO-04',
+            'title' => 'Laporan Prioritas 4 Tertunda',
+            'description' => 'Desc 4',
+            'type' => 'pelayanan',
+            'sub_department_id' => $sarpras->id,
+            'campus_location' => 'mojo',
+            'status' => 'selesai',
+            'execution_result' => 'tertunda',
+            'created_at' => now()->subMinutes(3),
+        ]);
+
+        $rProses = Report::create([
+            'ticket_code' => 'TK-PRIO-02',
+            'title' => 'Laporan Prioritas 2 Proses',
+            'description' => 'Desc 2',
+            'type' => 'pelayanan',
+            'sub_department_id' => $sarpras->id,
+            'campus_location' => 'mojo',
+            'status' => 'proses',
+            'created_at' => now()->subMinutes(4),
+        ]);
+
+        $response = $this->actingAs($kabag)->get(route('kabag.dashboard'));
+        $response->assertStatus(200);
+
+        $content = $response->getContent();
+        $pos1 = strpos($content, 'TK-PRIO-01'); // diajukan
+        $pos2 = strpos($content, 'TK-PRIO-02'); // proses
+        $pos3 = strpos($content, 'TK-PRIO-03'); // ditolak
+        $pos4 = strpos($content, 'TK-PRIO-04'); // tertunda
+        $pos5 = strpos($content, 'TK-PRIO-05'); // terlaksana
+
+        $this->assertNotFalse($pos1);
+        $this->assertNotFalse($pos2);
+        $this->assertNotFalse($pos3);
+        $this->assertNotFalse($pos4);
+        $this->assertNotFalse($pos5);
+
+        // Verify ordering: diajukan < proses < ditolak < tertunda < terlaksana
+        $this->assertTrue($pos1 < $pos2, 'Diajukan should appear before Proses');
+        $this->assertTrue($pos2 < $pos3, 'Proses should appear before Ditolak');
+        $this->assertTrue($pos3 < $pos4, 'Ditolak should appear before Tertunda');
+        $this->assertTrue($pos4 < $pos5, 'Tertunda should appear before Terlaksana');
+    }
+
+    public function test_kabag_laporan_pelayanan_excludes_ditolak_and_does_not_have_selesai_or_ditolak_filter_options(): void
+    {
+        $kabag = User::factory()->create(['role' => 'kabag']);
+        $sarpras = SubDepartment::create(['name' => 'Sarpras & Logistik', 'code' => 'SARPRAS']);
+
+        $reportDitolak = Report::create([
+            'ticket_code' => 'LP-PELAYANAN-TOLAK',
+            'title' => 'Laporan Ditolak Di Pelayanan',
+            'description' => 'Desc',
+            'type' => 'pelayanan',
+            'sub_department_id' => $sarpras->id,
+            'campus_location' => 'mojo',
+            'status' => 'ditolak',
+        ]);
+
+        $reportDiajukan = Report::create([
+            'ticket_code' => 'LP-PELAYANAN-AJUKAN',
+            'title' => 'Laporan Diajukan Di Pelayanan',
+            'description' => 'Desc',
+            'type' => 'pelayanan',
+            'sub_department_id' => $sarpras->id,
+            'campus_location' => 'mojo',
+            'status' => 'diajukan',
+        ]);
+
+        $response = $this->actingAs($kabag)->get(route('kabag.laporan-pelayanan'));
+        $response->assertStatus(200);
+
+        // Must see diajukan, must NOT see ditolak
+        $response->assertSee('LP-PELAYANAN-AJUKAN');
+        $response->assertDontSee('LP-PELAYANAN-TOLAK');
+
+        // Status filter in laporan pelayanan must NOT have selesai or ditolak options
+        $response->assertDontSee('<option value="selesai"', false);
+        $response->assertDontSee('<option value="ditolak"', false);
     }
 }

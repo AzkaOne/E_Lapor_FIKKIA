@@ -14,6 +14,10 @@ class ExecutionController extends Controller
 {
     public function start(Report $report): RedirectResponse
     {
+        if ($report->type !== 'pelayanan' || $report->status === 'diajukan') {
+            abort(403, 'Akses terbatas untuk tipe atau status laporan ini.');
+        }
+
         $userId = auth()->id();
         $userSubDeptId = auth()->user()->sub_department_id;
 
@@ -42,6 +46,10 @@ class ExecutionController extends Controller
 
     public function selfExecute(Report $report): RedirectResponse
     {
+        if ($report->type !== 'pelayanan' || $report->status === 'diajukan') {
+            abort(403, 'Akses terbatas untuk tipe atau status laporan ini.');
+        }
+
         $userId = auth()->id();
         $userSubDeptId = auth()->user()->sub_department_id;
 
@@ -70,6 +78,10 @@ class ExecutionController extends Controller
 
     public function reject(Request $request, Report $report): RedirectResponse
     {
+        if ($report->type !== 'pelayanan' || $report->status === 'diajukan') {
+            abort(403, 'Akses terbatas untuk tipe atau status laporan ini.');
+        }
+
         $userId = auth()->id();
         $userSubDeptId = auth()->user()->sub_department_id;
 
@@ -115,7 +127,7 @@ class ExecutionController extends Controller
 
     public function complete(Request $request, Report $report): RedirectResponse
     {
-        if ($report->handler_id !== auth()->id()) {
+        if ($report->type !== 'pelayanan' || $report->status === 'diajukan' || $report->handler_id !== auth()->id()) {
             abort(403, 'Anda bukan petugas yang ditugaskan untuk laporan ini.');
         }
 

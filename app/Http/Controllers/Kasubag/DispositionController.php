@@ -14,7 +14,7 @@ class DispositionController extends Controller
 {
     public function dispose(Request $request, Report $report): RedirectResponse
     {
-        if ($report->sub_department_id !== auth()->user()->sub_department_id) {
+        if ($report->type !== 'pelayanan' || $report->status === 'diajukan' || $report->sub_department_id !== auth()->user()->sub_department_id) {
             abort(403);
         }
 
@@ -48,7 +48,7 @@ class DispositionController extends Controller
 
     public function returnToKabag(Request $request, Report $report): RedirectResponse
     {
-        if ($report->sub_department_id !== auth()->user()->sub_department_id) {
+        if ($report->type !== 'pelayanan' || $report->status === 'diajukan' || $report->sub_department_id !== auth()->user()->sub_department_id) {
             abort(403);
         }
 
@@ -75,7 +75,7 @@ class DispositionController extends Controller
 
     public function reject(Request $request, Report $report): RedirectResponse
     {
-        if ($report->sub_department_id !== auth()->user()->sub_department_id) {
+        if ($report->type !== 'pelayanan' || $report->status === 'diajukan' || $report->sub_department_id !== auth()->user()->sub_department_id) {
             abort(403);
         }
 
@@ -102,7 +102,7 @@ class DispositionController extends Controller
 
     public function selfExecute(Report $report): RedirectResponse
     {
-        if ($report->sub_department_id !== auth()->user()->sub_department_id) {
+        if ($report->type !== 'pelayanan' || $report->status === 'diajukan' || $report->sub_department_id !== auth()->user()->sub_department_id) {
             abort(403);
         }
 
@@ -122,7 +122,7 @@ class DispositionController extends Controller
 
     public function submitVerification(Request $request, Report $report): RedirectResponse
     {
-        if ($report->handler_id !== auth()->id()) {
+        if ($report->type !== 'pelayanan' || $report->handler_id !== auth()->id()) {
             abort(403);
         }
 

@@ -18,7 +18,8 @@ class DashboardController extends Controller
 
         $query = Report::with(['user', 'handler', 'subDepartment'])
             ->where('type', 'pelayanan')
-            ->where('sub_department_id', $subDeptId);
+            ->where('sub_department_id', $subDeptId)
+            ->where('status', '!=', 'diajukan');
 
         if ($request->filled('status')) {
             $query->where('status', $request->status);
@@ -26,11 +27,15 @@ class DashboardController extends Controller
 
         $reports = $query->latest()->paginate(10);
 
-        $masuk = Report::where('sub_department_id', $subDeptId)->where('status', 'didisposisi')->count();
-        $dikerjakan = Report::where('sub_department_id', $subDeptId)->whereIn('status', ['diterima', 'proses'])->count();
-        $verifikasi = Report::where('sub_department_id', $subDeptId)->where('status', 'verifikasi_kabag')->count();
-        $selesai = Report::where('sub_department_id', $subDeptId)->where('status', 'selesai')->count();
-        $tertunda = Report::where('sub_department_id', $subDeptId)
+        $baseKasubag = Report::where('type', 'pelayanan')
+            ->where('sub_department_id', $subDeptId)
+            ->where('status', '!=', 'diajukan');
+
+        $masuk = (clone $baseKasubag)->where('status', 'didisposisi')->count();
+        $dikerjakan = (clone $baseKasubag)->whereIn('status', ['diterima', 'proses'])->count();
+        $verifikasi = (clone $baseKasubag)->where('status', 'verifikasi_kabag')->count();
+        $selesai = (clone $baseKasubag)->where('status', 'selesai')->count();
+        $tertunda = (clone $baseKasubag)
             ->where(function ($q) {
                 $q->where('status', 'ditolak')
                   ->orWhere('execution_result', 'tertunda');
@@ -48,7 +53,7 @@ class DashboardController extends Controller
 
         $totalReports = $selesai + $masuk + $dikerjakan + $tertunda;
 
-        $todayNewCount = Report::where('sub_department_id', $subDeptId)
+        $todayNewCount = (clone $baseKasubag)
             ->whereDate('created_at', today())
             ->count();
 
@@ -58,7 +63,7 @@ class DashboardController extends Controller
                 $q->where('receiver_id', $user->id)
                   ->orWhere(function ($sq) use ($subDeptId) {
                       $sq->whereNull('receiver_id')
-                         ->whereHas('report', fn($rq) => $rq->where('sub_department_id', $subDeptId))
+                         ->whereHas('report', fn($rq) => $rq->where('type', 'pelayanan')->where('sub_department_id', $subDeptId)->where('status', '!=', 'diajukan'))
                          ->whereHas('sender', fn($uq) => $uq->where('role', 'kabag'));
                   });
             })
@@ -69,7 +74,7 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
-        $recentActivities = Report::where('sub_department_id', $subDeptId)
+        $recentActivities = (clone $baseKasubag)
             ->latest('updated_at')
             ->take(4)
             ->get();
@@ -86,8 +91,16 @@ class DashboardController extends Controller
 
     public function show(Report $report): View
     {
+        if ($report->type !== 'pelayanan') {
+            abort(403, 'Akses ditolak. Kasubag hanya memiliki akses pada laporan pelayanan.');
+        }
+
         if ($report->sub_department_id !== auth()->user()->sub_department_id) {
             abort(403, 'Laporan ini berada di luar sub bagian Anda.');
+        }
+
+        if ($report->status === 'diajukan') {
+            abort(403, 'Laporan ini belum didisposisikan oleh KABAG.');
         }
 
         $report->load([
@@ -116,6 +129,7 @@ class DashboardController extends Controller
     public function myReports(Request $request): View
     {
         $query = Report::with(['user', 'handler', 'subDepartment', 'evidences'])
+            ->where('type', 'pelayanan')
             ->where('handler_id', auth()->id())
             ->where('status', 'proses');
 
@@ -140,7 +154,9 @@ class DashboardController extends Controller
         $subDeptId = auth()->user()->sub_department_id;
 
         $query = Report::with(['user', 'handler', 'subDepartment'])
-            ->where('sub_department_id', $subDeptId);
+            ->where('type', 'pelayanan')
+            ->where('sub_department_id', $subDeptId)
+            ->where('status', '!=', 'diajukan');
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -155,7 +171,7 @@ class DashboardController extends Controller
 
         if ($request->filled('status')) {
             if ($request->status === 'masuk' || $request->status === 'didisposisi') {
-                $query->whereIn('status', ['didisposisi', 'diajukan']);
+                $query->where('status', 'didisposisi');
             } elseif ($request->status === 'terlaksana' || $request->status === 'selesai') {
                 $query->where(function ($q) {
                     $q->where('status', 'selesai')
@@ -174,8 +190,8 @@ class DashboardController extends Controller
                 $query->where('status', $request->status);
             }
         } else {
-            // Default untuk Laporan Masuk: sembunyikan laporan yang sudah selesai atau diverifikasi karena sudah pindah ke Riwayat
-            $query->whereNotIn('status', ['selesai', 'verifikasi_kabag']);
+            // Default untuk Laporan Masuk: sembunyikan laporan yang sudah selesai atau diverifikasi karena sudah pindah ke Riwayat, serta belum didisposisi (diajukan)
+            $query->whereNotIn('status', ['diajukan', 'selesai', 'verifikasi_kabag']);
         }
 
         if ($request->filled('date')) {
@@ -186,11 +202,13 @@ class DashboardController extends Controller
 
         $subDepartments = SubDepartment::all();
 
-        $baseCount = Report::where('sub_department_id', $subDeptId);
+        $baseCount = Report::where('type', 'pelayanan')
+            ->where('sub_department_id', $subDeptId)
+            ->where('status', '!=', 'diajukan');
 
         $counts = [
             'total' => (clone $baseCount)->whereNotIn('status', ['selesai', 'verifikasi_kabag'])->count(),
-            'masuk' => (clone $baseCount)->whereIn('status', ['didisposisi', 'diajukan'])->count(),
+            'masuk' => (clone $baseCount)->where('status', 'didisposisi')->count(),
             'terlaksana' => (clone $baseCount)->where(function ($q) {
                 $q->where('status', 'selesai')
                   ->orWhere('execution_result', 'terlaksana');
@@ -211,6 +229,7 @@ class DashboardController extends Controller
         $subDeptId = auth()->user()->sub_department_id;
 
         $query = Report::with(['user', 'handler', 'subDepartment', 'evidences'])
+            ->where('type', 'pelayanan')
             ->where('sub_department_id', $subDeptId)
             ->whereIn('status', ['selesai', 'verifikasi_kabag']);
 
@@ -247,7 +266,9 @@ class DashboardController extends Controller
 
         $reports = $query->latest('updated_at')->paginate(10)->withQueryString();
 
-        $baseCount = Report::where('sub_department_id', $subDeptId)->whereIn('status', ['selesai', 'verifikasi_kabag']);
+        $baseCount = Report::where('type', 'pelayanan')
+            ->where('sub_department_id', $subDeptId)
+            ->whereIn('status', ['selesai', 'verifikasi_kabag']);
         $counts = [
             'total' => (clone $baseCount)->count(),
             'terlaksana' => (clone $baseCount)->where(function ($q) {

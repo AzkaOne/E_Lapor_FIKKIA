@@ -355,10 +355,10 @@
                       </div>
                     </td>
                     <td class="px-5 py-4 whitespace-nowrap">
-                      @if ($report->status == 'didisposisi' || $report->status == 'diajukan')
+                      @if ($report->status == 'didisposisi')
                         <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#FFFAEB] text-[#B45309] border border-[#FDE68A]">
                           <span class="w-1.5 h-1.5 rounded-full bg-[#F59E0B]"></span>
-                          <span>Diajukan</span>
+                          <span>Laporan Masuk</span>
                         </span>
                       @elseif ($report->status == 'proses' || $report->status == 'diterima')
                         <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#EEF6FF] text-[#1C4ED8] border border-[#BFDBFE]">
@@ -464,7 +464,7 @@
             <div class="space-y-3">
               @forelse ($recentActivities as $act)
                 <div class="flex items-start gap-3 text-xs">
-                  @if ($act->status == 'didisposisi' || $act->status == 'diajukan')
+                  @if ($act->status == 'didisposisi')
                     <span class="w-2.5 h-2.5 rounded-full bg-[#3B82F6] shrink-0 mt-1.5"></span>
                   @elseif ($act->status == 'proses' || $act->status == 'diterima')
                     <span class="w-2.5 h-2.5 rounded-full bg-[#F49E0B] shrink-0 mt-1.5"></span>
@@ -479,7 +479,7 @@
                       Laporan "{{ $act->title }}"
                     </p>
                     <p class="text-[11px] text-slate-400 capitalize">
-                      @if ($act->status == 'didisposisi' || $act->status == 'diajukan')
+                      @if ($act->status == 'didisposisi')
                         Laporan masuk
                       @elseif ($act->status == 'proses' || $act->status == 'diterima')
                         Sedang ditangani

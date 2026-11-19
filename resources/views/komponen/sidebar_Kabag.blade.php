@@ -40,6 +40,10 @@
     <!-- Navigation Menu -->
     <nav class="space-y-1.5 font-['Plus_Jakarta_Sans',sans-serif]">
       @if (auth()->check() && auth()->user()->role === 'petugas')
+        @php
+          $isPetugasHistoryActive = request()->routeIs('petugas.history*') || (request()->routeIs('petugas.show') && (request('from') === 'history' || (isset($report) && in_array($report->status, ['selesai', 'ditolak']))));
+          $isPetugasMasukActive = (request()->routeIs('petugas.my-reports*') || request()->routeIs('petugas.laporan-masuk*') || (request()->routeIs('petugas.show') && !$isPetugasHistoryActive));
+        @endphp
 
         <!-- 1. Dashboard -->
         <a href="{{ route('petugas.dashboard') }}"
@@ -52,7 +56,7 @@
 
         <!-- 2. Laporan Masuk -->
         <a href="{{ route('petugas.laporan-masuk') }}"
-           class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-[13px] transition {{ (request()->routeIs('petugas.my-reports*') || request()->routeIs('petugas.laporan-masuk*')) ? 'bg-[#166E65] text-white font-bold shadow-xs' : 'text-white/90 hover:bg-white/10 hover:text-white font-medium' }}">
+           class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-[13px] transition {{ $isPetugasMasukActive ? 'bg-[#166E65] text-white font-bold shadow-xs' : 'text-white/90 hover:bg-white/10 hover:text-white font-medium' }}">
           <svg class="w-4 h-4 shrink-0 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
           </svg>
@@ -61,7 +65,7 @@
 
         <!-- 3. Riwayat -->
         <a href="{{ route('petugas.history') }}"
-           class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-[13px] transition {{ request()->routeIs('petugas.history*') ? 'bg-[#166E65] text-white font-bold shadow-xs' : 'text-white/90 hover:bg-white/10 hover:text-white font-medium' }}">
+           class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-[13px] transition {{ $isPetugasHistoryActive ? 'bg-[#166E65] text-white font-bold shadow-xs' : 'text-white/90 hover:bg-white/10 hover:text-white font-medium' }}">
           <svg class="w-4 h-4 shrink-0 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
@@ -69,6 +73,10 @@
         </a>
 
       @elseif (auth()->check() && auth()->user()->role === 'kasubag')
+        @php
+          $isKasubagHistoryActive = request()->routeIs('kasubag.history*') || (request()->routeIs('kasubag.show') && (request('from') === 'history' || (isset($report) && in_array($report->status, ['selesai', 'ditolak']))));
+          $isKasubagMasukActive = (request()->routeIs('kasubag.status*') || request()->routeIs('kasubag.my-reports*') || request()->routeIs('kasubag.laporan-masuk*') || (request()->routeIs('kasubag.show') && !$isKasubagHistoryActive));
+        @endphp
 
         <!-- 1. Dashboard -->
          <a href="{{ route('kasubag.dashboard') }}"
@@ -81,7 +89,7 @@
 
         <!-- 2. Laporan Masuk -->
         <a href="{{ route('kasubag.status') }}"
-           class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-[13px] transition {{ (request()->routeIs('kasubag.status*') || request()->routeIs('kasubag.my-reports*') || request()->routeIs('kasubag.laporan-masuk*')) ? 'bg-[#166E65] text-white font-bold shadow-xs' : 'text-white/90 hover:bg-white/10 hover:text-white font-medium' }}">
+           class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-[13px] transition {{ $isKasubagMasukActive ? 'bg-[#166E65] text-white font-bold shadow-xs' : 'text-white/90 hover:bg-white/10 hover:text-white font-medium' }}">
           <svg class="w-4 h-4 shrink-0 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
           </svg>
@@ -90,7 +98,7 @@
 
         <!-- 3. Riwayat Laporan -->
         <a href="{{ route('kasubag.history') }}"
-           class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-[13px] transition {{ request()->routeIs('kasubag.history') ? 'bg-[#166E65] text-white font-bold shadow-xs' : 'text-white/90 hover:bg-white/10 hover:text-white font-medium' }}">
+           class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-[13px] transition {{ $isKasubagHistoryActive ? 'bg-[#166E65] text-white font-bold shadow-xs' : 'text-white/90 hover:bg-white/10 hover:text-white font-medium' }}">
           <svg class="w-4 h-4 shrink-0 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
@@ -107,6 +115,12 @@
         </a>
       @else
         <!-- KABAG MENU: Dashboard, Laporan Pelayanan, Laporan Whistleblower, Manajemen Kasubag, Riwayat Laporan -->
+        @php
+          $isKabagHistoryActive = request()->routeIs('kabag.history*') || (request()->routeIs('kabag.show') && (request('from') === 'history' || (isset($report) && in_array($report->status, ['selesai', 'ditolak']))));
+          $isKabagWbActive = (request()->routeIs('kabag.whistleblowing*') || (request()->routeIs('kabag.show') && isset($report) && $report->type === 'whistleblowing')) && !$isKabagHistoryActive;
+          $isKabagPelayananActive = (request()->routeIs('kabag.laporan-pelayanan*') || request()->routeIs('kabag.my-reports*') || request()->routeIs('kabag.verifikasi*') || (request()->routeIs('kabag.show') && !$isKabagHistoryActive && !$isKabagWbActive));
+        @endphp
+
         <!-- 1. Dashboard -->
         <a href="{{ route('kabag.dashboard') }}"
            class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-[13px] transition {{ request()->routeIs('kabag.dashboard') ? 'bg-[#166E65] text-white font-bold shadow-xs' : 'text-white/90 hover:bg-white/10 hover:text-white font-medium' }}">
@@ -118,7 +132,7 @@
 
         <!-- 2. Laporan Pelayanan -->
         <a href="{{ route('kabag.laporan-pelayanan') }}"
-           class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-[13px] transition {{ ((request()->routeIs('kabag.laporan-pelayanan*') || request()->routeIs('kabag.my-reports*') || request()->routeIs('kabag.verifikasi*') || request()->routeIs('kabag.show')) && (!isset($report) || $report->type !== 'whistleblowing')) ? 'bg-[#166E65] text-white font-bold shadow-xs' : 'text-white/90 hover:bg-white/10 hover:text-white font-medium' }}">
+           class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-[13px] transition {{ $isKabagPelayananActive ? 'bg-[#166E65] text-white font-bold shadow-xs' : 'text-white/90 hover:bg-white/10 hover:text-white font-medium' }}">
           <svg class="w-4 h-4 shrink-0 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
           </svg>
@@ -127,7 +141,7 @@
 
         <!-- 3. Laporan Whistleblower -->
         <a href="{{ route('kabag.whistleblowing') }}"
-           class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-[13px] transition {{ (request()->routeIs('kabag.whistleblowing*') || (request()->routeIs('kabag.show') && isset($report) && $report->type === 'whistleblowing')) ? 'bg-[#166E65] text-white font-bold shadow-xs' : 'text-white/90 hover:bg-white/10 hover:text-white font-medium' }}">
+           class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-[13px] transition {{ $isKabagWbActive ? 'bg-[#166E65] text-white font-bold shadow-xs' : 'text-white/90 hover:bg-white/10 hover:text-white font-medium' }}">
           <svg class="w-4 h-4 shrink-0 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
           </svg>
@@ -145,7 +159,7 @@
 
         <!-- 5. Riwayat Laporan -->
         <a href="{{ route('kabag.history') }}"
-           class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-[13px] transition {{ request()->routeIs('kabag.history') ? 'bg-[#166E65] text-white font-bold shadow-xs' : 'text-white/90 hover:bg-white/10 hover:text-white font-medium' }}">
+           class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-[13px] transition {{ $isKabagHistoryActive ? 'bg-[#166E65] text-white font-bold shadow-xs' : 'text-white/90 hover:bg-white/10 hover:text-white font-medium' }}">
           <svg class="w-4 h-4 shrink-0 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>

@@ -179,7 +179,9 @@
 
       <!-- ================= BREADCRUMB ================= -->
       <nav class="flex items-center gap-2 text-xs sm:text-sm text-slate-500 font-medium">
-        @if ($report->type === 'whistleblowing')
+        @if (request('from') === 'history' || in_array($report->status, ['selesai', 'ditolak']))
+          <a href="{{ $isPetugas ? route('petugas.history') : ($isKasubag ? route('kasubag.history') : route('kabag.history')) }}" class="hover:text-[#2E978E] transition">Riwayat Laporan</a>
+        @elseif ($report->type === 'whistleblowing')
           <a href="{{ route('kabag.whistleblowing') }}" class="hover:text-[#2E978E] transition">Whistleblowing</a>
         @else
           <a href="{{ $isPetugas ? route('petugas.laporan-masuk') : ($isKasubag ? route('kasubag.status') : route('kabag.laporan-pelayanan')) }}" class="hover:text-[#2E978E] transition">Laporan Masuk</a>

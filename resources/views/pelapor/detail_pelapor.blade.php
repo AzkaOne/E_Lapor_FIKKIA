@@ -424,7 +424,7 @@
                 'title' => 'Diteruskan Ke Kasubag',
                 'icon' => ['M14 5l7 7m0 0l-7 7m7-7H3'],
                 'time' => $kasubagPassed ? ($fmt($dispKasubag?->created_at ?? $dispKabag?->created_at)) : 'Menunggu arahan Kasubag',
-                'note' => 'Kepada ' . ($dispKasubag?->receiver?->name ?? 'Kasubag ' . ($report->subDepartment?->name ?? 'Unit')),
+                'note' => 'Oleh ' . ($dispKabag?->sender?->name ?? 'Kepala Bagian (KABAG)'),
                 'color' => '#0D9488',
                 'is_passed' => $kasubagPassed,
               ];

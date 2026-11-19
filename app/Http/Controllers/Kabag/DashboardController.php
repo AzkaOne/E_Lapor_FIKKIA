@@ -18,14 +18,37 @@ class DashboardController extends Controller
             ->where('type', 'pelayanan');
 
         if ($request->filled('status')) {
-            $query->where('status', $request->status);
+            if ($request->status === 'proses') {
+                $query->whereIn('status', ['didisposisi', 'diterima', 'proses']);
+            } elseif ($request->status === 'tertunda') {
+                $query->where('execution_result', 'tertunda');
+            } elseif ($request->status === 'terlaksana') {
+                $query->where(function ($q) {
+                    $q->where('execution_result', 'terlaksana')
+                      ->orWhere(function ($sq) {
+                          $sq->where('status', 'selesai')->whereNull('execution_result');
+                      });
+                });
+            } else {
+                $query->where('status', $request->status);
+            }
         }
 
         if ($request->filled('sub_department_id')) {
             $query->where('sub_department_id', $request->sub_department_id);
         }
 
-        $reports = $query->latest()->paginate(10);
+        // Urutan prioritas box laporan pelayanan: diajukan, proses, ditolak, tertunda, terlaksana
+        $reports = $query->orderByRaw("
+            CASE
+                WHEN status = 'diajukan' THEN 1
+                WHEN status IN ('proses', 'didisposisi', 'diterima', 'verifikasi_kabag') THEN 2
+                WHEN status = 'ditolak' THEN 3
+                WHEN execution_result = 'tertunda' THEN 4
+                WHEN execution_result = 'terlaksana' OR status = 'selesai' THEN 5
+                ELSE 6
+            END ASC
+        ")->latest('created_at')->paginate(10)->withQueryString();
 
         $counts = [
             'total' => Report::where('type', 'pelayanan')->count(),
@@ -149,7 +172,7 @@ class DashboardController extends Controller
     {
         $query = Report::with(['user', 'subDepartment', 'handler'])
             ->where('type', 'pelayanan')
-            ->where('status', '!=', 'selesai')
+            ->whereNotIn('status', ['selesai', 'ditolak'])
             ->where(function ($q) {
                 $q->where('status', '!=', 'proses')
                   ->orWhere('handler_id', '!=', auth()->id())
@@ -198,7 +221,7 @@ class DashboardController extends Controller
         $akademikDept = $subDepartments->first(fn($d) => str_contains(strtolower($d->name), 'pendidikan') || str_contains(strtolower($d->name), 'kemahasiswaan') || str_contains(strtolower($d->name), 'akademik'));
 
         $basePelayanan = Report::where('type', 'pelayanan')
-            ->where('status', '!=', 'selesai')
+            ->whereNotIn('status', ['selesai', 'ditolak'])
             ->where(function ($q) {
                 $q->where('status', '!=', 'proses')
                   ->orWhere('handler_id', '!=', auth()->id())
@@ -285,7 +308,7 @@ class DashboardController extends Controller
     {
         $query = Report::with(['user', 'subDepartment', 'handler', 'evidences'])
             ->whereIn('type', ['pelayanan', 'whistleblowing'])
-            ->where('status', 'selesai');
+            ->whereIn('status', ['selesai', 'ditolak']);
 
         // Filter Search
         if ($request->filled('search')) {
@@ -305,10 +328,12 @@ class DashboardController extends Controller
             $query->where('sub_department_id', $request->sub_department_id);
         }
 
-        // Filter Hasil Penanganan & Kategori Laporan (Pelayanan / Whistleblowing)
+        // Filter Hasil Penanganan, Kategori Laporan (Pelayanan / Whistleblowing), atau Ditolak
         if ($request->filled('status')) {
-            if (in_array($request->status, ['terlaksana', 'tertunda'])) {
-                $query->where('execution_result', $request->status);
+            if ($request->status === 'ditolak') {
+                $query->where('status', 'ditolak');
+            } elseif (in_array($request->status, ['terlaksana', 'tertunda'])) {
+                $query->where('status', 'selesai')->where('execution_result', $request->status);
             } elseif (in_array($request->status, ['pelayanan', 'whistleblowing'])) {
                 $query->where('type', $request->status);
             }
@@ -337,7 +362,7 @@ class DashboardController extends Controller
         $keuanganDept = $subDepartments->first(fn($d) => str_contains(strtolower($d->name), 'keuangan') || str_contains(strtolower($d->name), 'sdm'));
         $akademikDept = $subDepartments->first(fn($d) => str_contains(strtolower($d->name), 'pendidikan') || str_contains(strtolower($d->name), 'kemahasiswaan') || str_contains(strtolower($d->name), 'akademik'));
 
-        $baseHistory = Report::whereIn('type', ['pelayanan', 'whistleblowing'])->where('status', 'selesai');
+        $baseHistory = Report::whereIn('type', ['pelayanan', 'whistleblowing'])->whereIn('status', ['selesai', 'ditolak']);
         $totalCount = (clone $baseHistory)->count();
         $sarprasCount = $sarprasDept ? (clone $baseHistory)->where('sub_department_id', $sarprasDept->id)->count() : 0;
         $dekanatCount = $dekanatDept ? (clone $baseHistory)->where('sub_department_id', $dekanatDept->id)->count() : 0;
@@ -350,7 +375,8 @@ class DashboardController extends Controller
             'dekanat' => $dekanatCount,
             'keuangan' => $keuanganCount,
             'akademik' => $akademikCount,
-            'selesai' => $totalCount,
+            'selesai' => (clone $baseHistory)->where('status', 'selesai')->count(),
+            'ditolak' => (clone $baseHistory)->where('status', 'ditolak')->count(),
         ];
 
         return view('kabag.riwayat_kabag', compact('reports', 'counts', 'subDepartments'));

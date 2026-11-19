@@ -33,10 +33,20 @@
           <span class="w-1.5 h-1.5 rounded-full bg-[#8B5CF6]"></span>
           <span>Verifikasi</span>
         </span>
-      @elseif ($report->status === 'selesai')
+      @elseif ($report->status === 'ditolak')
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200">
+          <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+          <span>Ditolak</span>
+        </span>
+      @elseif ($report->execution_result === 'tertunda')
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[#FEF2F2] text-[#B91C1C] border border-[#FECACA]">
+          <span class="w-1.5 h-1.5 rounded-full bg-[#EF4444]"></span>
+          <span>Tertunda</span>
+        </span>
+      @elseif ($report->status === 'selesai' || $report->execution_result === 'terlaksana')
         <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[#ECFDF5] text-[#059669] border border-[#A7F3D0]">
           <span class="w-1.5 h-1.5 rounded-full bg-[#10B981]"></span>
-          <span>Selesai</span>
+          <span>Terlaksana</span>
         </span>
       @else
         <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200">

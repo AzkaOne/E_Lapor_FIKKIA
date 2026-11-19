@@ -18,7 +18,7 @@ class UserSeeder extends Seeder
 
         // 1. Kabag
         User::updateOrCreate(['email' => 'kabag@unair.ac.id'], [
-            'name' => 'Kepala Bagian Tata Usaha (KABAG)',
+            'name' => 'KABAG',
             'identity_number' => '197505121998031001',
             'phone_number' => '081234567801',
             'role' => 'kabag',
@@ -29,7 +29,7 @@ class UserSeeder extends Seeder
 
         // 2. Kasubags
         User::updateOrCreate(['email' => 'kasubag.sarpras@unair.ac.id'], [
-            'name' => 'KASUBAG Sarana & Prasarana',
+            'name' => 'KASUBAG ',
             'identity_number' => '198003152005011002',
             'phone_number' => '081234567802',
             'role' => 'kasubag',
@@ -70,7 +70,7 @@ class UserSeeder extends Seeder
         ]);
 
         User::updateOrCreate(['email' => 'petugas.sarpras@unair.ac.id'], [
-            'name' => 'Petugas Teknisi Sarpras',
+            'name' => 'Petugas ',
             'identity_number' => '199202022016021002',
             'phone_number' => '081234567806',
             'role' => 'petugas',

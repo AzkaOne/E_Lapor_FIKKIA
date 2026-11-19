@@ -88,8 +88,8 @@
               </svg>
             </div>
             <div>
-              <h2 class="text-base sm:text-lg font-bold text-[#0C3934] leading-tight">Riwayat Laporan Selesai</h2>
-              <p class="text-xs text-slate-500 mt-0.5">Arsip seluruh laporan pelayanan yang telah selesai diverifikasi oleh KABAG</p>
+              <h2 class="text-base sm:text-lg font-bold text-[#0C3934] leading-tight">Riwayat Laporan</h2>
+              <p class="text-xs text-slate-500 mt-0.5">Arsip seluruh laporan pelayanan dan whistleblowing yang telah selesai atau ditolak</p>
             </div>
           </div>
         </div>
@@ -131,6 +131,7 @@
               <option value="">Semua Hasil</option>
               <option value="terlaksana" {{ request('status') === 'terlaksana' ? 'selected' : '' }}>Terlaksana</option>
               <option value="tertunda" {{ request('status') === 'tertunda' ? 'selected' : '' }}>Tertunda</option>
+              <option value="ditolak" {{ request('status') === 'ditolak' ? 'selected' : '' }}>Ditolak</option>
               <option value="pelayanan" {{ request('status') === 'pelayanan' ? 'selected' : '' }}>Pelayanan</option>
               <option value="whistleblowing" {{ request('status') === 'whistleblowing' ? 'selected' : '' }}>Whistleblowing</option>
             </select>
@@ -332,7 +333,12 @@
                     <!-- Status -->
                     <td class="py-4 px-3.5 whitespace-nowrap">
                       <div class="flex flex-col items-start gap-1">
-                        @if ($report->execution_result === 'tertunda')
+                        @if ($report->status === 'ditolak')
+                          <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200">
+                            <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+                            <span>Ditolak</span>
+                          </span>
+                        @elseif ($report->execution_result === 'tertunda')
                           <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[#FEF2F2] text-[#B91C1C] border border-[#FECACA]">
                             <span class="w-1.5 h-1.5 rounded-full bg-[#EF4444]"></span>
                             <span>Tertunda</span>
@@ -355,7 +361,7 @@
 
                     <!-- Aksi -->
                     <td class="py-4 px-3.5 text-center whitespace-nowrap">
-                      <a href="{{ route('kabag.show', $report) }}"
+                      <a href="{{ route('kabag.show', ['report' => $report, 'from' => 'history']) }}"
                          class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border border-[#0D9488] text-[#0D9488] hover:bg-[#0D9488] hover:text-white transition font-bold text-xs shadow-xs" title="Lihat Detail Laporan">
                         <span>Lihat Detail</span>
                       </a>

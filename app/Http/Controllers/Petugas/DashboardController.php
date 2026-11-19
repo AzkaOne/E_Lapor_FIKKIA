@@ -16,7 +16,9 @@ class DashboardController extends Controller
         $userId = auth()->id();
 
         $query = Report::with(['user', 'subDepartment', 'evidences'])
-            ->where('handler_id', $userId);
+            ->where('type', 'pelayanan')
+            ->where('handler_id', $userId)
+            ->where('status', '!=', 'diajukan');
 
         if ($request->filled('status')) {
             $query->where('status', $request->status);
@@ -87,6 +89,14 @@ class DashboardController extends Controller
         $userId = auth()->id();
         $userSubDeptId = auth()->user()->sub_department_id;
 
+        if ($report->type !== 'pelayanan') {
+            abort(403, 'Akses terbatas untuk tipe laporan ini.');
+        }
+
+        if ($report->status === 'diajukan') {
+            abort(403, 'Laporan belum didisposisikan.');
+        }
+
         if ($report->handler_id && $report->handler_id !== $userId) {
             abort(403, 'Anda bukan petugas yang ditugaskan untuk laporan ini.');
         }
@@ -128,7 +138,9 @@ class DashboardController extends Controller
         $userId = auth()->id();
 
         $query = Report::with(['user', 'handler', 'subDepartment'])
-            ->where('handler_id', $userId);
+            ->where('type', 'pelayanan')
+            ->where('handler_id', $userId)
+            ->where('status', '!=', 'diajukan');
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -145,7 +157,7 @@ class DashboardController extends Controller
             if ($request->status === 'all') {
                 // Tampilkan semua status
             } elseif ($request->status === 'masuk' || $request->status === 'diterima' || $request->status === 'didisposisi') {
-                $query->whereIn('status', ['diterima', 'didisposisi', 'diajukan']);
+                $query->whereIn('status', ['diterima', 'didisposisi']);
             } elseif ($request->status === 'terlaksana' || $request->status === 'selesai') {
                 $query->where('status', 'selesai');
             } elseif ($request->status === 'tertunda') {
@@ -160,7 +172,7 @@ class DashboardController extends Controller
             }
         } else {
             // Default untuk Laporan Masuk: tampilkan laporan baru/didisposisi yang menunggu penanganan serta laporan menunggu verifikasi
-            $query->whereIn('status', ['diterima', 'didisposisi', 'diajukan', 'verifikasi_kabag']);
+            $query->whereIn('status', ['diterima', 'didisposisi', 'verifikasi_kabag']);
         }
 
         if ($request->filled('date')) {
@@ -171,11 +183,13 @@ class DashboardController extends Controller
 
         $subDepartments = SubDepartment::all();
 
-        $baseCount = Report::where('handler_id', $userId);
+        $baseCount = Report::where('type', 'pelayanan')
+            ->where('handler_id', $userId)
+            ->where('status', '!=', 'diajukan');
 
         $counts = [
             'total' => (clone $baseCount)->count(),
-            'masuk' => (clone $baseCount)->whereIn('status', ['diterima', 'didisposisi', 'diajukan', 'verifikasi_kabag'])->count(),
+            'masuk' => (clone $baseCount)->whereIn('status', ['diterima', 'didisposisi', 'verifikasi_kabag'])->count(),
             'terlaksana' => (clone $baseCount)->where('status', 'selesai')->count(),
             'tertunda' => (clone $baseCount)->where(function ($q) {
                 $q->where('status', 'ditolak')
@@ -192,6 +206,7 @@ class DashboardController extends Controller
         $userId = auth()->id();
 
         $query = Report::with(['user', 'handler', 'subDepartment', 'evidences'])
+            ->where('type', 'pelayanan')
             ->where('handler_id', $userId)
             ->where('status', 'proses');
 
@@ -216,6 +231,7 @@ class DashboardController extends Controller
         $userId = auth()->id();
 
         $query = Report::with(['user', 'handler', 'subDepartment', 'evidences'])
+            ->where('type', 'pelayanan')
             ->where('handler_id', $userId)
             ->where('status', 'selesai');
 

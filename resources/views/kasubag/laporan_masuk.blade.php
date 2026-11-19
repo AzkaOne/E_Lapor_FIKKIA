@@ -323,7 +323,7 @@
                           <span class="w-1.5 h-1.5 rounded-full bg-[#8B5CF6]"></span>
                           <span>Verifikasi Kabag</span>
                         </span>
-                      @elseif ($report->status === 'diajukan' || $report->status === 'didisposisi')
+                      @elseif ($report->status === 'didisposisi')
                         <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[#FFFBEB] text-[#D97706] border border-[#FDE68A]">
                           <span class="w-1.5 h-1.5 rounded-full bg-[#F59E0B]"></span>
                           <span>Laporan Masuk</span>

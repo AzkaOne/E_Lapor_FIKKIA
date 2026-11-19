@@ -156,8 +156,6 @@
             <option value="diajukan" {{ request('status') === 'diajukan' ? 'selected' : '' }}>Diajukan</option>
             <option value="proses" {{ request('status') === 'proses' ? 'selected' : '' }}>Dalam Proses</option>
             <option value="verifikasi_kabag" {{ request('status') === 'verifikasi_kabag' ? 'selected' : '' }}>Verifikasi</option>
-            <option value="selesai" {{ request('status') === 'selesai' ? 'selected' : '' }}>Selesai</option>
-            <option value="ditolak" {{ request('status') === 'ditolak' ? 'selected' : '' }}>Ditolak</option>
             </select>
         </div>
 

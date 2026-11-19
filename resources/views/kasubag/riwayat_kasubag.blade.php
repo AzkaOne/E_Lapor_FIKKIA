@@ -300,7 +300,7 @@
 
                     <!-- Aksi -->
                     <td class="py-4 px-3.5 text-center whitespace-nowrap">
-                      <a href="{{ route('kasubag.show', $report) }}"
+                      <a href="{{ route('kasubag.show', ['report' => $report, 'from' => 'history']) }}"
                          class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl border border-[#0D9488] text-[#0D9488] hover:bg-[#0D9488] hover:text-white transition font-bold text-xs shadow-xs" title="Lihat Detail Laporan">
                         <span>Lihat Detail</span>
                       </a>
