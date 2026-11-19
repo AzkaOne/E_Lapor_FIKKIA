@@ -150,6 +150,7 @@
                 id="title"
                 name="title"
                 value="{{ old('title') }}"
+                 maxlength="100"
                 required
                 placeholder="Masukkan judul keluhan..."
                 class="w-full h-10 px-3.5 rounded-lg sm:rounded-xl border border-[#CBD5E1] bg-white text-xs sm:text-[13px] text-[#0F172A] font-medium placeholder-[#94A3B8] focus:outline-none focus:ring-2 focus:ring-[#0a8080]/20 focus:border-[#0a8080] transition"

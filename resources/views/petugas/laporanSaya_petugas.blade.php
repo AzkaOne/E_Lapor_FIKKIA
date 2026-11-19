@@ -155,7 +155,7 @@
 
         <!-- ================= TABLE SECTION ================= -->
         <div class="border border-slate-200/90 rounded-2xl overflow-hidden shadow-xs">
-          <div class="overflow-x-auto custom-scroll">
+          <div class="h-[480px] overflow-auto custom-scroll">
             <table class="w-full text-left text-xs min-w-[760px]">
               <thead class="bg-[#F8FAFC] border-b border-slate-200 text-slate-800 font-bold uppercase text-[11px] tracking-wide">
                 <tr>
@@ -382,8 +382,72 @@
     </div>
   </div>
 
+  <!-- Modal Konfirmasi Tertunda -->
+  <div id="modalTertundaConfirm" class="fixed inset-0 z-[60] hidden overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl border border-slate-100 relative transform transition-all text-center">
+      
+      <!-- Top Warning Icon Badge -->
+      <div class="w-16 h-16 rounded-2xl bg-amber-100 border border-amber-200 text-amber-600 flex items-center justify-center mx-auto mb-4 shadow-xs">
+        <svg class="w-8 h-8 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+      </div>
+
+      <!-- Title & Description -->
+      <h3 class="text-lg font-bold text-slate-900 mb-2 font-['Plus_Jakarta_Sans',sans-serif]">
+        Konfirmasi Status Tertunda
+      </h3>
+      <p class="text-xs sm:text-[13px] text-slate-500 leading-relaxed mb-6 font-['Inter',sans-serif]">
+        Apakah Anda yakin ingin menandai penugasan ini sebagai <strong>Tertunda</strong>? Laporan akan diteruskan ke KABAG beserta catatan kendala teknis yang Anda laporkan.
+      </p>
+
+      <!-- Action Buttons -->
+      <div class="flex items-center justify-center gap-3">
+        <button type="button" onclick="closeTertundaConfirmModal()"
+                class="w-1/2 py-2.5 px-4 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs sm:text-sm font-semibold transition cursor-pointer">
+          Batal
+        </button>
+        <button type="button" onclick="confirmTertundaSubmit()"
+                class="w-1/2 py-2.5 px-4 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs sm:text-sm font-bold shadow-md hover:shadow-lg transition cursor-pointer inline-flex items-center justify-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+          </svg>
+          <span>Ya, Tandai Tertunda</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
   <!-- Mobile Sidebar Toggle Helper Script -->
   <script>
+    let isTertundaConfirmed = false;
+
+    const completeForm = document.getElementById('completeForm');
+    if (completeForm) {
+      completeForm.addEventListener('submit', function (e) {
+        const selectedResult = document.querySelector('input[name="execution_result"]:checked')?.value;
+        if (selectedResult === 'tertunda' && !isTertundaConfirmed) {
+          e.preventDefault();
+          openTertundaConfirmModal();
+        }
+      });
+    }
+
+    function openTertundaConfirmModal() {
+      document.getElementById('modalTertundaConfirm').classList.remove('hidden');
+    }
+
+    function closeTertundaConfirmModal() {
+      document.getElementById('modalTertundaConfirm').classList.add('hidden');
+    }
+
+    function confirmTertundaSubmit() {
+      isTertundaConfirmed = true;
+      closeTertundaConfirmModal();
+      document.getElementById('completeForm').submit();
+    }
+
     function toggleSidebar() {
       const sidebar = document.getElementById('sidebarMenu');
       const backdrop = document.getElementById('sidebarBackdrop');
@@ -394,6 +458,7 @@
     }
 
     function openCompleteModal(actionUrl, ticketCode, title, desc) {
+      isTertundaConfirmed = false;
       document.getElementById('completeForm').action = actionUrl;
       document.getElementById('modalTicketCode').textContent = 'Tiket: ' + ticketCode;
       document.getElementById('modalReportTitle').textContent = title;
@@ -402,7 +467,9 @@
     }
 
     function closeCompleteModal() {
+      isTertundaConfirmed = false;
       document.getElementById('completeModal').classList.add('hidden');
+      closeTertundaConfirmModal();
     }
   </script>
 </body>

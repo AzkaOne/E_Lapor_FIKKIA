@@ -83,8 +83,9 @@
   <div class="pt-14 sm:pt-16 lg:pt-[72px] flex-1 w-full max-w-[1536px] mx-auto flex flex-col lg:flex-row items-stretch">
 
     <!-- ================= ASIDE SIDEBAR ================= -->
-    <aside class="w-full lg:w-64 xl:w-72 lg:sticky lg:top-[72px] lg:h-[calc(100vh-72px)] lg:self-start
-                bg-[#2E978E] text-white shrink-0 p-4 sm:p-5 flex flex-col justify-between relative overflow-hidden shadow-md z-30">
+<aside class="w-full lg:fixed lg:top-[72px] lg:left-0 lg:w-64 xl:w-72 lg:h-[calc(100vh-72px)]
+            bg-[#2E978E] text-white shrink-0 p-4 sm:p-5 flex flex-col justify-between
+            relative lg:overflow-y-auto lg:overflow-x-hidden custom-scroll shadow-md z-40">
 
     <!-- Top Section -->
     <div class="space-y-4 relative z-10">
@@ -134,8 +135,8 @@
     </div>
 
     <!-- Bottom Graphic & Slogan (disembunyikan otomatis jika tinggi layar < 700px) -->
-    <div class="mt-4 pt-4 border-t border-white/15 relative z-10 [@media(max-height:700px)]:hidden">
-        <div class="relative rounded-xl overflow-hidden bg-white/10 border border-white/15 p-3">
+    <div class="mt-4 pt-4 border-t border-white/15 relative z-10 shrink-0">
+        <div class="relative rounded-xl overflow-hidden bg-white/10 border border-white/15 p-3 min-h-[90px]">
         <div class="absolute inset-0 opacity-15 pointer-events-none">
             <img src="{{ asset('assets/gedung_kampus.png') }}" alt="Silhouette Kampus" class="w-full h-full object-cover">
         </div>
@@ -151,7 +152,7 @@
     </aside>
 
     <!-- ================= MAIN WORKSPACE ================= -->
-    <main class="flex-1 p-4 sm:p-6 lg:p-8 space-y-5">
+    <main class="flex-1 min-w-0 p-4 sm:p-6 lg:p-8 space-y-5 lg:ml-64 xl:ml-72">
 
       <!-- ================= HERO & HELP SECTION ================= -->
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -632,15 +633,6 @@
       </div>
     </div>
   </div>
-
-  <!-- ================= FOOTER ================= -->
-  <footer class="w-full bg-white border-t border-slate-200 py-4 px-4 sm:px-8 mt-6">
-    <div class="max-w-[1536px] mx-auto flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-2">
-      <p>&copy; {{ date('Y') }} FIKKIA Universitas Airlangga. All rights reserved.</p>
-      <p class="font-medium text-[#0A8080]">E-Lapor. Suara Anda, Perubahan Nyata.</p>
-      <div class="text-[11px] text-slate-400">Kampus Mojo &bull; Sobo &bull; Giri</div>
-    </div>
-  </footer>
 
   <!-- Helper Scripts for Character Count & Dropzone File Display -->
   <script>

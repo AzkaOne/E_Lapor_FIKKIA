@@ -34,7 +34,7 @@ class ReportController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'title' => ['required', 'string', 'max:255'],
+            'title' => ['required', 'string', 'max:100'],
             'campus_location' => ['required', 'in:mojo,sobo,giri'],
             'sub_department_id' => ['required', 'exists:sub_departments,id'],
             'description' => ['required', 'string'],

@@ -62,6 +62,9 @@
         evidenceTab: '{{ $report->evidences->whereIn('type', ['resolution', 'completion', 'rejection'])->isNotEmpty() && !in_array($report->status, ['diajukan', 'didisposisi']) ? 'petugas' : 'pelapor' }}',
         showKasubagModal: false,
         showPetugasModal: false,
+        showRejectConfirmModal: false,
+        showPendingConfirmModal: false,
+        actionSelectionError: false,
         selectedChecklist: '',
         selectedVerificationAction: 'selesai',
         verificationKasubagId: '{{ $kasubags->firstWhere('sub_department_id', $report->sub_department_id)?->id ?? $kasubags->first()?->id ?? '' }}',
@@ -605,7 +608,7 @@
                 <dd class="text-[11px] text-slate-700 capitalize">{{ $report->type === 'whistleblowing' ? '------' : ($report->user?->position ?? '-') }}</dd>
                 </div>
                 <div>
-                <dt class="text-xs font-bold text-[#0C3934]">No Telpone</dt>
+                <dt class="text-xs font-bold text-[#0C3934]">No Telphone</dt>
                 <dd class="text-[11px] text-slate-700">{{ $report->type === 'whistleblowing' ? '------' : ($report->user?->phone ?? '-') }}</dd>
                 </div>
                 <div>
@@ -955,14 +958,13 @@
 
               <!-- State 2: Tolak Laporan Terpilih -->
               <div x-show="selectedChecklist === 'tolak'" style="display: none;">
-                <form action="{{ $isPetugas ? route('petugas.reject', $report) : ($isKasubag ? route('kasubag.reject', $report) : route('kabag.reject', $report)) }}" method="POST" enctype="multipart/form-data"
-                      onsubmit="return confirm('Apakah Anda yakin ingin menolak laporan ini?')">
+                <form id="formRejectReport" action="{{ $isPetugas ? route('petugas.reject', $report) : ($isKasubag ? route('kasubag.reject', $report) : route('kabag.reject', $report)) }}" method="POST" enctype="multipart/form-data">
                   @csrf
                   <div class="mb-3">
                     <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
                       Alasan Penolakan <span class="text-rose-500">*</span>
                     </label>
-                    <textarea rows="4" maxlength="500" name="rejection_reason" required
+                    <textarea rows="4" maxlength="500" name="rejection_reason" id="rejection_reason" required
                               placeholder="{{ ($isKasubag || $isPetugas) ? 'Jelaskan alasan laporan ditolak dan dikembalikan ke KABAG...' : 'Contoh: Laporan tidak valid karena bukti foto tidak relevan atau informasi tidak lengkap...' }}"
                               class="w-full px-3.5 py-2.5 rounded-xl border border-rose-300 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-rose-500 focus:outline-none transition"></textarea>
                     <p class="text-[11px] text-slate-400 mt-1">
@@ -992,7 +994,16 @@
                   @endif
 
                   <div class="flex justify-center">
-                    <button type="submit"
+                    <button type="button"
+                            id="btnSubmitReject"
+                            @click="
+                              const form = document.getElementById('formRejectReport');
+                              if (!form.checkValidity()) {
+                                form.reportValidity();
+                                return;
+                              }
+                              showRejectConfirmModal = true;
+                            "
                             class="px-8 py-2.5 rounded-xl font-bold bg-[#B91C1C] hover:bg-[#991B1B] text-white text-xs sm:text-sm shadow-sm hover:shadow-md transition inline-flex items-center gap-2 cursor-pointer">
                       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
                       <span>Lanjutkan Tolak Laporan</span>
@@ -1017,10 +1028,7 @@
 
             <h3 class="text-base font-bold text-[#0C3934]">Pilih Tindakan</h3>
 
-            <form action="{{ $actionRoute }}" method="POST" enctype="multipart/form-data"
-                  @if ($report->type !== 'whistleblowing')
-                    @submit="if (!selectedChecklist) { alert('Silakan pilih salah satu tindakan di atas terlebih dahulu (Laporan Tertunda atau Laporan Terlaksana).'); $event.preventDefault(); return false; }"
-                  @endif>
+            <form id="formSelfExecute" action="{{ $actionRoute }}" method="POST" enctype="multipart/form-data">
               @csrf
 
               @if ($report->type === 'whistleblowing')
@@ -1032,7 +1040,7 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
 
                   <!-- 1. Laporan Tertunda -->
-                  <div @click="selectedChecklist = (selectedChecklist === 'tertunda' ? '' : 'tertunda')"
+                  <div @click="selectedChecklist = (selectedChecklist === 'tertunda' ? '' : 'tertunda'); actionSelectionError = false;"
                        class="rounded-xl border p-3.5 cursor-pointer transition flex items-center justify-between gap-2.5 shadow-xs hover:shadow-md"
                        :class="selectedChecklist === 'tertunda' ? 'border-[#B91C1C] bg-[#FEE2E2] ring-2 ring-[#B91C1C]/40' : 'border-[#B91C1C] bg-[#FEE2E2] hover:bg-[#FECACA]'">
                     <div class="flex items-center gap-2.5 min-w-0">
@@ -1052,7 +1060,7 @@
                   </div>
 
                   <!-- 2. Laporan Terlaksana -->
-                  <div @click="selectedChecklist = (selectedChecklist === 'terlaksana' ? '' : 'terlaksana')"
+                  <div @click="selectedChecklist = (selectedChecklist === 'terlaksana' ? '' : 'terlaksana'); actionSelectionError = false;"
                        class="rounded-xl border p-3.5 cursor-pointer transition flex items-center justify-between gap-2.5 shadow-xs hover:shadow-md"
                        :class="selectedChecklist === 'terlaksana' ? 'border-[#15803D] bg-[#DCFCE7] ring-2 ring-[#15803D]/40' : 'border-[#15803D] bg-[#DCFCE7] hover:bg-[#BBF7D0]'">
                     <div class="flex items-center gap-2.5 min-w-0">
@@ -1073,8 +1081,16 @@
 
                 </div>
 
+                <!-- Callout warning if not selected -->
+                <div x-show="actionSelectionError" x-cloak class="mt-3.5 p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2">
+                  <svg class="w-4 h-4 shrink-0 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                  </svg>
+                  <span>Silakan pilih salah satu tindakan di atas terlebih dahulu (Laporan Tertunda atau Laporan Terlaksana).</span>
+                </div>
+
                 <!-- Callout info -->
-                <div class="mt-5 p-3.5 rounded-xl bg-[#DBEAFE] flex items-start gap-2.5 text-[#1E40AF]">
+                <div class="mt-4 p-3.5 rounded-xl bg-[#DBEAFE] flex items-start gap-2.5 text-[#1E40AF]">
                   <div class="w-4 h-4 rounded-full bg-[#1D4ED8] text-white flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">i</div>
                   <span class="text-[11.5px] leading-snug">Pilih salah satu tindakan di atas untuk melanjutkan proses penanganggan laporan</span>
                 </div>
@@ -1087,7 +1103,7 @@
                 {{ $report->type === 'whistleblowing' ? 'Deskripsi Hasil Pengerjaan / Tindak Lanjut' : 'Catatan / Komentar' }}
                 @if ($report->type === 'whistleblowing') <span class="text-rose-500">*</span> @endif
               </label>
-              <textarea rows="4" maxlength="500" name="notes" {{ $report->type === 'whistleblowing' ? 'required' : '' }}
+              <textarea rows="4" maxlength="500" name="notes" id="self_execute_notes" {{ $report->type === 'whistleblowing' ? 'required' : '' }}
                         @input="notesCount = $event.target.value.length"
                         placeholder="{{ $report->type === 'whistleblowing' ? 'Tuliskan deskripsi hasil tindak lanjut pimpinan atau kesimpulan investigasi...' : 'Tambahkan catatan atau komentar' }}"
                         class="mt-3 w-full px-4 py-3 rounded-xl border border-slate-200 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-[#2E978E] focus:outline-none transition"></textarea>
@@ -1115,7 +1131,24 @@
 
               <!-- Tombol -->
               <div class="flex justify-center mt-5">
-                <button type="submit"
+                <button type="button"
+                        id="btnSubmitSelfExecute"
+                        @click="
+                          const form = document.getElementById('formSelfExecute');
+                          if ('{{ $report->type }}' !== 'whistleblowing' && !selectedChecklist) {
+                            actionSelectionError = true;
+                            return;
+                          }
+                          if (!form.checkValidity()) {
+                            form.reportValidity();
+                            return;
+                          }
+                          if (selectedChecklist === 'tertunda') {
+                            showPendingConfirmModal = true;
+                          } else {
+                            form.submit();
+                          }
+                        "
                         class="px-10 py-2.5 rounded-xl font-bold bg-[#166E65] hover:bg-[#0C3934] text-white text-xs sm:text-sm shadow-sm hover:shadow-md transition inline-flex items-center gap-2 cursor-pointer">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
                   <span>{{ $report->type === 'whistleblowing' ? 'Selesaikan Laporan' : 'Lanjutkan' }}</span>
@@ -1509,6 +1542,102 @@
         </div>
 
       </form>
+
+    </div>
+  </div>
+  @endif
+
+  <!-- ================= POPUP MODAL KONFIRMASI TOLAK LAPORAN ================= -->
+  <div x-show="showRejectConfirmModal" style="display: none;"
+       class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4"
+       @keydown.escape.window="showRejectConfirmModal = false"
+       role="dialog" aria-modal="true">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl border border-slate-100 relative transform transition-all text-center"
+         @click.away="showRejectConfirmModal = false">
+      
+      <!-- Top Warning Icon Badge -->
+      <div class="w-16 h-16 rounded-2xl bg-rose-100 border border-rose-200 text-rose-600 flex items-center justify-center mx-auto mb-4 shadow-xs">
+        <svg class="w-8 h-8 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+        </svg>
+      </div>
+
+      <!-- Title & Description -->
+      <h3 class="text-lg font-bold text-slate-900 mb-2 font-['Plus_Jakarta_Sans',sans-serif]">
+        Konfirmasi Penolakan Laporan
+      </h3>
+      <p class="text-xs sm:text-[13px] text-slate-500 leading-relaxed mb-6 font-['Inter',sans-serif]">
+        {{ ($isKasubag || $isPetugas) 
+            ? 'Apakah Anda yakin ingin menolak laporan ini? Laporan akan diarahkan kembali ke KABAG dengan status ditolak.' 
+            : 'Apakah Anda yakin ingin menolak laporan ini? Alasan penolakan akan dapat dibaca langsung oleh pelapor.' }}
+      </p>
+
+      <!-- Action Buttons -->
+      <div class="flex items-center justify-center gap-3">
+        <button type="button" @click="showRejectConfirmModal = false"
+                class="w-1/2 py-2.5 px-4 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs sm:text-sm font-semibold transition cursor-pointer">
+          Batal
+        </button>
+        <button type="button"
+                id="confirmRejectBtn"
+                @click="
+                  showRejectConfirmModal = false;
+                  document.getElementById('formRejectReport').submit();
+                "
+                class="w-1/2 py-2.5 px-4 rounded-xl bg-[#B91C1C] hover:bg-[#991B1B] text-white text-xs sm:text-sm font-bold shadow-md hover:shadow-lg transition cursor-pointer inline-flex items-center justify-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+          <span>Ya, Tolak Laporan</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  @if ($report->type !== 'whistleblowing')
+  <!-- ================= POPUP MODAL KONFIRMASI LAPORAN TERTUNDA ================= -->
+  <div x-show="showPendingConfirmModal" style="display: none;"
+       class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4"
+       @keydown.escape.window="showPendingConfirmModal = false"
+       role="dialog" aria-modal="true">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl border border-slate-100 relative transform transition-all text-center"
+         @click.away="showPendingConfirmModal = false">
+      
+      <!-- Top Warning Icon Badge -->
+      <div class="w-16 h-16 rounded-2xl bg-amber-100 border border-amber-200 text-amber-600 flex items-center justify-center mx-auto mb-4 shadow-xs">
+        <svg class="w-8 h-8 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+      </div>
+
+      <!-- Title & Description -->
+      <h3 class="text-lg font-bold text-slate-900 mb-2 font-['Plus_Jakarta_Sans',sans-serif]">
+        Konfirmasi Laporan Tertunda
+      </h3>
+      <p class="text-xs sm:text-[13px] text-slate-500 leading-relaxed mb-6 font-['Inter',sans-serif]">
+        Apakah Anda yakin ingin menandai laporan ini sebagai <strong>Tertunda</strong>? Laporan akan diproses dengan catatan kendala yang telah Anda isi.
+      </p>
+
+      <!-- Action Buttons -->
+      <div class="flex items-center justify-center gap-3">
+        <button type="button" @click="showPendingConfirmModal = false"
+                class="w-1/2 py-2.5 px-4 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs sm:text-sm font-semibold transition cursor-pointer">
+          Batal
+        </button>
+        <button type="button"
+                id="confirmPendingBtn"
+                @click="
+                  showPendingConfirmModal = false;
+                  document.getElementById('formSelfExecute').submit();
+                "
+                class="w-1/2 py-2.5 px-4 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs sm:text-sm font-bold shadow-md hover:shadow-lg transition cursor-pointer inline-flex items-center justify-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+          </svg>
+          <span>Ya, Tandai Tertunda</span>
+        </button>
+      </div>
 
     </div>
   </div>

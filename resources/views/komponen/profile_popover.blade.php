@@ -14,27 +14,27 @@
 
 <div id="profile_popover_container" class="relative inline-block text-left" data-component="profil_popover">
     <!-- Trigger Button: Clean circle avatar without outer pill border, name/jabatan, arrow, or green dot -->
-    <button type="button" 
-            id="profilePopoverTrigger" 
+    <button type="button"
+            id="profilePopoverTrigger"
             class="w-8 h-8 rounded-full overflow-hidden border border-teal-300 flex items-center justify-center shrink-0 shadow-xs hover:ring-2 hover:ring-teal-200 focus:outline-none transition cursor-pointer"
-            aria-expanded="false" 
+            aria-expanded="false"
             aria-haspopup="true"
             title="Profil Pengguna">
-        <img id="triggerAvatarImg" 
-             src="{{ asset('assets/' . $currentAvatar) }}" 
-             alt="Foto Profil" 
+        <img id="triggerAvatarImg"
+             src="{{ asset('assets/' . $currentAvatar) }}"
+             alt="Foto Profil"
              class="w-full h-full object-cover">
     </button>
 
     <!-- Popover Card Dropdown -->
-    <div id="profilePopoverDropdown" 
-         class="hidden absolute right-0 top-full mt-2.5 w-[330px] sm:w-[390px] bg-white rounded-2xl shadow-2xl border border-slate-200/80 z-50 overflow-hidden text-slate-800 transition-all duration-200 origin-top-right transform scale-95 opacity-0">
-        
+    <div id="profilePopoverDropdown"
+        class="hidden fixed right-3 top-18 sm:top-20 w-[390px] max-w-[calc(100vw-24px)] bg-white rounded-2xl shadow-2xl border border-slate-200/80 z-[60] max-h-[calc(100dvh-5.5rem)] overflow-y-auto text-slate-800 transition-all duration-200 origin-top-right transform scale-95 opacity-0">
+
         <!-- Popover Top Card (Centered Avatar, Name, Email as in design reference) -->
         <div class="bg-[#F8FAFC] border-b border-slate-200/70 p-5 text-center relative">
             <!-- Close Button -->
-            <button type="button" 
-                    id="closeProfilePopoverBtn" 
+            <button type="button"
+                    id="closeProfilePopoverBtn"
                     class="absolute top-3 right-3 p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-200/60 transition cursor-pointer"
                     title="Tutup">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -44,13 +44,13 @@
 
             <!-- Centered Avatar (Click to toggle avatar choices) -->
             <div class="relative inline-block">
-                <button type="button" 
-                        id="centerAvatarToggleBtn" 
+                <button type="button"
+                        id="centerAvatarToggleBtn"
                         class="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden mx-auto shadow-md border-2 border-white ring-2 ring-teal-500/30 cursor-pointer transition transform hover:scale-105 group focus:outline-none"
                         title="Klik untuk memilih foto profil">
-                    <img id="centerAvatarImg" 
-                         src="{{ asset('assets/' . $currentAvatar) }}" 
-                         alt="{{ $currentUser->name ?? 'User' }}" 
+                    <img id="centerAvatarImg"
+                         src="{{ asset('assets/' . $currentAvatar) }}"
+                         alt="{{ $currentUser->name ?? 'User' }}"
                          class="w-full h-full object-cover">
                     <!-- Hover overlay hint -->
                     <div class="absolute inset-0 bg-black/35 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white">
@@ -78,16 +78,16 @@
                 <span class="block text-[10.5px] font-bold text-slate-600 uppercase tracking-wider mb-2">
                     Pilih Foto Profil:
                 </span>
-                <div class="grid grid-cols-2 gap-2.5 max-w-[270px] mx-auto text-left">
+                <div class="grid grid-cols-2 gap-2.5 max-w-67.5 mx-auto text-left">
                     <!-- Option Men -->
                     <label class="relative flex items-center gap-2 p-2 rounded-xl border-2 cursor-pointer transition avatar-option-card {{ $currentAvatar === 'profil_men.webp' ? 'border-[#2E978E] bg-teal-50/70 shadow-xs' : 'border-slate-200 hover:border-slate-300 bg-white' }}">
-                        <input type="radio" 
-                               name="avatar_radio" 
-                               value="profil_men.webp" 
-                               class="sr-only avatar-radio" 
+                        <input type="radio"
+                               name="avatar_radio"
+                               value="profil_men.webp"
+                               class="sr-only avatar-radio"
                                {{ $currentAvatar === 'profil_men.webp' ? 'checked' : '' }}>
-                        <img src="{{ asset('assets/profil_men.webp') }}" 
-                             alt="Avatar Pria" 
+                        <img src="{{ asset('assets/profil_men.webp') }}"
+                             alt="Avatar Pria"
                              class="w-8 h-8 rounded-full object-cover ring-1 ring-slate-200 shrink-0">
                         <div class="min-w-0">
                             <span class="block text-xs font-bold text-slate-800 leading-tight">Pria</span>
@@ -104,13 +104,13 @@
 
                     <!-- Option Women -->
                     <label class="relative flex items-center gap-2 p-2 rounded-xl border-2 cursor-pointer transition avatar-option-card {{ $currentAvatar === 'profil_wmn.webp' ? 'border-[#2E978E] bg-teal-50/70 shadow-xs' : 'border-slate-200 hover:border-slate-300 bg-white' }}">
-                        <input type="radio" 
-                               name="avatar_radio" 
-                               value="profil_wmn.webp" 
-                               class="sr-only avatar-radio" 
+                        <input type="radio"
+                               name="avatar_radio"
+                               value="profil_wmn.webp"
+                               class="sr-only avatar-radio"
                                {{ $currentAvatar === 'profil_wmn.webp' ? 'checked' : '' }}>
-                        <img src="{{ asset('assets/profil_wmn.webp') }}" 
-                             alt="Avatar Wanita" 
+                        <img src="{{ asset('assets/profil_wmn.webp') }}"
+                             alt="Avatar Wanita"
                              class="w-8 h-8 rounded-full object-cover ring-1 ring-slate-200 shrink-0">
                         <div class="min-w-0">
                             <span class="block text-xs font-bold text-slate-800 leading-tight">Wanita</span>
@@ -143,11 +143,11 @@
                     <label for="popover_input_name" class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
                         Nama Lengkap <span class="text-rose-500">*</span>
                     </label>
-                    <input type="text" 
-                           id="popover_input_name" 
-                           name="name" 
-                           value="{{ old('name', $currentUser->name) }}" 
-                           required 
+                    <input type="text"
+                           id="popover_input_name"
+                           name="name"
+                           value="{{ old('name', $currentUser->name) }}"
+                           required
                            class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#2E978E] focus:border-transparent bg-slate-50/50 hover:bg-white transition dirty-track-input">
                 </div>
 
@@ -178,11 +178,11 @@
                     <label for="popover_input_phone" class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
                         No. Telepon / WhatsApp
                     </label>
-                    <input type="text" 
-                           id="popover_input_phone" 
-                           name="phone_number" 
-                           value="{{ old('phone_number', $currentUser->phone_number) }}" 
-                           placeholder="Contoh: 081234567890" 
+                    <input type="text"
+                           id="popover_input_phone"
+                           name="phone_number"
+                           value="{{ old('phone_number', $currentUser->phone_number) }}"
+                           placeholder="Contoh: 081234567890"
                            class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#2E978E] focus:border-transparent bg-slate-50/50 hover:bg-white transition dirty-track-input">
                 </div>
 
@@ -191,8 +191,8 @@
                     <label for="popover_input_position" class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
                         Jabatan <span class="text-rose-500">*</span>
                     </label>
-                    <select id="popover_input_position" 
-                            name="position" 
+                    <select id="popover_input_position"
+                            name="position"
                             class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#2E978E] focus:border-transparent bg-slate-50/50 hover:bg-white transition dirty-track-input cursor-pointer font-medium text-slate-700">
                         <option value="mahasiswa" {{ $userPos === 'mahasiswa' ? 'selected' : '' }}>Mahasiswa</option>
                         <option value="tendik" {{ ($userPos === 'tendik' || str_contains($userPos, 'tenaga kependidikan')) ? 'selected' : '' }}>Tenaga Kependidikan (Tendik)</option>
@@ -241,8 +241,8 @@
 
             <!-- Ganti Password Section (Accordion) -->
             <div class="pt-2 border-t border-slate-100">
-                <button type="button" 
-                        id="togglePasswordFieldsBtn" 
+                <button type="button"
+                        id="togglePasswordFieldsBtn"
                         class="w-full flex items-center justify-between text-left py-1 text-xs font-bold text-slate-700 hover:text-[#2E978E] transition cursor-pointer">
                     <span class="flex items-center gap-1.5">
                         <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -260,10 +260,10 @@
                         <label for="popover_input_current_password" class="block text-[10.5px] font-bold text-slate-600 mb-1">
                             Password Lama
                         </label>
-                        <input type="password" 
-                               id="popover_input_current_password" 
-                               name="current_password" 
-                               placeholder="Masukkan password saat ini" 
+                        <input type="password"
+                               id="popover_input_current_password"
+                               name="current_password"
+                               placeholder="Masukkan password saat ini"
                                class="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#2E978E] bg-white dirty-track-input">
                     </div>
 
@@ -271,10 +271,10 @@
                         <label for="popover_input_new_password" class="block text-[10.5px] font-bold text-slate-600 mb-1">
                             Password Baru
                         </label>
-                        <input type="password" 
-                               id="popover_input_new_password" 
-                               name="new_password" 
-                               placeholder="Minimal 8 karakter" 
+                        <input type="password"
+                               id="popover_input_new_password"
+                               name="new_password"
+                               placeholder="Minimal 8 karakter"
                                class="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#2E978E] bg-white dirty-track-input">
                     </div>
 
@@ -282,10 +282,10 @@
                         <label for="popover_input_new_password_confirmation" class="block text-[10.5px] font-bold text-slate-600 mb-1">
                             Konfirmasi Password Baru
                         </label>
-                        <input type="password" 
-                               id="popover_input_new_password_confirmation" 
-                               name="new_password_confirmation" 
-                               placeholder="Ulangi password baru" 
+                        <input type="password"
+                               id="popover_input_new_password_confirmation"
+                               name="new_password_confirmation"
+                               placeholder="Ulangi password baru"
                                class="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#2E978E] bg-white dirty-track-input">
                     </div>
                     <p class="text-[10px] text-slate-500 italic">* Kosongkan kolom password jika tidak ingin mengubah password.</p>
@@ -298,9 +298,9 @@
                     Belum ada perubahan
                 </span>
 
-                <button type="submit" 
-                        id="saveProfileBtn" 
-                        disabled 
+                <button type="submit"
+                        id="saveProfileBtn"
+                        disabled
                         class="px-5 py-2.5 rounded-xl bg-slate-300 text-slate-500 text-xs font-bold shadow-xs transition-all duration-200 flex items-center gap-2 cursor-not-allowed opacity-60">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
@@ -521,9 +521,9 @@
         </div>
 
         <div>
-            <button type="button" 
+            <button type="button"
                     id="closeProfileSuccessModalBtn"
-                    onclick="closeProfileSuccessModal()" 
+                    onclick="closeProfileSuccessModal()"
                     class="w-full py-2.5 px-4 rounded-xl bg-[#0A8080] hover:bg-[#086666] text-white text-xs font-bold shadow-xs transition cursor-pointer">
                 Tutup
             </button>

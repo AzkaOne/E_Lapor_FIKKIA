@@ -147,7 +147,7 @@
                         <!-- Kerjakan Sendiri -->
                         <form action="{{ route('kasubag.self-execute', $report) }}" method="POST">
                             @csrf
-                            <button type="submit" onclick="return confirm('Apakah Anda ingin memproses laporan ini sendiri?')"
+                            <button type="submit"
                                 class="w-full py-3 px-4 rounded-xl font-bold bg-[#ecfdf5] hover:bg-[#ccfbf1] text-[#0a8080] text-sm border border-[#a7f3d0] transition flex items-center justify-center gap-2">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                                 <span>Kerjakan Sendiri</span>

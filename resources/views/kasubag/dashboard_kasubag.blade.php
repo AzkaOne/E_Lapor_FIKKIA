@@ -53,7 +53,7 @@
     @include('komponen.header_kabag')
 
     <!-- Main Workspace Content -->
-    <main class="flex-1 p-4 sm:p-6 lg:p-7 pt-20 max-w-[1400px] w-full mx-auto space-y-6">
+    <main class="flex-1 p-4 sm:p-6 lg:p-7 sm:pt-20 max-w-[1400px] w-full mx-auto space-y-6">
 
       <!-- Flash Messages -->
       @if (session('success'))

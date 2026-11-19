@@ -432,4 +432,48 @@ class KabagDetailActionsTest extends TestCase
         $detailAfter->assertStatus(200);
         $detailAfter->assertSee(basename($evidence->file_path));
     }
+
+    public function test_action_modals_render_custom_confirmation_popups_for_tolak_and_tertunda_without_native_js_confirm(): void
+    {
+        $sarpras = SubDepartment::create(['name' => 'Sarana Prasarana', 'code' => 'SARPRAS']);
+        $kabag = User::factory()->create(['role' => 'kabag']);
+        $kasubag = User::factory()->create(['role' => 'kasubag', 'sub_department_id' => $sarpras->id]);
+        $petugas = User::factory()->create(['role' => 'petugas', 'sub_department_id' => $sarpras->id]);
+
+        $report = Report::create([
+            'ticket_code' => 'LP-CONFIRM-TEST-01',
+            'title' => 'Kerusakan Wastafel Lab',
+            'description' => 'Pipa bocor',
+            'type' => 'pelayanan',
+            'sub_department_id' => $sarpras->id,
+            'campus_location' => 'mojo',
+            'status' => 'diajukan',
+        ]);
+
+        // Kabag checks detail page
+        $kabagRes = $this->actingAs($kabag)->get(route('kabag.show', $report));
+        $kabagRes->assertStatus(200);
+        $kabagRes->assertSee('Konfirmasi Penolakan Laporan');
+        $kabagRes->assertSee('showRejectConfirmModal', false);
+        $kabagRes->assertSee('showPendingConfirmModal', false);
+        $kabagRes->assertDontSee("confirm('Apakah Anda yakin ingin menolak laporan ini?')", false);
+        $kabagRes->assertDontSee("alert('Silakan pilih salah satu tindakan", false);
+
+        // Update status to proses assigned to kasubag
+        $report->update(['status' => 'proses', 'handler_id' => $kasubag->id]);
+
+        // Kasubag checks detail page
+        $kasubagRes = $this->actingAs($kasubag)->get(route('kasubag.show', $report));
+        $kasubagRes->assertStatus(200);
+        $kasubagRes->assertSee('Konfirmasi Laporan Tertunda');
+        $kasubagRes->assertSee('showPendingConfirmModal', false);
+        $kasubagRes->assertDontSee("confirm('Apakah Anda yakin ingin menolak laporan ini?')", false);
+
+        // Petugas checks my-reports page for Tertunda modal
+        $petugasReportsRes = $this->actingAs($petugas)->get(route('petugas.my-reports'));
+        $petugasReportsRes->assertStatus(200);
+        $petugasReportsRes->assertSee('modalTertundaConfirm', false);
+        $petugasReportsRes->assertSee('Konfirmasi Status Tertunda');
+        $petugasReportsRes->assertSee('Ya, Tandai Tertunda');
+    }
 }

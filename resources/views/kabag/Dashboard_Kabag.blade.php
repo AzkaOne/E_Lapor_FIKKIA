@@ -54,7 +54,7 @@
   @include('komponen.header_kabag')
 
     <!-- Main Workspace Content -->
-    <main class="flex-1 p-4 sm:p-6 lg:p-7 pt-20 max-w-[1400px] w-full mx-auto space-y-6">
+    <main class="flex-1 p-4 sm:p-6 lg:p-7  sm:pt-20 max-w-350 w-full mx-auto space-y-6">
 
       <!-- Flash Messages -->
       @if (session('success'))
@@ -296,9 +296,9 @@
       </div>
 
       <!-- ================= BOTTOM SECTION (TABLE & WHISTLEBLOWER) ================= -->
-      <div id="laporan-pelayanan" class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+      <div id="laporan-pelayanan" class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
 
-        <div class="lg:col-span-8 bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-xs p-5 sm:p-6 space-y-4">
+        <div class="lg:col-span-8 h-[450px] overflow-hidden bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-xs p-5 sm:p-6 space-y-4 flex flex-col">
 
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
             <div>
@@ -345,9 +345,9 @@
           </form>
 
           <!-- Table Wrapper -->
-          <div class=" w-full overflow-x-auto custom-scroll -mx-5 sm:mx-0">
+        <div class="w-full flex-1 min-h-0 overflow-auto custom-scroll -mx-5 sm:mx-0">
             <table class="w-full text-left text-xs min-w-[800px]">
-              <thead>
+                <thead class="sticky top-0 bg-white z-10">
                 <tr class="border-b border-slate-100 text-slate-400 font-semibold uppercase text-[10.5px]">
                   <th class="py-3 px-3 w-10 text-center">No</th>
                   <th class="py-3 px-3">Judul Laporan</th>
@@ -373,7 +373,7 @@
         </div>
 
         <!-- LIST: Laporan Whistleblower (~35% width on desktop) -->
-        <div class="lg:col-span-4 bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-xs p-5 sm:p-6 space-y-4">
+        <div class="lg:col-span-4 h-[450px] overflow-hidden bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-xs p-5 sm:p-6 space-y-4 flex flex-col">
 
           <div class="flex items-center justify-between pb-3 border-b border-slate-100">
             <div>
@@ -387,7 +387,7 @@
           </div>
 
           <!-- Whistleblower Items List -->
-          <div id="whistleblower-list-container" class="divide-y divide-slate-100">
+          <div id="whistleblower-list-container" class="flex-1 min-h-0 overflow-y-auto overflow-x-hidden divide-y divide-slate-100 custom-scroll">
             @forelse ($whistleblowerReports as $wb)
               <a href="{{ route('kabag.whistleblowing') }}" class="py-3 flex items-center justify-between gap-3 hover:bg-slate-50/70 -mx-2 px-2 rounded-xl transition group">
                 <div class="flex items-center gap-3 min-w-0">

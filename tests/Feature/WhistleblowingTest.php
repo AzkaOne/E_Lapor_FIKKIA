@@ -19,9 +19,7 @@ class WhistleblowingTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('fixed top-0 left-0 w-full z-50', false);
         $response->assertSee('pt-14 sm:pt-16 lg:pt-[72px]', false);
-        $response->assertSee('lg:sticky lg:top-[72px]', false);
-        $response->assertSee('overflow-hidden', false);
-        $response->assertDontSee('lg:overflow-y-auto', false);
+        $response->assertSee('lg:top-[72px]', false);
     }
 
     public function test_can_submit_anonymous_whistleblowing_and_receive_ticket(): void

@@ -24,7 +24,7 @@ class RegisterController extends Controller
         }
 
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
+            'name' => ['required', 'string', 'max:255','regex:/^[\pL\s]+$/u'],
             'email' => [
                 'required',
                 'string',
@@ -34,8 +34,8 @@ class RegisterController extends Controller
                 'unique:users,email',
                 'regex:/^[a-zA-Z0-9._%+-]+@unair\.ac\.id$/i',
             ],
-            'phone_number' => ['required', 'string', 'max:20'],
-            'identity_number' => ['required', 'string', 'max:50'],
+            'phone_number' => ['required', 'string', 'max:20','regex:/^[0-9]+$/'],
+            'identity_number' => ['required', 'string', 'max:50','regex:/^[0-9]+$/'],
             'position' => ['required', 'in:mahasiswa,dosen,tendik'],
             'password' => ['required', 'confirmed', 'min:6'],
         ], [

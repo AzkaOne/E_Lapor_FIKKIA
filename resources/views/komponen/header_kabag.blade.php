@@ -10,11 +10,11 @@
           </button>
 
           <!-- Institutional Logos (Desktop & Tablet) -->
-          <div class="hidden sm:flex items-center ">
+          <div class="flex items-center">
             @if (file_exists(public_path('assets/header_accreditation.png')))
-              <img src="{{ asset('assets/header_accreditation.png') }}" alt="Akreditasi & Mitra UNAIR" class="h-12 w-auto object-contain opacity-95">
+              <img src="{{ asset('assets/header_accreditation.png') }}" alt="Akreditasi & Mitra UNAIR" class="h-9 sm:h-12 w-auto max-w-28 sm:max-w-none object-contain opacity-95">
             @elseif (file_exists(public_path('assets/accreditation_logos.png')))
-              <img src="{{ asset('assets/accreditation_logos.png') }}" alt="Akreditasi UNAIR" class="h-12 w-auto object-contain opacity-95">
+              <img src="{{ asset('assets/accreditation_logos.png') }}" alt="Akreditasi UNAIR" class="h-9 sm:h-12 w-auto max-w-26.25 sm:max-w-none object-contain opacity-95">
             @else
               <!-- Fallback Clean Vector Emblems -->
               <div class="flex items-center gap-3 text-[11px] font-semibold text-white/95">
@@ -26,11 +26,11 @@
           </div>
 
           <!-- Mobile Title for Compact View -->
-          <div class="sm:hidden flex items-center gap-2">
-            <span class="text-xs font-bold tracking-tight text-white uppercase">
-              E-Lapor {{ auth()->check() && auth()->user()->role === 'petugas' ? 'PETUGAS' : (auth()->check() && auth()->user()->role === 'kasubag' ? 'KASUBAG' : 'KABAG') }}
-            </span>
-          </div>
+          <div class="sm:hidden flex items-center">
+            <a href="{{ route('home') }}" class="flex items-center">
+                <img src="{{ asset('assets/unair_header_logo.png') }}" alt="Logo UNAIR" class="h-8 w-auto object-contain">
+            </a>
+        </div>
         </div>
 
         <!-- Right: Notifications & User Profile -->

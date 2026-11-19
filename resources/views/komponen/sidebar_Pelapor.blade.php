@@ -1,20 +1,31 @@
 <!-- ================= SIDEBAR NAVIGATION ================= -->
 <!-- Mobile Sidebar Backdrop Overlay -->
-<div id="sidebarBackdrop" onclick="toggleSidebar()" class="fixed inset-0 bg-black/40 z-45 hidden lg:hidden transition-opacity"></div>
+<div id="sidebarBackdrop" onclick="toggleSidebar()" class="fixed inset-0 z-45 hidden lg:hidden transition-opacity"></div>
 
 <!-- Sidebar Container -->
 <aside id="sidebarMenu" class="fixed top-0 lg:top-14 left-0 h-screen lg:h-[calc(100vh-3.5rem)] w-52 bg-[#2E978E] text-white flex flex-col justify-between py-4 px-3 z-50 lg:z-30 transform -translate-x-full lg:translate-x-0 lg:transform-none shadow-lg lg:shadow-none shrink-0 overflow-y-auto custom-scroll transition-transform duration-300 lg:transition-none">
 
   <div class="space-y-3.5">
-    <!-- Mobile Close Button -->
-    <div class="flex items-center justify-between lg:hidden pb-2 border-b border-white/20">
-      <span class="text-[11px] font-bold text-white tracking-wider uppercase">Menu</span>
-      <button type="button" onclick="toggleSidebar()" class="p-1 rounded-md bg-white/10 text-white hover:bg-white/20" title="Tutup Menu">
+ <!-- Mobile Sidebar Header: Logo -->
+    <div class="flex items-center justify-between lg:hidden pb-3 border-b border-white/20">
+    <a href="{{ route('home') }}" class="flex items-center gap-2.5 min-w-0">
+        <img src="{{ asset('assets/unair_logo.png') }}" alt="Logo Universitas Airlangga" class="h-9 w-auto object-contain shrink-0">
+        <div class="flex flex-col min-w-0 font-['Plus_Jakarta_Sans',sans-serif]">
+        <span class="text-xs font-extrabold text-white leading-tight">
+            E-Lapor FIKKIA
+        </span>
+        <span class="text-[10px] text-white/75 leading-tight mt-0.5">
+            Panel Pelapor
+        </span>
+        </div>
+    </a>
+        <button type="button" onclick="toggleSidebar()" class="p-1.5 rounded-md bg-white/10 text-white hover:bg-white/20 transition shrink-0" title="Tutup Menu">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
         </svg>
-      </button>
+    </button>
     </div>
+
 
     <!-- Menu List -->
     <nav class="space-y-1 font-['Inter',sans-serif]">

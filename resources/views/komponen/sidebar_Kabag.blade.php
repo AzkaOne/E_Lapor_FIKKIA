@@ -30,11 +30,11 @@
         </p>
       </div>
       <!-- Mobile Close Button -->
-      <button type="button" onclick="toggleSidebar()" class="lg:hidden ml-auto p-1.5 rounded-lg bg-white/10 text-white hover:bg-white/20" title="Tutup Menu">
+      {{-- <button type="button" onclick="toggleSidebar()" class="lg:hidden ml-auto p-1.5 rounded-lg bg-white/10 text-white hover:bg-white/20" title="Tutup Menu">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
         </svg>
-      </button>
+      </button> --}}
     </div>
 
     <!-- Navigation Menu -->
